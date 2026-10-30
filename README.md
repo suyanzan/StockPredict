@@ -85,6 +85,8 @@ CSV 請求 JSON：`{"symbol":"CUSTOM","horizon":5,"csv":"Date,Close\n..."}`。`h
 
 瀏覽／建議 API 位於 `/api/community`，包括 `stats`、`visits`、`comments` 與 Bearer 管理金鑰驗證的 `admin/comments`。私人模式的公開 API 不回傳留言內容或留言數。每次頁面載入使用唯一 ID，重試不重複計數；每個匿名瀏覽器 10 分鐘內最多送出 3 則建議。管理頁位於 `/admin`，不保存金鑰；管理回應禁止快取。
 
+站主管理頁顯示留言總筆數、未處理與已處理筆數，以及目前分類的「已載入／共幾筆」；數量涵蓋所有分頁，刪除後總數會減少。標記處理或刪除後會重新讀取資料庫計數。這些筆數僅透過驗證管理金鑰的 API 提供，公開留言與統計 API 不揭露私人留言數量。
+
 ## 專案結構
 
 網站部署方式見 [DEPLOY.md](DEPLOY.md)，附有 Dockerfile 與 Render Blueprint 設定。發布 Codex 開發環境與部署公開網站是分開的步驟。

@@ -16,6 +16,11 @@
 .admin-delete { color:#a43f35; }
 .admin-empty { padding:28px; color:#718194; }
 .admin-error { color:#b54538; background:#fff0ef; border-color:#f1c8c3; }
+.admin-counts { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:20px; }
+.admin-counts article { padding:20px; }
+.admin-counts span { display:block; color:#718194; font-size:13px; margin-bottom:10px; }
+.admin-counts strong { font-size:30px; font-variant-numeric:tabular-nums; color:#138b7d; }
+.admin-count-summary { margin:0 0 16px; color:#718194; font-size:13px; }
 @media(max-width:560px) {
   .admin-page { padding-left:16px; padding-right:16px; }
   .admin-toolbar { align-items:flex-start; flex-wrap:wrap; }

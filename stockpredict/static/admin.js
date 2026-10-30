@@ -6,6 +6,8 @@
   I18n.register({
     "zh-TW": {
       "admin.title": "私人留言與建議", "admin.intro": "只有持有管理金鑰的站主可以查看；訪客留言不會公開。",
+      "admin.counts": "私人留言筆數", "admin.totalCount": "留言總筆數", "admin.pendingCount": "未處理", "admin.handledCount": "已處理", "admin.otherCount": "其他狀態",
+      "admin.showingCount": "目前分類共 {total} 筆，已載入 {shown} 筆。", "admin.countsUnavailable": "留言已更新，但筆數暫時無法讀取，請重新讀取。",
       "admin.back": "返回網站", "admin.language": "語言", "admin.key": "管理金鑰",
       "admin.keyNote": "輸入你在 Render 設定的管理金鑰。此頁不會保存金鑰；重新整理後需再次輸入。",
       "admin.login": "查看留言", "admin.filter": "狀態", "admin.new": "未處理", "admin.handled": "已處理",
@@ -23,6 +25,8 @@
     },
     en: {
       "admin.title": "Private feedback", "admin.intro": "Only the owner with the administration key can read these messages. Feedback is not public.",
+      "admin.counts": "Private feedback counts", "admin.totalCount": "Total feedback", "admin.pendingCount": "New", "admin.handledCount": "Handled", "admin.otherCount": "Other statuses",
+      "admin.showingCount": "{total} in this category; {shown} loaded.", "admin.countsUnavailable": "Feedback was updated, but counts could not be refreshed. Please refresh.",
       "admin.back": "Back to site", "admin.language": "Language", "admin.key": "Administration key",
       "admin.keyNote": "Enter the owner key configured in Render. This page does not save it; enter it again after a reload.",
       "admin.login": "View feedback", "admin.filter": "Status", "admin.new": "New", "admin.handled": "Handled",
@@ -44,6 +48,8 @@
   let authenticated = false;
   let busy = false;
   let items = [];
+  let counts = null;
+  let filteredTotal = null;
   let cursor = null;
   let notice = null;
   let generation = 0;
@@ -63,6 +69,14 @@
     $("admin-message").textContent = notice ? t(notice.key) : "";
     $("admin-message").classList.toggle("admin-error", Boolean(notice?.error));
     $("admin-empty").hidden = !authenticated || busy || items.length > 0;
+    const formatter = new Intl.NumberFormat(I18n.getLanguage());
+    for (const key of ["total", "pending", "handled", "published"]) {
+      $("admin-count-" + key).textContent = counts ? formatter.format(counts[key]) : "—";
+    }
+    $("admin-count-other-card").hidden = !counts?.published;
+    $("admin-count-summary").textContent = filteredTotal === null ? "" : t("admin.showingCount", {
+      total: formatter.format(filteredTotal), shown: formatter.format(items.length)
+    });
     const list = $("admin-list");
     list.replaceChildren();
     if (!authenticated) return;
@@ -105,7 +119,7 @@
     generation += 1;
     activeController?.abort(); activeController = null;
     busy = false;
-    token = ""; authenticated = false; items = []; cursor = null;
+    token = ""; authenticated = false; items = []; cursor = null; counts = null; filteredTotal = null;
     $("admin-key").value = "";
   }
 
@@ -146,6 +160,7 @@
       const merged = new Map((append ? items : []).map((item) => [item.id, item]));
       for (const item of data.items) merged.set(item.id, item);
       items = [...merged.values()]; cursor = data.next_cursor;
+      applyCounts(data.counts);
       authenticated = true; $("admin-key").value = ""; notice = null;
     } catch (error) {
       if (current !== generation) return;
@@ -155,19 +170,35 @@
     } finally { if (current === generation) { busy = false; render(); } }
   }
 
+  function applyCounts(value) {
+    counts = value && ["total", "pending", "handled", "published"].every((key) => Number.isSafeInteger(value[key]) && value[key] >= 0) ? value : null;
+    const key = $("admin-filter").value === "hidden" ? "handled" : $("admin-filter").value;
+    filteredTotal = counts ? counts[key] : null;
+  }
+
   async function change(id, remove) {
     if (busy || (remove && !window.confirm(t("admin.confirmDelete")))) return;
     const current = generation;
     busy = true; notice = { key: "admin.loading" }; render();
+    let changed = false;
     try {
       await request(`/${id}`, remove ? { method: "DELETE" } : { method: "PATCH", body: JSON.stringify({ status: "hidden" }) });
       if (current !== generation) return;
       items = items.filter((item) => item.id !== id);
+      changed = true;
+      const data = await request("/counts");
+      if (current !== generation) return;
+      applyCounts(data?.counts);
+      if (!counts) throw new Error("community_unavailable");
       notice = { key: "admin.done" };
     } catch (error) {
       if (current !== generation) return;
       if (error.message === "unauthorized") forget();
-      notice = { key: `admin.error.${error.message}`, error: true }; render();
+      if (changed && authenticated) {
+        applyCounts(null);
+        notice = { key: "admin.countsUnavailable", error: true };
+      } else notice = { key: `admin.error.${error.message}`, error: true };
+      render();
     }
     finally { if (current === generation) { busy = false; render(); } }
   }

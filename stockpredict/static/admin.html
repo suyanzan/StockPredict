@@ -31,10 +31,17 @@
       </form>
     </section>
     <section id="admin-dashboard" hidden>
+      <div class="admin-counts" role="group" data-i18n-aria-label="admin.counts">
+        <article class="panel"><span data-i18n="admin.totalCount">留言總筆數</span><strong id="admin-count-total">—</strong></article>
+        <article class="panel"><span data-i18n="admin.pendingCount">未處理</span><strong id="admin-count-pending">—</strong></article>
+        <article class="panel"><span data-i18n="admin.handledCount">已處理</span><strong id="admin-count-handled">—</strong></article>
+        <article class="panel" id="admin-count-other-card" hidden><span data-i18n="admin.otherCount">其他狀態</span><strong id="admin-count-published">—</strong></article>
+      </div>
       <div class="panel admin-toolbar"><div><label for="admin-filter" data-i18n="admin.filter">狀態</label>
-        <select id="admin-filter"><option value="pending" data-i18n="admin.new">未處理</option><option value="hidden" data-i18n="admin.handled">已處理</option></select></div>
+        <select id="admin-filter"><option value="pending" data-i18n="admin.new">未處理</option><option value="hidden" data-i18n="admin.handled">已處理</option><option value="published" data-i18n="admin.otherCount">其他狀態</option></select></div>
         <div class="admin-actions"><button id="admin-refresh" class="button button-secondary" type="button" data-i18n="admin.refresh">重新讀取</button><button id="admin-logout" class="button button-secondary" type="button" data-i18n="admin.logout">登出</button></div>
       </div>
+      <p id="admin-count-summary" class="admin-count-summary" role="status"></p>
       <p id="admin-empty" class="panel admin-empty" hidden data-i18n="admin.empty">這個分類目前沒有留言。</p>
       <div id="admin-list" aria-live="polite"></div>
       <button id="admin-more" class="button button-secondary" type="button" hidden data-i18n="admin.more">載入更多</button>

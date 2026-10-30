@@ -218,8 +218,32 @@ class CommunityStore:
     def _public_comment(row) -> dict:
         return {key: row[key] for key in ("id", "name", "body", "category", "created_at")}
 
+    def _comment_counts(self, connection) -> dict:
+        counts = {"total": 0, "pending": 0, "handled": 0, "published": 0}
+        rows = self._execute(
+            connection, "SELECT status, COUNT(*) AS n FROM sp_comments GROUP BY status"
+        ).fetchall()
+        for row in rows:
+            count = int(row["n"])
+            counts["total"] += count
+            key = {"pending": "pending", "hidden": "handled", "published": "published"}.get(
+                row["status"]
+            )
+            if key:
+                counts[key] += count
+        return counts
+
+    def comment_counts(self) -> dict:
+        with self._transaction() as connection:
+            return self._comment_counts(connection)
+
     def comments(
-        self, *, status: str = "published", limit: int = 10, before: int | None = None
+        self,
+        *,
+        status: str = "published",
+        limit: int = 10,
+        before: int | None = None,
+        include_counts: bool = False,
     ) -> dict:
         with self._transaction() as connection:
             where = "status = ?" + (" AND id < ?" if before is not None else "")
@@ -231,10 +255,15 @@ class CommunityStore:
                 params,
             ).fetchall()
             items = [{**self._public_comment(row), "status": row["status"]} for row in rows[:limit]]
-            return {
+            result = {
                 "items": items,
                 "next_cursor": items[-1]["id"] if len(rows) > limit else None,
             }
+            if include_counts:
+                counts = self._comment_counts(connection)
+                result["counts"] = counts
+                result["filtered_total"] = counts["handled" if status == "hidden" else status]
+            return result
 
     def add_comment(
         self, visitor_hash: str, *, name: str, body: str, category: str, mode: str
@@ -471,7 +500,17 @@ def admin_comments(
     before: Annotated[int | None, Query(ge=1, le=MAX_ID)] = None,
 ):
     try:
-        return _required_store().comments(status=status, limit=limit, before=before)
+        return _required_store().comments(
+            status=status, limit=limit, before=before, include_counts=True
+        )
+    except StorageUnavailable:
+        raise _storage_error() from None
+
+
+@router.get("/admin/comments/counts", dependencies=[Depends(require_admin)])
+def admin_comment_counts():
+    try:
+        return {"counts": _required_store().comment_counts()}
     except StorageUnavailable:
         raise _storage_error() from None
 
