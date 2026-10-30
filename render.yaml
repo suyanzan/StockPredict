@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: stockpredict
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: false

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>StockPredict · 股價分析與趨勢預測</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="StockPredict 首頁">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="m5 19 6-7 5 4 7-10M18 6h5v5"/></svg></span>
+        <span>Stock<span class="brand-accent">Predict</span><span class="brand-version">BETA</span></span>
+      </a>
+      <nav aria-label="主導覽"><a href="#analysis" class="nav-current">分析工作台</a><a href="#method">模型說明</a></nav>
+      <span class="header-tag"><span class="status-dot"></span>研究與學習工具</span>
+    </div>
+  </header>
+
+  <main class="page" id="analysis">
+    <section class="page-intro" aria-labelledby="page-title">
+      <div><p class="eyebrow">MARKET RESEARCH WORKSPACE</p><h1 id="page-title">從歷史數據，探索未來走勢<span>。</span></h1><p class="intro-copy">股價圖表、趨勢估計與歷史回測，在同一個工作台。</p></div>
+      <div class="intro-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4Z"/><path d="m8 12 3 3 5-6"/></svg><span>看見預測，也看見誤差<br><strong>每一次估計，都附上回測結果</strong></span></div>
+    </section>
+
+    <section class="panel controls-panel" aria-label="分析設定">
+      <form id="analysis-form" novalidate>
+        <div class="form-field symbol-field"><label for="symbol">股票代碼</label><div class="input-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="symbol" name="symbol" value="2330.TW" autocomplete="off" spellcheck="false" maxlength="20" aria-describedby="symbol-help" required></div></div>
+        <div class="form-field"><label for="source">資料來源</label><select id="source" name="source"><option value="demo">示範資料（合成）</option><option value="yahoo">Yahoo 每日行情</option><option value="csv">匯入 CSV</option></select></div>
+        <div class="form-field horizon-field"><label for="horizon">預測期間</label><select id="horizon" name="horizon"><option value="5">未來 5 個平日</option><option value="10">未來 10 個平日</option><option value="20">未來 20 個平日</option></select></div>
+        <button class="button button-primary" id="analyze-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 5-6 5 3 6-9M15 5h5v5"/></svg><span>開始分析</span></button>
+      </form>
+      <div class="controls-footer"><div class="quick-symbols"><span id="symbol-help">快速選擇</span><button type="button" data-symbol="2330.TW">台積電 <span>2330</span></button><button type="button" data-symbol="0050.TW">元大台灣 50</button><button type="button" data-symbol="AAPL">Apple</button><button type="button" data-symbol="MSFT">Microsoft</button></div><span class="small-note">台股格式：2330.TW · 美股格式：AAPL</span></div>
+      <div class="csv-area" id="csv-area" hidden><label for="csv-file" class="csv-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></svg><span>選擇歷史股價 CSV <small>包含 Date、Close 欄位，至少 60 筆 · 最大 2 MB</small></span></label><input type="file" id="csv-file" accept=".csv,text/csv"><a href="#csv-help">格式說明</a></div>
+    </section>
+
+    <div id="error-message" class="notice notice-error" role="alert" hidden></div>
+    <div id="loading-message" class="loading-message" role="status" hidden><span class="spinner"></span>正在讀取資料並執行歷史回測…</div>
+    <div id="empty-state" class="panel empty-state" hidden><h2>準備好開始分析</h2><p>選擇股票與資料來源，點擊「開始分析」。示範模式無需連網即可使用。</p></div>
+
+    <div id="results" aria-busy="true" hidden>
+      <section class="security-heading" aria-labelledby="security-name"><div class="security-identity"><span class="security-icon" aria-hidden="true" id="security-initial">台</span><div><div class="security-title"><h2 id="security-name"></h2><span class="symbol-badge" id="result-symbol"></span></div><p id="result-date"></p></div></div><span class="source-badge" id="source-badge"></span></section>
+      <div id="warnings" class="warnings" aria-live="polite"></div>
+
+      <section class="metrics" aria-label="主要指標">
+        <article class="panel metric"><div class="metric-label">最新收盤價<span id="currency-label" class="currency-badge"></span></div><p class="metric-value" id="last-close">—</p><p class="metric-caption" id="day-change">—</p><svg class="metric-spark" viewBox="0 0 90 32" aria-hidden="true"><path id="metric-spark-path"/></svg></article>
+        <article class="panel metric"><div class="metric-label">期末預估變動<span class="metric-label-icon" aria-hidden="true">↗</span></div><p class="metric-value" id="forecast-change">—</p><p class="metric-caption" id="forecast-caption">—</p></article>
+        <article class="panel metric"><div class="metric-label">年化歷史波動率<span class="metric-label-icon" aria-hidden="true">≈</span></div><p class="metric-value" id="volatility">—</p><p class="metric-caption">依歷史每日報酬估算</p></article>
+        <article class="panel metric"><div class="metric-label">回測平均絕對誤差<span class="metric-label-icon" aria-hidden="true">±</span></div><p class="metric-value" id="mae">—</p><p class="metric-caption" id="mae-caption">—</p></article>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="panel chart-panel" aria-labelledby="chart-title">
+          <div class="panel-heading chart-heading"><div><h3 id="chart-title">價格走勢與預測</h3><p>以歷史收盤價為基礎的模型估計</p></div><div class="range-controls" role="group" aria-label="圖表顯示期間"><button type="button" data-range="21" aria-pressed="false">1M</button><button type="button" data-range="63" aria-pressed="false">3M</button><button type="button" data-range="126" aria-pressed="true">6M</button><button type="button" data-range="252" aria-pressed="false">1Y</button></div></div>
+          <div class="chart-legend"><span><i class="legend-line historical"></i>歷史收盤</span><span><i class="legend-line predicted"></i>預測路徑</span><span><i class="legend-band"></i>波動情境區間</span></div>
+          <div class="chart-container" id="chart-container"><svg id="price-chart" viewBox="0 0 940 370" role="img" tabindex="0" aria-label="歷史股價與預測圖表；使用左右方向鍵查看各日期價格。"></svg><div id="chart-tooltip" class="chart-tooltip" role="status" aria-live="polite" aria-atomic="true" hidden></div></div>
+          <div class="chart-footnote"><span><span class="status-dot"></span><span id="chart-point-count"></span></span><span>情境區間不代表已校準的信賴區間</span></div>
+        </section>
+
+        <aside class="panel backtest-panel" aria-labelledby="backtest-title"><div class="panel-heading"><span class="section-kicker">PERFORMANCE CHECK</span><h3 id="backtest-title">用回測檢視模型</h3><p id="backtest-description"></p></div><div class="comparison-block"><div class="comparison-item"><span>模型 MAE</span><strong id="model-mae"></strong><div class="comparison-track"><span class="model-bar" id="model-bar"></span></div></div><div class="comparison-item"><span>前日收盤基準 MAE</span><strong id="baseline-mae"></strong><div class="comparison-track"><span class="baseline-bar" id="baseline-bar"></span></div></div></div><p id="baseline-comparison" class="comparison-verdict"></p><dl class="backtest-details"><div><dt>模型方向準確率</dt><dd id="direction-accuracy"></dd></div><div><dt>均方根誤差 RMSE</dt><dd id="rmse"></dd></div><div><dt>平均絕對百分比誤差</dt><dd id="mape"></dd></div><div><dt>回測樣本數</dt><dd id="observations"></dd></div></dl><p class="backtest-note">回測每次僅使用當時可取得的歷史資料。基準模型以最新收盤價預估下一日；回測表現不保證未來結果。</p></aside>
+      </div>
+
+      <section class="panel forecast-panel" aria-labelledby="forecast-title"><div class="panel-heading forecast-heading"><div><h3 id="forecast-title">未來價格估計</h3><p>按平日排列；未排除市場休市日</p></div><button type="button" id="export-button" class="button button-secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/></svg>匯出 CSV</button></div><div class="table-scroll"><table><thead><tr><th scope="col">日期</th><th scope="col">預估收盤價</th><th scope="col">相對最新收盤</th><th scope="col">情境下緣</th><th scope="col">情境上緣</th></tr></thead><tbody id="forecast-rows"></tbody></table></div></section>
+    </div>
+
+    <section class="method-grid" id="method" aria-labelledby="method-title"><div class="method-copy"><span class="section-kicker">UNDER THE MODEL</span><h2 id="method-title">模型透明，判斷留給你。</h2><p id="model-description">使用歷史每日報酬建立迴歸模型，估計接下來的價格路徑。先從示範資料開始，也能匯入自己的歷史收盤價。</p><div class="method-tags"><span>時間序列回測</span><span>與簡單基準比較</span><span>無需 API 金鑰</span></div></div><div class="method-info"><div><span class="method-number">01</span><div><h3>先確認資料來源</h3><p>示範資料為合成序列，不是實際行情。Yahoo 提供每日資料；可能延遲或暫時無法取得。</p></div></div><div><span class="method-number">02</span><div><h3>理解區間與限制</h3><p id="interval-description">依歷史波動估計情境上下緣，僅供探索。模型未考慮新聞、財報與市場事件。</p></div></div><div id="csv-help"><span class="method-number">03</span><div><h3>帶入自己的資料</h3><p>CSV 首列使用 Date,Close，例如 2026-01-05,105.5。日期採 YYYY-MM-DD，價格須為正數，至少 60 筆。</p></div></div></div></section>
+  </main>
+  <footer class="site-footer"><span>StockPredict <span class="footer-divider">/</span> 開源股價研究工作台</span><p>預測僅供研究與學習，不構成投資建議。</p></footer>
+</body>
+</html>
