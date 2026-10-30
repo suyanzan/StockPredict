@@ -79,8 +79,8 @@ def test_current_us_session_buffer_and_taiwan_stale_history_boundary(now_text, e
     assert result["status"] == expected
     if expected == "waiting":
         assert result["reason"] == "us_session_not_closed"
-        assert result["forecast"] is None and result["backtest"] is not None
-        assert all(item["return_pct"] is None for item in result["factors"])
+        assert result["forecast"] is None and result["backtest"] is None
+        assert result["factors"] == [] and result["correlations_window"] is None
     elif expected == "unavailable":
         assert result["reason"] == "stale_history"
         assert result["forecast"] is None and result["factors"] == []
@@ -92,6 +92,47 @@ def test_future_taiwan_close_is_not_accepted_as_known_history():
         points, factors, now=datetime.fromisoformat("2026-10-29T12:00:00+08:00")
     )
     assert result["status"] == "unavailable" and result["reason"] == "incomplete_history"
+
+
+def test_pending_context_waits_without_inspecting_or_computing_old_us_data(monkeypatch):
+    points, _ = fixture_data()
+    now = datetime.fromisoformat("2026-10-30T04:14:59+08:00")
+    monkeypatch.setattr(
+        overnight, "_historical_rows", lambda *args: pytest.fail("Old US history was used")
+    )
+    context = overnight.pending_context(points, now=now)
+    assert context["status"] == "waiting"
+    assert context["reason"] == "us_session_not_closed"
+    assert context["target_date"] == "2026-10-30"
+    assert context["required_us_session_date"] == "2026-10-29"
+    assert context["forecast"] is None and context["backtest"] is None
+    assert context["factors"] == [] and context["correlations_window"] is None
+    assert overnight.build_context(points, {}, now=now) == context
+
+
+@pytest.mark.parametrize(
+    ("now_text", "pending"),
+    [
+        ("2026-10-30T04:14:59+08:00", True),
+        ("2026-10-30T04:15:00+08:00", False),
+    ],
+)
+def test_preflight_only_permits_download_after_required_us_close_buffer(now_text, pending):
+    points, _ = fixture_data()
+    context = overnight.pending_context(points, now=datetime.fromisoformat(now_text))
+    assert (context is not None) is pending
+
+
+def test_previous_us_day_does_not_replace_the_required_day_after_close():
+    points, factors = fixture_data()
+    for symbol in factors:
+        factors[symbol] = [row for row in factors[symbol] if row["date"] < "2026-10-29"]
+    assert overnight.pending_context(points, now=ready_now()) is None
+    context = overnight.build_context(points, factors, now=ready_now())
+    assert context["status"] == "unavailable" and context["reason"] == "missing_us_sessions"
+    assert context["forecast"] is None
+    assert context["factors"] == [] and context["backtest"] is None
+    assert context["correlations_window"] is None
 
 
 def test_cutoff_is_frozen_at_taiwan_open_once_open_has_passed():
@@ -121,8 +162,8 @@ def test_missing_baseline_or_us_weekday_is_unavailable_not_zero_or_stale_reuse(m
     result = overnight.build_context(points, factors, now=ready_now())
     assert result["status"] == "unavailable" and result["reason"] == "missing_us_sessions"
     assert result["forecast"] is None
-    assert all(item["return_pct"] is None for item in result["factors"])
-    assert result["backtest"] is not None
+    assert result["factors"] == [] and result["backtest"] is None
+    assert result["correlations_window"] is None
 
 
 def test_unconfirmed_us_holidays_exclude_dates_from_all_comparison_models():

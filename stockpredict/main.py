@@ -15,7 +15,7 @@ from stockpredict.data import DataSourceError, demo_data, normalize_symbol, pars
 from stockpredict.forecast import analyze
 from stockpredict.localization import Language, add_localizations, localize_error
 from stockpredict.market_data import overnight_factors
-from stockpredict.overnight import build_context
+from stockpredict.overnight import build_context, pending_context
 from stockpredict.twse import normalize_twse_symbol, twse_data
 
 STATIC = Path(__file__).parent / "static"
@@ -119,8 +119,12 @@ def _market_analysis(
         if market_context == "us_overnight":
             factor_source = "csv" if factor_data is not None else "yahoo"
             try:
-                factors = factor_data if factor_data is not None else overnight_factors()
-                result["market_context"] = build_context(points, factors)
+                pending = pending_context(points)
+                if pending is not None:
+                    result["market_context"] = pending
+                else:
+                    factors = factor_data if factor_data is not None else overnight_factors()
+                    result["market_context"] = build_context(points, factors)
             except DataSourceError as exc:
                 result["market_context"] = {
                     "status": "unavailable",

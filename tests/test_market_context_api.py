@@ -1,12 +1,14 @@
 """Opt-in US data never silently replaces or prevents the base stock analysis."""
 
 from copy import deepcopy
+from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient
 from test_overnight import fixture_data, ready_now
 
 import stockpredict.main as main
+import stockpredict.overnight as overnight
 from stockpredict.data import DataSourceError, demo_data
 
 
@@ -21,6 +23,8 @@ def real_history(monkeypatch):
     points, _ = demo_data("2330.TW")
     metadata = {"name": "聯電", "currency": "TWD", "source": "twse", "source_label": "證交所"}
     monkeypatch.setattr(main, "twse_data", lambda _: (points, metadata))
+    # These tests isolate provider/result wiring; timing is exercised separately.
+    monkeypatch.setattr(main, "pending_context", lambda _: None)
     return points
 
 
@@ -142,6 +146,9 @@ def test_api_wires_real_alignment_and_model_with_known_input_series(client, monk
     metadata = {"name": "聯電", "currency": "TWD", "source": "twse", "source_label": "Test fixture"}
     monkeypatch.setattr(main, "twse_data", lambda _: (points, metadata))
     monkeypatch.setattr(main, "overnight_factors", lambda: factors)
+    monkeypatch.setattr(
+        main, "pending_context", lambda p: overnight.pending_context(p, now=ready_now())
+    )
     monkeypatch.setattr(main, "build_context", lambda p, f: actual_builder(p, f, now=ready_now()))
     response = client.get(
         "/api/analysis",
@@ -155,3 +162,29 @@ def test_api_wires_real_alignment_and_model_with_known_input_series(client, monk
     assert context["forecast"]["base_close"] == result["summary"]["last_close"]
     assert context["backtest"]["observations"] == len(context["backtest"]["dates"])
     assert all(f["last_session"] == "2026-10-29" for f in context["factors"])
+
+
+def test_unclosed_us_session_skips_download_and_does_not_return_old_factor_data(
+    client, monkeypatch
+):
+    points, _ = fixture_data()
+    before_close = datetime.fromisoformat("2026-10-30T04:14:59+08:00")
+    metadata = {"name": "聯電", "currency": "TWD", "source": "twse", "source_label": "Test"}
+    monkeypatch.setattr(main, "twse_data", lambda _: (points, metadata))
+    monkeypatch.setattr(
+        main, "pending_context", lambda p: overnight.pending_context(p, now=before_close)
+    )
+    monkeypatch.setattr(main, "overnight_factors", lambda: pytest.fail("US session still open"))
+    monkeypatch.setattr(main, "build_context", lambda *args: pytest.fail("Old factor data used"))
+    params = {"symbol": "2303", "source": "twse"}
+    base = client.get("/api/analysis", params=params).json()
+    response = client.get("/api/analysis", params={**params, "market_context": "us_overnight"})
+    assert response.status_code == 200
+    result = response.json()
+    context = result["market_context"]
+    assert context["status"] == "waiting" and context["reason"] == "us_session_not_closed"
+    assert context["required_us_session_date"] == "2026-10-29"
+    assert context["data_source"] == "yahoo"
+    assert context["factors"] == []
+    assert context["forecast"] is context["backtest"] is context["correlations_window"] is None
+    assert result["forecast"] == base["forecast"] and result["backtest"] == base["backtest"]

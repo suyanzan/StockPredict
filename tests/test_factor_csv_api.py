@@ -1,13 +1,14 @@
 """US factor CSV imports bypass Yahoo without changing the Taiwan base model."""
 
 from copy import deepcopy
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 from test_overnight import fixture_data, ready_now
 
 import stockpredict.main as main
+import stockpredict.overnight as overnight
 from stockpredict.data import DataSourceError
 
 ENDPOINT = "/api/analysis/overnight/csv"
@@ -41,6 +42,9 @@ def imported_factors(monkeypatch):
     monkeypatch.setattr(main, "twse_data", lambda symbol: provider(symbol, "twse"))
     monkeypatch.setattr(main, "yahoo_data", lambda symbol: provider(symbol, "yahoo"))
     monkeypatch.setattr(main, "build_context", lambda p, f: builder(p, f, now=ready_now()))
+    monkeypatch.setattr(
+        main, "pending_context", lambda p: overnight.pending_context(p, now=ready_now())
+    )
     monkeypatch.setattr(main, "overnight_factors", lambda: pytest.fail("Unexpected US download"))
     return {
         "points": points,
@@ -252,3 +256,25 @@ def test_typed_yahoo_failure_retains_safe_reason_and_retry_without_leaking_text(
     assert context["forecast"] is None and payload["forecast"]
     assert "SECRET_PROVIDER_DETAIL" not in response.text
     assert "not-for-response.invalid" not in response.text
+
+
+def test_csv_does_not_supply_old_us_data_while_required_session_is_unclosed(
+    client, imported_factors, monkeypatch
+):
+    before_close = datetime.fromisoformat("2026-10-30T04:14:59+08:00")
+    monkeypatch.setattr(
+        main, "pending_context", lambda p: overnight.pending_context(p, now=before_close)
+    )
+    monkeypatch.setattr(
+        main, "build_context", lambda *args: pytest.fail("CSV factors used too soon")
+    )
+    response = client.post(ENDPOINT, json=imported_factors["body"])
+    assert response.status_code == 200, response.text
+    result = response.json()
+    context = result["market_context"]
+    assert context["data_source"] == "csv"
+    assert context["status"] == "waiting" and context["reason"] == "us_session_not_closed"
+    assert context["required_us_session_date"] == "2026-10-29"
+    assert context["factors"] == []
+    assert context["forecast"] is context["backtest"] is context["correlations_window"] is None
+    assert result["forecast"] and result["backtest"]

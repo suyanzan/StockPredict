@@ -155,10 +155,7 @@ def _backtest(rows: list[_Row], prices: np.ndarray) -> dict:
     }
 
 
-def build_context(
-    points: list[dict], factors: dict[str, list[dict]], *, now: datetime | None = None
-) -> dict:
-    """Build an optional next-weekday forecast; never fabricate future US inputs."""
+def _timing_context(points: list[dict], now: datetime | None) -> tuple[datetime, date, date, dict]:
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("now must be timezone-aware")
@@ -169,6 +166,7 @@ def build_context(
     while target.weekday() >= 5:
         target += timedelta(days=1)
     cutoff = min(now, _taiwan_time(target, 9))
+    _, sessions = _session_window(last_day, target)
     result = {
         "status": "unavailable",
         "reason": None,
@@ -179,11 +177,33 @@ def build_context(
         "factors": [],
         "backtest": None,
         "correlations_window": None,
+        "required_us_session_date": sessions[-1].isoformat() if sessions else None,
+        "available_after": _available_at(sessions[-1]).isoformat() if sessions else None,
     }
     if now >= _taiwan_time(target, 13, 30):
-        return {**result, "reason": "stale_history"}
-    if now < _taiwan_time(last_day, 13, 30):
-        return {**result, "reason": "incomplete_history"}
+        result["reason"] = "stale_history"
+    elif now < _taiwan_time(last_day, 13, 30):
+        result["reason"] = "incomplete_history"
+    elif not sessions:
+        result["reason"] = "missing_us_sessions"
+    elif any(_available_at(day) > cutoff for day in sessions):
+        result.update(status="waiting", reason="us_session_not_closed")
+    return now, last_day, target, result
+
+
+def pending_context(points: list[dict], *, now: datetime | None = None) -> dict | None:
+    """Check required US sessions before any factor download or CSV analysis."""
+    _, _, _, result = _timing_context(points, now)
+    return result if result["reason"] is not None else None
+
+
+def build_context(
+    points: list[dict], factors: dict[str, list[dict]], *, now: datetime | None = None
+) -> dict:
+    """Use the required completed US sessions; never substitute an earlier date."""
+    _, last_day, target, result = _timing_context(points, now)
+    if result["reason"] is not None:
+        return result
     try:
         mapped = {}
         for symbol in FACTORS:
@@ -196,6 +216,10 @@ def build_context(
         return {**result, "reason": "missing_factors"}
     except (ValueError, TypeError):
         return {**result, "reason": "invalid_factor_data"}
+    baseline, sessions = _session_window(last_day, target)
+    overnight = _window_returns(baseline, sessions, mapped)
+    if overnight is None:
+        return {**result, "reason": "missing_us_sessions"}
     prices = np.array([float(point["close"]) for point in points])
     rows = _historical_rows(points, prices, mapped)
     if len(rows) < MIN_ALIGNED_ROWS:
@@ -224,14 +248,6 @@ def build_context(
     ]
     result["backtest"] = _backtest(rows, prices)
 
-    baseline, sessions = _session_window(last_day, target)
-    if any(_available_at(day) > now for day in sessions):
-        return {**result, "status": "waiting", "reason": "us_session_not_closed"}
-    overnight = _window_returns(baseline, sessions, mapped)
-    if overnight is None:
-        return {**result, "reason": "missing_us_sessions"}
-    if any(_available_at(day) > cutoff for day in sessions):
-        return {**result, "status": "waiting", "reason": "us_session_not_closed"}
     features = np.r_[np.diff(np.log(prices))[-LAGS:], overnight]
     predicted_return = _fit_predict(
         np.array([row.features for row in rows]), np.array([row.target for row in rows]), features
