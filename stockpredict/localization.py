@@ -7,6 +7,9 @@ from typing import Literal
 Language = Literal["zh-TW", "en"]
 
 ERRORS_EN = {
+    "美股參考目前僅支援聯電 2303.TW 的證交所或 Yahoo 真實行情。": (
+        "US reference factors currently support only real TWSE or Yahoo prices for UMC (2303.TW)."
+    ),
     "股票代號格式無效，例如 2330.TW、0050.TW 或 AAPL。": (
         "Invalid symbol. Examples: 2330.TW, 0050.TW, or AAPL."
     ),

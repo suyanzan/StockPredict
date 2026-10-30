@@ -55,6 +55,7 @@
       </div>
       <p id="source-help" class="source-help" data-i18n="controls.twseHelp" hidden>證交所提供數字代碼的台灣上市股票與 ETF 未還原權息收盤價，不含上櫃股票。可輸入 2303 或 2303.TW；首次取得資料可能需要 20–60 秒。</p>
       <p id="daily-close-help" class="source-help" data-i18n="controls.dailyCloseHelp">當天收盤資料公布後，證交所於台北時間 15:00 後、Yahoo 於來源收盤時間 15 分鐘後納入。點擊「開始分析」更新，實際日期以「資料截至」為準。</p>
+      <div class="overnight-control"><label for="us-overnight"><input id="us-overnight" type="checkbox" form="analysis-form" aria-describedby="us-overnight-help" disabled><span data-i18n="overnight.enable">參考美股：UMC ADR 與 SOXX</span></label><p id="us-overnight-help" data-i18n="overnight.controlHelp">限聯電 2303.TW 的證交所或 Yahoo 資料。勾選後點「開始分析」，比較美股因子的一日預測與歷史回測。</p></div>
       <div class="csv-area" id="csv-area" hidden><label for="csv-file" class="csv-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></svg><span><span data-i18n="csv.choose">選擇歷史股價 CSV</span><small data-i18n="csv.requirements">包含 Date、Close 欄位，至少 60 筆 · 最大 2 MB</small></span></label><input type="file" id="csv-file" accept=".csv,text/csv"><a href="#csv-help" data-i18n="csv.formatHelp">格式說明</a></div>
     </section>
 
@@ -70,6 +71,15 @@
         <article class="panel metric"><div class="metric-label"><span data-i18n="metrics.forecast">期末預估變動</span><span class="metric-label-icon" aria-hidden="true">↗</span></div><p class="metric-value" id="forecast-change">—</p><p class="metric-caption" id="forecast-caption">—</p></article>
         <article class="panel metric"><div class="metric-label"><span data-i18n="metrics.volatility">年化歷史波動率</span><span class="metric-label-icon" aria-hidden="true">≈</span></div><p class="metric-value" id="volatility">—</p><p class="metric-caption" data-i18n="metrics.volatilityNote">依歷史每日報酬估算</p></article>
         <article class="panel metric"><div class="metric-label"><span data-i18n="metrics.mae">回測平均絕對誤差</span><span class="metric-label-icon" aria-hidden="true">±</span></div><p class="metric-value" id="mae">—</p><p class="metric-caption" id="mae-caption">—</p></article>
+      </section>
+      <section id="overnight-panel" class="panel overnight-panel" aria-labelledby="overnight-title" hidden>
+        <div class="panel-heading"><span class="section-kicker" data-i18n="overnight.kicker">跨市場參考</span><h3 id="overnight-title" data-i18n="overnight.title">聯電與隔夜美股</h3><p data-i18n="overnight.intro">以台股開盤前可用的美股報酬作為候選因子，相關程度由歷史資料計算。</p></div>
+        <p id="overnight-status" class="overnight-status" role="status"></p>
+        <div id="overnight-forecast" class="overnight-forecast" hidden><p id="overnight-target" class="overnight-subtitle"></p><div class="overnight-estimates"><div><span data-i18n="overnight.factorEstimate">跨市場模型（含美股）</span><strong id="overnight-factor-close">—</strong><small id="overnight-factor-change"></small></div><div><span data-i18n="overnight.arEstimate">原 AR(5) 一日估計</span><strong id="overnight-ar-close">—</strong><small data-i18n="overnight.currency">價格單位：新台幣</small></div></div></div>
+        <div id="overnight-factors" class="overnight-factors"></div>
+        <p id="overnight-correlation-period" class="overnight-note"></p>
+        <div id="overnight-backtest" class="overnight-backtest" hidden><h4 data-i18n="overnight.backtestTitle">相同日期的逐日回測</h4><p id="overnight-backtest-period" class="overnight-note"></p><div class="table-scroll"><table><thead><tr><th scope="col" data-i18n="overnight.model">模型</th><th scope="col" data-i18n="overnight.mae">MAE（新台幣）</th><th scope="col" data-i18n="overnight.direction">方向準確率</th></tr></thead><tbody id="overnight-backtest-rows"></tbody></table></div><p id="overnight-backtest-verdict" class="overnight-note"></p></div>
+        <details class="overnight-limitations"><summary data-i18n="overnight.limitsTitle">資料與比較方式</summary><ul><li data-i18n="overnight.limitTiming">歷史美股收盤以紐約時間 16:00 加 15 分鐘作為保守可用時間；這是對齊假設，不是實際公布時間，歷史行情也可能經後續修訂。</li><li data-i18n="overnight.limitMissing">美國休市或所需資料缺列時會跳過該日，缺價不當成零漲跌。因子只使用台北 09:00 前且查詢當下已可用的資料。</li><li data-i18n="overnight.limitFuture">美股未來漲跌尚未知，因此僅提供下一平日的額外比較；多日圖表仍採原 AR(5)。日期未排除台股休市日。</li><li data-i18n="overnight.limitCorrelation">相關係數比較對齊後的報酬率，不代表領先因果或保證預測改善；除權息與分割可能影響未還原行情。</li><li data-i18n="overnight.limitModels">跨市場模型與原 AR(5) 的訓練樣本、標準化及正則化設定不同，MAE 差異不能單獨歸因於美股因子。</li></ul></details>
       </section>
       <div class="workspace-grid">
         <section class="panel chart-panel" aria-labelledby="chart-title">

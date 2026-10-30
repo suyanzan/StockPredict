@@ -13,6 +13,7 @@
   font-synthesis:none;
 }
 
+
 * {
   box-sizing:border-box;
 }
@@ -2005,5 +2006,241 @@ textarea:focus-visible {
   }
   #feedback-submit {
     min-width:125px;
+  }
+}
+
+/* Optional one-day US market comparison for UMC. */
+.overnight-control {
+  border-top:1px solid var(--border);
+  margin-top:12px;
+  padding-top:13px;
+}
+
+.overnight-control label {
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.overnight-control input {
+  width:16px;
+  height:16px;
+  margin:2px 0 0;
+  accent-color:var(--green);
+  flex-shrink:0;
+}
+
+.overnight-control input:disabled+span {
+  color:var(--muted);
+}
+
+.overnight-control p {
+  margin:5px 0 0 25px;
+  color:#728496;
+  font-size:10px;
+}
+
+.overnight-panel {
+  margin-bottom:23px;
+  padding-bottom:2px;
+  overflow:hidden;
+}
+
+.overnight-panel .panel-heading h3 {
+  font-size:17px;
+}
+
+.overnight-panel .panel-heading p {
+  color:#728496;
+  font-size:11px;
+}
+
+.overnight-status {
+  margin:18px 23px;
+  padding:11px 13px;
+  border-radius:6px;
+  background:#f4f7fb;
+  color:#63788b;
+  font-size:12px;
+}
+
+.overnight-status[data-status="ready"] {
+  background:var(--green-soft);
+  color:#137c69;
+}
+
+.overnight-forecast {
+  margin:0 23px 19px;
+}
+
+.overnight-subtitle {
+  color:#63788b;
+  font-size:11px;
+  margin:0 0 10px;
+}
+
+.overnight-estimates {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+
+.overnight-estimates>div {
+  padding:14px 16px;
+  border:1px solid var(--border);
+  border-radius:7px;
+}
+
+.overnight-estimates span,.overnight-estimates small {
+  display:block;
+  font-size:11px;
+  color:#728496;
+}
+
+.overnight-estimates strong {
+  display:block;
+  font-size:26px;
+  font-weight:650;
+  font-variant-numeric:tabular-nums;
+}
+
+.overnight-factors {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin:0 23px 12px;
+}
+
+.overnight-factor {
+  min-width:0;
+  padding:13px 16px;
+  border-radius:7px;
+  background:#f8fafc;
+  border:1px solid #edf1f5;
+}
+
+.overnight-factor h4 {
+  margin:0 0 6px;
+  font-size:12px;
+}
+
+.overnight-factor p {
+  margin:4px 0;
+  color:#63788b;
+  font-size:11px;
+}
+
+.overnight-factor strong {
+  display:block;
+  font-size:13px;
+  margin:8px 0;
+}
+
+.overnight-factor .positive,.overnight-estimates .positive {
+  color:var(--green);
+}
+
+.overnight-factor .negative,.overnight-estimates .negative {
+  color:#d26c65;
+}
+
+.overnight-factor small {
+  display:block;
+  color:#728496;
+  font-size:10px;
+  overflow-wrap:anywhere;
+}
+
+.overnight-note {
+  color:#728496;
+  font-size:11px;
+  margin:0 0 10px;
+}
+
+#overnight-correlation-period {
+  margin:0 23px 20px;
+}
+
+.overnight-backtest {
+  margin:0 23px 20px;
+}
+
+.overnight-backtest h4 {
+  font-size:12px;
+  margin:0 0 6px;
+}
+
+.overnight-backtest .table-scroll {
+  border:1px solid var(--border);
+  border-radius:6px;
+  margin:12px 0;
+}
+
+.overnight-backtest tbody th {
+  background:transparent;
+  color:#63788b;
+  border-top:0;
+  border-bottom:1px solid #f0f3f6;
+  font-size:11px;
+}
+
+.overnight-limitations {
+  border-top:1px solid var(--border);
+  padding-top:13px;
+  margin:0 23px 20px;
+  color:#63788b;
+  font-size:11px;
+}
+
+.overnight-limitations summary {
+  cursor:pointer;
+  font-size:12px;
+}
+
+.overnight-limitations ul {
+  padding-left:18px;
+  margin:10px 0 0;
+}
+
+.overnight-limitations li+li {
+  margin-top:6px;
+}
+
+@media(max-width:600px) {
+  .overnight-control label {
+    font-size:11px;
+  }
+  .overnight-control p {
+    font-size:10px;
+  }
+  .overnight-status,.overnight-forecast,.overnight-factors,.overnight-backtest,.overnight-limitations {
+    margin-left:16px;
+    margin-right:16px;
+  }
+  #overnight-correlation-period {
+    margin-left:16px;
+    margin-right:16px;
+  }
+  .overnight-panel .panel-heading h3 {
+    font-size:15px;
+  }
+  .overnight-factors {
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+  }
+  .overnight-estimates {
+    gap:10px;
+  }
+  .overnight-estimates>div {
+    padding:12px 11px;
+  }
+  .overnight-estimates strong {
+    font-size:23px;
+  }
+  .overnight-backtest table {
+    min-width:400px;
   }
 }

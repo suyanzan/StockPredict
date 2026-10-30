@@ -199,6 +199,7 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
             "currency": currency if isinstance(currency, str) else "",
             "source": "yahoo",
             "source_label": "Yahoo Finance 每日收盤價（非即時、未還原權息）",
+            "exchange_timezone": timezone.key,
         }
     except (KeyError, TypeError, ValueError, IndexError, OverflowError) as exc:
         raise DataSourceError("Yahoo 回傳的有效資料不足或格式不符，請改用 CSV。") from exc

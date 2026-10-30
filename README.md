@@ -58,6 +58,18 @@ Date,Close
 
 本工具僅供研究與教學，不構成投資建議。
 
+### 聯電的隔夜美股參考（選用）
+
+聯電 `2303`／`2303.TW` 使用證交所或 Yahoo 真實行情時，可勾選「美股參考」，從 Yahoo 取得 **UMC ADR** 與 **SOXX 半導體 ETF** 的每日資料。這裡指台灣夜間的美股正常交易時段，不是期貨夜盤或盤後交易。預設關閉，不需要新帳號、金鑰或付費服務。
+
+新增的單日 Ridge 模型使用五個台股歷史對數報酬，加上兩項隔夜美股對數報酬。模型只對「下一個平日」另提供比較，不修改既有 AR(5) 的圖表或多日路徑，因為未來美股報酬尚未知。參考因子由資料估計，不預設強相關，也不手動固定高權重；面板列出對齊後最近最多 60 筆報酬率的相關係數、樣本數與期間。價格水準的相關與因果或領先效果不能混為一談；ADR 也可能反映台股已發生的行情。
+
+每筆台股目標日以台北 09:00 作為資訊截止，隔夜因子計算前一個台股觀測日 13:30 後至截止前的美股累積報酬。即時查詢還受查詢當下時間限制，未收盤的當晚美股不會被使用。沒有歷史公布時間日誌，因此保守假設美股交易日紐約 16:15 才可用；此時間由交易所時區處理夏令時間，提早收盤日也延後到此門檻。它不是實際逐筆公布時間，歷史行情亦可能經後續修訂，不能將這種時間對齊回測視為完整的歷史資訊版本回放。
+
+本版未導入交易所假日表。缺少應有美國平日資料（包括美國休市或資料缺漏）時，會跳過該回測樣本，或標示當前參考不可用，不將缺值補成零報酬。台股休市後跨多個美股交易日，會累積實際涵蓋區間的報酬。等待當晚收盤、歷史太少、台股資料過期或 Yahoo 限流時，面板清楚顯示狀態，原本的台股分析仍可使用。
+
+至少需要 60 組完整對齊樣本。單日模型固定 Ridge 懲罰 1.0，各次訓練只使用當時歷史前綴的均值與標準差；回測在同一批日期比較跨市場模型、原 AR(5) 與前收盤基準的 MAE，顯示相對 AR(5) 的變化，可能更差。兩模型的標準化、懲罰與訓練樣本設定也不同，差異不能單獨歸因於美股因子。因子資料於伺服器快取 5 分鐘、失敗冷卻 60 秒；不回傳過期因子來冒充更新成功。
+
 ## 驗證
 
 ```bash
@@ -78,12 +90,15 @@ node --check stockpredict/static/admin.js
 GET  /api/health
 GET  /api/analysis?symbol=2330.TW&source=demo&horizon=5
 GET  /api/analysis?symbol=2303&source=twse&horizon=5
+GET  /api/analysis?symbol=2303&source=twse&market_context=us_overnight
 POST /api/analysis/csv
 ```
 
 CSV 請求 JSON：`{"symbol":"CUSTOM","horizon":5,"csv":"Date,Close\n..."}`。`horizon` 為 1–30；網頁提供 5、10、20 日快捷選項。回應包含 `history`、`forecast`、`summary`、`backtest`、`model`、`warnings`；百分比欄位單位為百分點（例如 2.5 表示 2.5%）。CSV 不推測幣別。
 
 行情 API 支援 `lang=zh-TW`／`lang=en`（CSV 也用 query 參數）。成功回應另含 `locales` 的雙語說明，前端切換語言時保留既有數值、輸入與圖表，不重新下載行情。語言偏好保存在瀏覽器；也可用 `?lang=en` 開啟。
+
+`market_context=us_overnight` 僅支援真實來源的聯電，回應另含獨立的 `market_context`。其 `status` 為 `ready`、`waiting` 或 `unavailable`，提供因子交易日、假設可用時間、相關性及同期間回測；尚無可用預測時 `forecast` 為 `null`。省略參數不讀取美股參考資料。前端可用 `/?symbol=2303.TW&source=twse&market_context=us_overnight` 預選此功能。
 
 瀏覽／建議 API 位於 `/api/community`，包括 `stats`、`visits`、`comments` 與 Bearer 管理金鑰驗證的 `admin/comments`。私人模式的公開 API 不回傳留言內容或留言數。每次頁面載入使用唯一 ID，重試不重複計數；每個匿名瀏覽器 10 分鐘內最多送出 3 則建議。管理頁位於 `/admin`，不保存金鑰；管理回應禁止快取。
 
@@ -101,6 +116,8 @@ stockpredict/
   community.py  # 持久化瀏覽統計與站主私人建議
   localization.py # 行情 API 的中英文說明與錯誤訊息
   forecast.py   # 預測、回測與數值驗證
+  overnight.py  # 聯電隔夜因子對齊、相關性與單日比較回測
+  market_data.py # 固定美股參考來源的有界快取與失敗處理
   static/       # HTML、CSS、JavaScript 介面
 tests/          # 自動化測試
 ```

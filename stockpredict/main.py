@@ -12,6 +12,8 @@ from stockpredict.community import router as community_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
 from stockpredict.localization import Language, add_localizations, localize_error
+from stockpredict.market_data import overnight_factors
+from stockpredict.overnight import build_context
 from stockpredict.twse import normalize_twse_symbol, twse_data
 
 STATIC = Path(__file__).parent / "static"
@@ -70,12 +72,32 @@ def analysis(
     source: Literal["demo", "yahoo", "twse"] = "demo",
     horizon: Annotated[int, Query(ge=1, le=30)] = 5,
     lang: Language = "zh-TW",
+    market_context: Literal["none", "us_overnight"] = "none",
 ):
     try:
         symbol = normalize_twse_symbol(symbol) if source == "twse" else normalize_symbol(symbol)
+        if market_context == "us_overnight" and symbol == "2303":
+            symbol = "2303.TW"
+        if market_context == "us_overnight" and (symbol != "2303.TW" or source == "demo"):
+            raise ValueError("美股參考目前僅支援聯電 2303.TW 的證交所或 Yahoo 真實行情。")
         providers = {"demo": demo_data, "yahoo": yahoo_data, "twse": twse_data}
         points, metadata = providers[source](symbol)
         result = analyze(points, horizon)
+        if market_context == "us_overnight":
+            try:
+                result["market_context"] = build_context(points, overnight_factors())
+            except DataSourceError:
+                result["market_context"] = {
+                    "status": "unavailable",
+                    "reason": "data_unavailable",
+                    "target_date": result["forecast"][0]["date"],
+                    "decision_cutoff": None,
+                    "assumed_availability": True,
+                    "forecast": None,
+                    "factors": [],
+                    "backtest": None,
+                    "correlations_window": None,
+                }
         if source == "demo":
             result["warnings"].insert(0, "所有價格、預測與回測均來自合成資料，不代表真實市場表現。")
         else:

@@ -6,6 +6,7 @@
   const source = $("source");
   const symbol = $("symbol");
   const horizon = $("horizon");
+  const overnightControl = $("us-overnight");
   const I18n = window.StockPredictI18n;
   const t = I18n.t;
   let number;
@@ -76,6 +77,13 @@
   function updateSourceUi() {
     $("csv-area").hidden = source.value !== "csv";
     $("source-help").hidden = source.value !== "twse";
+    const supported = supportsOvernight();
+    overnightControl.disabled = !supported;
+    if (!supported) overnightControl.checked = false;
+  }
+
+  function supportsOvernight(value = symbol.value, selectedSource = source.value) {
+    return ["twse", "yahoo"].includes(selectedSource) && /^2303(?:\.TW)?$/.test(value.trim().toUpperCase());
   }
 
   function setLoading(active, requestedSource = loadingSource) {
@@ -103,6 +111,7 @@
     const requestedSource = source.value;
     const requestedHorizon = horizon.value;
     const requestedLanguage = I18n.getLanguage();
+    const requestedContext = overnightControl.checked && supportsOvernight(requestedSymbol, requestedSource);
     if (request) request.abort();
     const controller = new AbortController();
     request = controller;
@@ -113,10 +122,12 @@
     twseRetry = null;
     $("empty-state").hidden = true;
     setLoading(true, requestedSource);
-    const timeout = window.setTimeout(() => controller.abort(), requestedSource === "twse" ? 60000 : 35000);
+    const timeout = window.setTimeout(() => controller.abort(), requestedContext ? 90000 : requestedSource === "twse" ? 60000 : 35000);
     try {
       const fromCsv = requestedSource === "csv";
-      const endpoint = fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon, lang: requestedLanguage })}`;
+      const params = new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon, lang: requestedLanguage });
+      if (requestedContext) params.set("market_context", "us_overnight");
+      const endpoint = fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${params}`;
       const response = await fetch(endpoint, fromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ symbol: requestedSymbol, horizon: Number(requestedHorizon), csv: csvText }),
@@ -189,6 +200,90 @@
     $("metric-spark-path").setAttribute("d", recent.map((close, index) => `${index ? "L" : "M"}${2 + index / Math.max(recent.length - 1, 1) * 86},${28 - (close - low) / spread * 24}`).join(" "));
     renderForecast();
     renderChart();
+    renderOvernight();
+  }
+
+  function formatInstant(value) {
+    const instant = typeof value === "string" ? new Date(value) : null;
+    return instant && Number.isFinite(instant.getTime()) ? new Intl.DateTimeFormat(I18n.getLanguage(), {
+      year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+      hourCycle: "h23", timeZone: "Asia/Taipei",
+    }).format(instant) : "—";
+  }
+
+  function renderOvernight() {
+    const context = analysis.market_context;
+    const panel = $("overnight-panel");
+    panel.hidden = !context;
+    if (!context) return;
+    const status = ["ready", "waiting"].includes(context.status) ? context.status : "unavailable";
+    const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history"];
+    const reason = reasonKeys.includes(context.reason) ? ` ${t(`overnight.reason.${context.reason}`)}` : "";
+    text("overnight-status", `${t(`overnight.status.${status}`)}${reason}`);
+    $("overnight-status").dataset.status = status;
+    const estimate = context.forecast;
+    const originalEstimate = analysis.forecast?.[0]?.close;
+    const ready = status === "ready" && Number.isFinite(estimate?.close) && Number.isFinite(originalEstimate);
+    $("overnight-forecast").hidden = !ready;
+    if (ready) {
+      text("overnight-target", t("overnight.target", { date: estimate.date || context.target_date || "—" }));
+      text("overnight-factor-close", format(estimate.close));
+      text("overnight-ar-close", format(originalEstimate));
+      text("overnight-factor-change", t("overnight.change", { change: percent(estimate.change_pct, true) }));
+      changeClass($("overnight-factor-change"), estimate.change_pct);
+    }
+    const factors = Array.isArray(context.factors) ? context.factors : [];
+    const cards = $("overnight-factors");
+    cards.replaceChildren();
+    for (const symbolName of ["UMC", "SOXX"]) {
+      const factor = factors.find((item) => item?.symbol === symbolName) || {};
+      const card = document.createElement("article");
+      card.className = "overnight-factor";
+      const heading = document.createElement("h4");
+      heading.textContent = t(symbolName === "UMC" ? "overnight.factor.umc" : "overnight.factor.soxx");
+      const sessions = document.createElement("p");
+      sessions.textContent = t("overnight.sessions", { first: factor.first_session || "—", last: factor.last_session || "—" });
+      const change = document.createElement("strong");
+      change.textContent = t("overnight.return", { value: percent(factor.return_pct, true) });
+      changeClass(change, factor.return_pct);
+      const correlation = document.createElement("p");
+      const coefficient = Number.isFinite(factor.correlation) && Math.abs(factor.correlation) <= 1 ? format(factor.correlation) : "—";
+      correlation.textContent = t("overnight.correlation", { value: coefficient, count: Number.isInteger(factor.samples) && factor.samples >= 0 ? factor.samples : "—" });
+      const available = document.createElement("small");
+      available.textContent = t("overnight.available", { time: formatInstant(factor.available_at) });
+      card.append(heading, sessions, change, correlation, available);
+      cards.append(card);
+    }
+    const correlationWindow = context.correlations_window;
+    text("overnight-correlation-period", correlationWindow ? t("overnight.correlationPeriod", {
+      start: correlationWindow.start || "—", end: correlationWindow.end || "—", count: Number.isInteger(correlationWindow.samples) ? correlationWindow.samples : "—",
+    }) : "");
+    const backtest = context.backtest;
+    $("overnight-backtest").hidden = !backtest;
+    if (!backtest) return;
+    text("overnight-backtest-period", t("overnight.backtestPeriod", {
+      start: backtest.start || "—", end: backtest.end || "—", count: Number.isInteger(backtest.observations) ? backtest.observations : "—",
+    }));
+    const rows = $("overnight-backtest-rows");
+    rows.replaceChildren();
+    for (const [key, mae, direction] of [
+      ["overnight.factorModel", backtest.factor_mae, backtest.factor_direction_accuracy_pct],
+      ["overnight.arModel", backtest.ar_mae, backtest.ar_direction_accuracy_pct],
+      ["overnight.baselineModel", backtest.baseline_mae, backtest.baseline_direction_accuracy_pct],
+    ]) {
+      const row = document.createElement("tr");
+      const label = document.createElement("th");
+      label.scope = "row";
+      label.textContent = t(key);
+      const error = document.createElement("td");
+      error.textContent = format(mae);
+      const accuracy = document.createElement("td");
+      accuracy.textContent = percent(direction);
+      row.append(label, error, accuracy);
+      rows.append(row);
+    }
+    const improved = Number.isFinite(backtest.improvement_pct) && backtest.improvement_pct > 0;
+    text("overnight-backtest-verdict", improved ? t("overnight.improved", { value: percent(backtest.improvement_pct) }) : t("overnight.notImproved"));
   }
 
   function renderWarnings() {
@@ -343,6 +438,7 @@
 
   form.addEventListener("submit", (event) => { event.preventDefault(); runAnalysis(); });
   source.addEventListener("change", updateSourceUi);
+  symbol.addEventListener("input", updateSourceUi);
   $("twse-retry").addEventListener("click", () => {
     if (!twseRetry) return;
     symbol.value = twseRetry.symbol;
@@ -373,6 +469,7 @@
       csvText = await file.text();
       if (!csvText.trim()) { csvText = null; showError({ key: "error.csvEmpty" }); return; }
       source.value = "csv";
+      updateSourceUi();
       runAnalysis();
     } catch { showError({ key: "error.csvRead" }); }
   });
@@ -408,6 +505,7 @@
   if (initialSymbol && /^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$/.test(initialSymbol)) symbol.value = initialSymbol;
   if (["demo", "yahoo", "twse"].includes(initial.get("source"))) source.value = initial.get("source");
   if (["5", "10", "20"].includes(initial.get("horizon"))) horizon.value = initial.get("horizon");
+  if (initial.get("market_context") === "us_overnight" && supportsOvernight()) overnightControl.checked = true;
   I18n.subscribe(() => {
     updateFormatters();
     if (analysis) renderResults();
