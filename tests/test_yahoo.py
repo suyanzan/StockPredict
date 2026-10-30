@@ -2,6 +2,7 @@
 
 import json
 from datetime import date, datetime, time, timedelta, timezone
+from email.message import Message
 from io import BytesIO
 from urllib.error import HTTPError, URLError
 from zoneinfo import ZoneInfo
@@ -90,14 +91,25 @@ def test_yahoo_uses_safe_strings_for_display_metadata(
     assert metadata["currency"] == expected_currency
 
 
-@pytest.mark.parametrize("code", [403, 404, 429, 500])
-def test_yahoo_http_errors_become_safe_actionable_errors(monkeypatch, code):
+@pytest.mark.parametrize(
+    ("code", "reason"),
+    [
+        (401, "us_access_denied"),
+        (403, "us_access_denied"),
+        (404, "us_unavailable"),
+        (429, "us_rate_limited"),
+        (500, "us_unavailable"),
+    ],
+)
+def test_yahoo_http_errors_become_safe_actionable_errors(monkeypatch, code, reason):
     def unavailable(request, timeout):
         raise HTTPError(request.full_url, code, "upstream failed", None, None)
 
     monkeypatch.setattr(data, "urlopen", unavailable)
-    with pytest.raises(data.DataSourceError, match="Yahoo"):
+    with pytest.raises(data.DataSourceError, match="Yahoo") as caught:
         data.yahoo_data("AAPL")
+    assert caught.value.code == reason and caught.value.http_status == code
+    assert caught.value.retry_after == (300 if code == 429 else None)
 
 
 def test_yahoo_connection_failure_becomes_data_source_error(monkeypatch):
@@ -105,8 +117,10 @@ def test_yahoo_connection_failure_becomes_data_source_error(monkeypatch):
         raise URLError("network unavailable")
 
     monkeypatch.setattr(data, "urlopen", unavailable)
-    with pytest.raises(data.DataSourceError, match="Yahoo"):
+    with pytest.raises(data.DataSourceError, match="Yahoo") as caught:
         data.yahoo_data("AAPL")
+    assert caught.value.code == "us_connection_failed"
+    assert caught.value.http_status is None and caught.value.retry_after is None
 
 
 @pytest.mark.parametrize(
@@ -126,8 +140,65 @@ def test_yahoo_connection_failure_becomes_data_source_error(monkeypatch):
 )
 def test_yahoo_rejects_invalid_or_empty_responses(monkeypatch, payload):
     mock_response(monkeypatch, payload)
-    with pytest.raises(data.DataSourceError):
+    with pytest.raises(data.DataSourceError) as caught:
         data.yahoo_data("AAPL")
+    assert caught.value.code == "us_invalid_data"
+
+
+def test_data_source_error_preserves_strings_and_bounds_diagnostic_fields():
+    original = data.DataSourceError("Application-owned safe error")
+    assert str(original) == "Application-owned safe error"
+    assert original.code == "data_unavailable"
+    assert original.http_status is None and original.retry_after is None
+    invalid = data.DataSourceError("Safe message", code=["untrusted"], http_status=True)
+    assert invalid.code == "data_unavailable" and invalid.http_status is None
+    assert data.DataSourceError("", retry_after=-10).retry_after == 1
+    assert data.DataSourceError("", retry_after=10**100).retry_after == 86400
+    assert data.DataSourceError("", retry_after="123").retry_after is None
+
+
+@pytest.mark.parametrize(
+    ("header", "expected"),
+    [
+        (None, 300),
+        ("garbage", 300),
+        ("0", 60),
+        ("1", 60),
+        ("60", 60),
+        ("000180", 180),
+        ("900", 900),
+        ("999999", 86400),
+        ("9" * 5000, 86400),
+        ("Sat, 31 Oct 2026 02:05:01 GMT", 301),
+        ("Sat, 31 Oct 2026 01:00:00 GMT", 60),
+        ("Sat, 31 Oct 2026 02:05:00", 300),
+    ],
+)
+def test_yahoo_rate_limit_uses_bounded_retry_hint_without_retrying(monkeypatch, header, expected):
+    now = datetime(2026, 10, 31, 2, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr(data, "_now", lambda tz: now.astimezone(tz))
+    calls = []
+
+    def limited(request, timeout):
+        calls.append(request.full_url)
+        headers = Message()
+        if header is not None:
+            headers["Retry-After"] = header
+        raise HTTPError(request.full_url, 429, "Do not serialize upstream text", headers, None)
+
+    monkeypatch.setattr(data, "urlopen", limited)
+    with pytest.raises(data.DataSourceError) as caught:
+        data.yahoo_data("UMC")
+    assert caught.value.code == "us_rate_limited"
+    assert caught.value.retry_after == expected and len(calls) == 1
+    assert "Do not serialize" not in str(caught.value)
+
+
+def test_yahoo_malformed_json_is_invalid_data_not_a_connection_failure(monkeypatch):
+    monkeypatch.setattr(data, "urlopen", lambda *args, **kwargs: BytesIO(b"not json"))
+    with pytest.raises(data.DataSourceError) as caught:
+        data.yahoo_data("UMC")
+    assert caught.value.code == "us_invalid_data"
 
 
 @pytest.mark.parametrize("field", ["close", "timestamp"])

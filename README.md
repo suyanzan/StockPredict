@@ -68,7 +68,17 @@ Date,Close
 
 本版未導入交易所假日表。缺少應有美國平日資料（包括美國休市或資料缺漏）時，會跳過該回測樣本，或標示當前參考不可用，不將缺值補成零報酬。台股休市後跨多個美股交易日，會累積實際涵蓋區間的報酬。等待當晚收盤、歷史太少、台股資料過期或 Yahoo 限流時，面板清楚顯示狀態，原本的台股分析仍可使用。
 
-至少需要 60 組完整對齊樣本。單日模型固定 Ridge 懲罰 1.0，各次訓練只使用當時歷史前綴的均值與標準差；回測在同一批日期比較跨市場模型、原 AR(5) 與前收盤基準的 MAE，顯示相對 AR(5) 的變化，可能更差。兩模型的標準化、懲罰與訓練樣本設定也不同，差異不能單獨歸因於美股因子。因子資料於伺服器快取 5 分鐘、失敗冷卻 60 秒；不回傳過期因子來冒充更新成功。
+至少需要 60 組完整對齊樣本。單日模型固定 Ridge 懲罰 1.0，各次訓練只使用當時歷史前綴的均值與標準差；回測在同一批日期比較跨市場模型、原 AR(5) 與前收盤基準的 MAE，顯示相對 AR(5) 的變化，可能更差。兩模型的標準化、懲罰與訓練樣本設定也不同，差異不能單獨歸因於美股因子。因子資料於伺服器快取 5 分鐘；一般失敗冷卻 60 秒，Yahoo HTTP 429 預設冷卻 300 秒，並遵守有效的 `Retry-After`（至少 60 秒、最多 24 小時）。冷卻期間不重試，不回傳過期因子冒充更新成功。
+
+#### Yahoo 限流與美股 CSV 備援
+
+Render 可能收到 Yahoo HTTP 429，即使其他電腦仍能取得行情。介面會區分限流、拒絕存取、連線失敗與格式錯誤，並顯示剩餘冷卻秒數；反覆重新整理不會解除供應商的限制。本工具不透過換 IP、換網域或密集重試規避限流，也不需要為此重新設定 Neon 金鑰。
+
+想先使用原模型，可取消「參考美股」，主股票來源維持「證交所（上市）」。若要繼續比較美股因子，勾選後將**美股資料來源**切換為 CSV，分別選擇 **UMC ADR** 與 **SOXX** 的歷史檔案，再點「開始分析」。這個選項與主股票的 CSV 匯入不同；主股票仍由證交所或 Yahoo 提供。
+
+兩份檔案均使用 `Date,Close`，日期為美國紐約交易日、價格為對應標的的美元收盤價，至少 60 筆、最多 5,000 筆、每份最多 2 MB；建議提供至少 120 筆以取得足夠對齊樣本。接受標準 Yahoo CSV 的額外欄位，但只採 `Close`，請勿誤用 `Adj Close` 或其他標的。CSV 的來源、幣別、正確股票及權息處理由使用者確認，網站不會從檔案內容推定身分。
+
+CSV 模式不向 Yahoo 下載美股因子，也不將檔案存到伺服器磁碟、資料庫或瀏覽器儲存空間；檔案內容只用於本次請求。切回 Yahoo 才使用自動下載。結果明確標示因子來源，檔案缺少最新必要美股收盤資料時仍會顯示等待或缺日，不沿用舊價、不自動切回 Yahoo。
 
 ## 驗證
 
@@ -91,6 +101,7 @@ GET  /api/health
 GET  /api/analysis?symbol=2330.TW&source=demo&horizon=5
 GET  /api/analysis?symbol=2303&source=twse&horizon=5
 GET  /api/analysis?symbol=2303&source=twse&market_context=us_overnight
+POST /api/analysis/overnight/csv
 POST /api/analysis/csv
 ```
 
@@ -99,6 +110,8 @@ CSV 請求 JSON：`{"symbol":"CUSTOM","horizon":5,"csv":"Date,Close\n..."}`。`h
 行情 API 支援 `lang=zh-TW`／`lang=en`（CSV 也用 query 參數）。成功回應另含 `locales` 的雙語說明，前端切換語言時保留既有數值、輸入與圖表，不重新下載行情。語言偏好保存在瀏覽器；也可用 `?lang=en` 開啟。
 
 `market_context=us_overnight` 僅支援真實來源的聯電，回應另含獨立的 `market_context`。其 `status` 為 `ready`、`waiting` 或 `unavailable`，提供因子交易日、假設可用時間、相關性及同期間回測；尚無可用預測時 `forecast` 為 `null`。省略參數不讀取美股參考資料。前端可用 `/?symbol=2303.TW&source=twse&market_context=us_overnight` 預選此功能。
+
+美股 CSV 請求 JSON：`{"symbol":"2303.TW","source":"twse","horizon":5,"umc_csv":"Date,Close\n...","soxx_csv":"Date,Close\n..."}`，同樣接受 `lang`。兩份 CSV 在讀取主股票行情前驗證；錯誤回應不包含原始 CSV。`market_context.data_source` 區分 `yahoo`／`csv`。自動模式失敗時 `reason` 使用白名單原因碼，另提供安全的 `http_status` 與 `retry_after_seconds`，不輸出上游回應內容、原始例外或連線資訊。
 
 瀏覽／建議 API 位於 `/api/community`，包括 `stats`、`visits`、`comments` 與 Bearer 管理金鑰驗證的 `admin/comments`。私人模式的公開 API 不回傳留言內容或留言數。每次頁面載入使用唯一 ID，重試不重複計數；每個匿名瀏覽器 10 分鐘內最多送出 3 則建議。管理頁位於 `/admin`，不保存金鑰；管理回應禁止快取。
 

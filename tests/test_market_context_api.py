@@ -64,7 +64,7 @@ def test_factor_result_is_separate_from_base_forecasts(client, real_history, mon
     assert response.status_code == 200
     assert response.headers["cache-control"] == "no-store"
     result = response.json()
-    assert result["market_context"] == context
+    assert result["market_context"] == {**context, "data_source": "yahoo"}
     for key in ("forecast", "backtest", "history", "summary", "as_of"):
         assert result[key] == base[key]
     assert result["model"]["name"] == "Ridge AR(5)"

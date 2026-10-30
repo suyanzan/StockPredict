@@ -7,6 +7,7 @@
   const symbol = $("symbol");
   const horizon = $("horizon");
   const overnightControl = $("us-overnight");
+  const factorSource = $("us-factor-source");
   const I18n = window.StockPredictI18n;
   const t = I18n.t;
   let number;
@@ -36,6 +37,7 @@
   let errorState = null;
   let loading = false;
   let loadingSource = source.value;
+  const factorFiles = { UMC: { text: null, name: "", state: "empty", version: 0 }, SOXX: { text: null, name: "", state: "empty", version: 0 } };
 
   function presentation() {
     return analysis?.locales?.[I18n.getLanguage()] || analysis;
@@ -80,10 +82,58 @@
     const supported = supportsOvernight();
     overnightControl.disabled = !supported;
     if (!supported) overnightControl.checked = false;
+    updateFactorFilesUi();
   }
 
   function supportsOvernight(value = symbol.value, selectedSource = source.value) {
     return ["twse", "yahoo"].includes(selectedSource) && /^2303(?:\.TW)?$/.test(value.trim().toUpperCase());
+  }
+
+  function updateFactorFilesUi() {
+    const active = overnightControl.checked && supportsOvernight();
+    $("us-factor-options").hidden = !active;
+    factorSource.disabled = !active;
+    $("us-factor-files").hidden = factorSource.value !== "csv";
+    for (const code of ["UMC", "SOXX"]) {
+      const id = code.toLowerCase();
+      $(`${id}-csv-file`).disabled = !active || factorSource.value !== "csv";
+      const file = factorFiles[code];
+      const key = file.state === "ready" ? "overnight.csvLoaded" : file.state === "reading" ? "overnight.csvReading" : file.state === "empty" ? "overnight.csvNotSelected" : file.state;
+      $(`${id}-csv-status`).textContent = t(key, { symbol: code, name: file.name });
+    }
+  }
+
+  async function readFactorFile(code, event) {
+    const state = factorFiles[code];
+    const version = ++state.version;
+    state.text = null;
+    const file = event.target.files[0];
+    state.name = file?.name || "";
+    state.state = file ? "reading" : "empty";
+    updateFactorFilesUi();
+    if (!file) return;
+    if (file.size > 2_000_000) {
+      state.state = "overnight.csvTooLarge";
+      updateFactorFilesUi();
+      showError({ key: state.state });
+      return;
+    }
+    try {
+      const contents = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer());
+      if (state.version !== version) return;
+      if (!contents.trim()) {
+        state.state = "overnight.csvEmpty";
+        showError({ key: state.state });
+      } else {
+        state.text = contents;
+        state.state = "ready";
+      }
+    } catch {
+      if (state.version !== version) return;
+      state.state = "overnight.csvRead";
+      showError({ key: state.state });
+    }
+    updateFactorFilesUi();
   }
 
   function setLoading(active, requestedSource = loadingSource) {
@@ -112,6 +162,14 @@
     const requestedHorizon = horizon.value;
     const requestedLanguage = I18n.getLanguage();
     const requestedContext = overnightControl.checked && supportsOvernight(requestedSymbol, requestedSource);
+    const factorsFromCsv = requestedContext && factorSource.value === "csv";
+    const requestedFactors = { UMC: factorFiles.UMC.text, SOXX: factorFiles.SOXX.text };
+    if (factorsFromCsv && (!requestedFactors.UMC || !requestedFactors.SOXX)) {
+      const reading = Object.values(factorFiles).some((file) => file.state === "reading");
+      showError({ key: reading ? "overnight.csvReading" : "overnight.csvRequired" });
+      $(requestedFactors.UMC ? "soxx-csv-file" : "umc-csv-file").focus();
+      return;
+    }
     if (request) request.abort();
     const controller = new AbortController();
     request = controller;
@@ -127,8 +185,12 @@
       const fromCsv = requestedSource === "csv";
       const params = new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon, lang: requestedLanguage });
       if (requestedContext) params.set("market_context", "us_overnight");
-      const endpoint = fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${params}`;
-      const response = await fetch(endpoint, fromCsv ? {
+      const endpoint = factorsFromCsv ? `/api/analysis/overnight/csv?${new URLSearchParams({ lang: requestedLanguage })}` : fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${params}`;
+      const response = await fetch(endpoint, factorsFromCsv ? {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol: requestedSymbol, source: requestedSource, horizon: Number(requestedHorizon), umc_csv: requestedFactors.UMC, soxx_csv: requestedFactors.SOXX }),
+        signal: controller.signal,
+      } : fromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ symbol: requestedSymbol, horizon: Number(requestedHorizon), csv: csvText }),
         signal: controller.signal,
@@ -217,10 +279,15 @@
     panel.hidden = !context;
     if (!context) return;
     const status = ["ready", "waiting"].includes(context.status) ? context.status : "unavailable";
-    const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history"];
+    const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy"];
     const reason = reasonKeys.includes(context.reason) ? ` ${t(`overnight.reason.${context.reason}`)}` : "";
     text("overnight-status", `${t(`overnight.status.${status}`)}${reason}`);
     $("overnight-status").dataset.status = status;
+    text("overnight-data-source", t(context.data_source === "csv" ? "overnight.dataSourceCsv" : "overnight.dataSourceYahoo"));
+    const retrySeconds = Number.isFinite(context.retry_after_seconds) && context.retry_after_seconds > 0 ? Math.ceil(context.retry_after_seconds) : null;
+    text("overnight-retry-help", retrySeconds ? t("overnight.retryHelp", { seconds: retrySeconds }) : "");
+    $("overnight-retry-help").hidden = !retrySeconds;
+    $("overnight-csv-switch").hidden = context.data_source === "csv" || status !== "unavailable" || !["data_unavailable", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy"].includes(context.reason);
     const estimate = context.forecast;
     const originalEstimate = analysis.forecast?.[0]?.close;
     const ready = status === "ready" && Number.isFinite(estimate?.close) && Number.isFinite(originalEstimate);
@@ -439,6 +506,20 @@
   form.addEventListener("submit", (event) => { event.preventDefault(); runAnalysis(); });
   source.addEventListener("change", updateSourceUi);
   symbol.addEventListener("input", updateSourceUi);
+  overnightControl.addEventListener("change", updateFactorFilesUi);
+  factorSource.addEventListener("change", updateFactorFilesUi);
+  $("umc-csv-file").addEventListener("change", (event) => readFactorFile("UMC", event));
+  $("soxx-csv-file").addEventListener("change", (event) => readFactorFile("SOXX", event));
+  $("overnight-csv-switch").addEventListener("click", () => {
+    if (!analysis || analysis.symbol !== "2303.TW") return;
+    symbol.value = analysis.symbol;
+    source.value = ["twse", "yahoo"].includes(analysis.source) ? analysis.source : "twse";
+    overnightControl.checked = true;
+    factorSource.value = "csv";
+    updateSourceUi();
+    factorSource.scrollIntoView({ behavior: "smooth", block: "center" });
+    $("umc-csv-file").focus({ preventScroll: true });
+  });
   $("twse-retry").addEventListener("click", () => {
     if (!twseRetry) return;
     symbol.value = twseRetry.symbol;
@@ -508,6 +589,7 @@
   if (initial.get("market_context") === "us_overnight" && supportsOvernight()) overnightControl.checked = true;
   I18n.subscribe(() => {
     updateFormatters();
+    updateFactorFilesUi();
     if (analysis) renderResults();
     if (errorState) renderError();
     setLoading(loading, loadingSource);

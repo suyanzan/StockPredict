@@ -7,6 +7,9 @@ from typing import Literal
 Language = Literal["zh-TW", "en"]
 
 ERRORS_EN = {
+    "請檢查股票代碼、資料來源、預測期間與兩份 CSV（每份上限 2 MB）。": (
+        "Check the symbol, price source, forecast horizon, and both CSV files (up to 2 MB each)."
+    ),
     "美股參考目前僅支援聯電 2303.TW 的證交所或 Yahoo 真實行情。": (
         "US reference factors currently support only real TWSE or Yahoo prices for UMC (2303.TW)."
     ),
@@ -96,6 +99,9 @@ SOURCE_LABELS_EN = {
 def localize_error(message: str, lang: Language) -> str:
     if lang == "zh-TW":
         return message
+    csv_factor = re.fullmatch(r"(UMC|SOXX) CSV：(.*)", message)
+    if csv_factor:
+        return f"{csv_factor[1]} CSV: {localize_error(csv_factor[2], lang)}"
     if message in ERRORS_EN:
         return ERRORS_EN[message]
     match = re.fullmatch(r"第 (\d+) 列欄位數與標題不符。", message)

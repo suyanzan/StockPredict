@@ -6,6 +6,8 @@ import io
 import json
 import re
 from datetime import date, datetime, timedelta
+from email.utils import parsedate_to_datetime
+from math import ceil
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
@@ -23,10 +25,38 @@ EXAMPLES = {
     "MSFT": ("Microsoft", "USD", 430.0),
 }
 YAHOO_CLOSE_DELAY = timedelta(minutes=15)
+DATA_ERROR_CODES = frozenset(
+    {
+        "data_unavailable",
+        "us_rate_limited",
+        "us_access_denied",
+        "us_connection_failed",
+        "us_invalid_data",
+        "us_unavailable",
+        "us_busy",
+    }
+)
 
 
 class DataSourceError(Exception):
-    """Expected upstream failure; safe, user-facing message only."""
+    """Expected upstream failure with bounded, safe fields for public diagnostics."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "data_unavailable",
+        http_status: int | None = None,
+        retry_after: int | None = None,
+    ):
+        super().__init__(message)
+        self.code = (
+            code if isinstance(code, str) and code in DATA_ERROR_CODES else "data_unavailable"
+        )
+        self.http_status = (
+            http_status if type(http_status) is int and 100 <= http_status <= 599 else None
+        )
+        self.retry_after = max(1, min(retry_after, 86400)) if type(retry_after) is int else None
 
 
 def normalize_symbol(symbol: str) -> str:
@@ -105,6 +135,25 @@ def _now(timezone: ZoneInfo) -> datetime:
     return datetime.now(timezone)
 
 
+def _retry_after(value: str | None) -> int | None:
+    """Parse a provider's retry hint without forwarding arbitrary header text."""
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    if re.fullmatch(r"[0-9]+", value):
+        # Large digit strings still mean wait at least our bounded maximum;
+        # do not pass them to int(), which limits excessive decimal input.
+        digits = value.lstrip("0") or "0"
+        return min(int(digits), 86400) if len(digits) <= 5 else 86400
+    try:
+        when = parsedate_to_datetime(value)
+        if when.tzinfo is None or when.utcoffset() is None:
+            return None
+        return max(0, min(ceil((when - _now(ZoneInfo("UTC"))).total_seconds()), 86400))
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
 def _today_session_completed(meta: dict, now: datetime) -> bool:
     """Use Yahoo's session schedule, including early closes and DST.
 
@@ -137,19 +186,36 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
         with urlopen(request, timeout=15) as response:
             payload = json.loads(response.read(5_000_001))
     except HTTPError as exc:
+        retry_after = _retry_after(exc.headers.get("Retry-After") if exc.headers else None)
         if exc.code == 429:
             raise DataSourceError(
                 "Yahoo 已限流（HTTP 429）。上市台股請改用「證交所每日行情」，"
-                "美股請稍後重試或匯入 CSV。"
+                "美股請稍後重試或匯入 CSV。",
+                code="us_rate_limited",
+                http_status=429,
+                retry_after=max(60, retry_after if retry_after is not None else 300),
             ) from exc
         if exc.code == 404:
-            raise DataSourceError("Yahoo 找不到此股票代號，請確認市場後綴。") from exc
+            raise DataSourceError(
+                "Yahoo 找不到此股票代號，請確認市場後綴。",
+                code="us_unavailable",
+                http_status=404,
+                retry_after=retry_after,
+            ) from exc
         raise DataSourceError(
-            f"Yahoo 行情暫時無法使用（HTTP {exc.code}），請改用 CSV 或示範資料。"
+            f"Yahoo 行情暫時無法使用（HTTP {exc.code}），請改用 CSV 或示範資料。",
+            code="us_access_denied" if exc.code in (401, 403) else "us_unavailable",
+            http_status=exc.code,
+            retry_after=retry_after,
         ) from exc
-    except (URLError, TimeoutError, OSError, ValueError) as exc:
+    except (URLError, TimeoutError, OSError) as exc:
         raise DataSourceError(
-            "無法取得 Yahoo 行情，請檢查網路設定，或改用 CSV／示範資料。"
+            "無法取得 Yahoo 行情，請檢查網路設定，或改用 CSV／示範資料。",
+            code="us_connection_failed",
+        ) from exc
+    except ValueError as exc:
+        raise DataSourceError(
+            "Yahoo 回傳的有效資料不足或格式不符，請改用 CSV。", code="us_invalid_data"
         ) from exc
     try:
         if not isinstance(payload, dict):
@@ -202,4 +268,6 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
             "exchange_timezone": timezone.key,
         }
     except (KeyError, TypeError, ValueError, IndexError, OverflowError) as exc:
-        raise DataSourceError("Yahoo 回傳的有效資料不足或格式不符，請改用 CSV。") from exc
+        raise DataSourceError(
+            "Yahoo 回傳的有效資料不足或格式不符，請改用 CSV。", code="us_invalid_data"
+        ) from exc
