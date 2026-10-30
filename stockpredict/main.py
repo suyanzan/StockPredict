@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
+from stockpredict.twse import normalize_twse_symbol, twse_data
 
 STATIC = Path(__file__).parent / "static"
 app = FastAPI(title="StockPredict", version="0.1.0")
@@ -35,18 +36,19 @@ def health():
 @app.get("/api/analysis")
 def analysis(
     symbol: Annotated[str, Query(min_length=1, max_length=20)] = "2330.TW",
-    source: Literal["demo", "yahoo"] = "demo",
+    source: Literal["demo", "yahoo", "twse"] = "demo",
     horizon: Annotated[int, Query(ge=1, le=30)] = 5,
 ):
     try:
-        symbol = normalize_symbol(symbol)
-        points, metadata = demo_data(symbol) if source == "demo" else yahoo_data(symbol)
+        symbol = normalize_twse_symbol(symbol) if source == "twse" else normalize_symbol(symbol)
+        providers = {"demo": demo_data, "yahoo": yahoo_data, "twse": twse_data}
+        points, metadata = providers[source](symbol)
         result = analyze(points, horizon)
         if source == "demo":
             result["warnings"].insert(0, "所有價格、預測與回測均來自合成資料，不代表真實市場表現。")
         else:
             result["warnings"].insert(
-                0, "Yahoo 每日收盤價未還原權息，除權息與股票分割可能扭曲報酬與回測。"
+                0, "每日收盤價未還原權息，除權息與股票分割可能扭曲報酬與回測。"
             )
         return {"symbol": symbol, **metadata, **result}
     except ValueError as exc:

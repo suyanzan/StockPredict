@@ -111,6 +111,11 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
         with urlopen(request, timeout=15) as response:
             payload = json.loads(response.read(5_000_001))
     except HTTPError as exc:
+        if exc.code == 429:
+            raise DataSourceError(
+                "Yahoo 已限流（HTTP 429）。上市台股請改用「證交所每日行情」，"
+                "美股請稍後重試或匯入 CSV。"
+            ) from exc
         if exc.code == 404:
             raise DataSourceError("Yahoo 找不到此股票代號，請確認市場後綴。") from exc
         raise DataSourceError(

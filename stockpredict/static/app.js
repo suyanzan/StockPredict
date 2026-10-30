@@ -11,6 +11,7 @@
   const dateLabel = new Intl.DateTimeFormat("zh-TW", { month: "2-digit", day: "2-digit", timeZone: "UTC" });
   const weekday = new Intl.DateTimeFormat("zh-TW", { weekday: "short", timeZone: "UTC" });
   const ns = "http://www.w3.org/2000/svg";
+  const sourceNames = { demo: "示範資料", yahoo: "Yahoo 每日行情", twse: "證交所每日行情", csv: "CSV 匯入" };
   let analysis = null;
   let csvText = null;
   let range = 126;
@@ -19,6 +20,7 @@
   let chartPoints = [];
   let chartGeometry = null;
   let chartIndex = -1;
+  let twseRetry = null;
 
   const format = (value) => Number.isFinite(value) ? number.format(value) : "—";
   const percent = (value, signed = false) => Number.isFinite(value) ? `${signed && value > 0 ? "+" : ""}${format(value)}%` : "—";
@@ -29,13 +31,21 @@
   };
   const text = (id, value) => { $(id).textContent = value; };
 
-  function showError(message) {
-    $("error-message").textContent = `${message}${analysis ? " 畫面保留上次成功的分析結果。" : ""}`;
+  function showError(message, retry = null) {
+    text("error-text", `${message}${analysis ? ` 畫面保留上次成功的 ${analysis.symbol}（${analysis.source_label}）分析結果。` : ""}`);
+    twseRetry = retry;
+    $("twse-retry").hidden = !retry;
     $("error-message").hidden = false;
   }
 
-  function setLoading(loading) {
+  function updateSourceUi() {
+    $("csv-area").hidden = source.value !== "csv";
+    $("source-help").hidden = source.value !== "twse";
+  }
+
+  function setLoading(loading, requestedSource = source.value) {
     $("loading-message").hidden = !loading;
+    text("loading-text", requestedSource === "twse" ? "正在取得證交所歷史資料並執行回測；首次讀取可能需要 20–60 秒，請稍候…" : "正在讀取資料並執行歷史回測…");
     $("analyze-button").disabled = loading;
     $("analyze-button").querySelector("span").textContent = loading ? "分析中…" : "開始分析";
     $("results").setAttribute("aria-busy", String(loading));
@@ -53,20 +63,24 @@
     if (!requestedSymbol) { showError("請輸入股票代碼，例如 2330.TW 或 AAPL。"); symbol.focus(); return; }
     if (source.value === "csv" && csvText === null) { showError("請先選擇包含 Date、Close 欄位的 CSV 檔案。"); $("csv-file").focus(); return; }
     symbol.value = requestedSymbol;
+    const requestedSource = source.value;
+    const requestedHorizon = horizon.value;
     if (request) request.abort();
     const controller = new AbortController();
     request = controller;
     const currentRequest = ++requestId;
     $("error-message").hidden = true;
+    $("twse-retry").hidden = true;
+    twseRetry = null;
     $("empty-state").hidden = true;
-    setLoading(true);
-    const timeout = window.setTimeout(() => controller.abort(), 35000);
+    setLoading(true, requestedSource);
+    const timeout = window.setTimeout(() => controller.abort(), requestedSource === "twse" ? 60000 : 35000);
     try {
-      const fromCsv = source.value === "csv";
-      const endpoint = fromCsv ? "/api/analysis/csv" : `/api/analysis?${new URLSearchParams({ symbol: requestedSymbol, source: source.value, horizon: horizon.value })}`;
+      const fromCsv = requestedSource === "csv";
+      const endpoint = fromCsv ? "/api/analysis/csv" : `/api/analysis?${new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon })}`;
       const response = await fetch(endpoint, fromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: requestedSymbol, horizon: Number(horizon.value), csv: csvText }),
+        body: JSON.stringify({ symbol: requestedSymbol, horizon: Number(requestedHorizon), csv: csvText }),
         signal: controller.signal,
       } : { signal: controller.signal });
       let body;
@@ -77,7 +91,9 @@
       renderResults();
     } catch (error) {
       if (currentRequest !== requestId) return;
-      showError(error.name === "AbortError" ? "資料讀取逾時，請重試或使用示範資料與 CSV 匯入。" : error.message || "無法連線至服務，請稍後重試。");
+      const retry = requestedSource === "yahoo" && /^\d{4,6}(?:\.TW)?$/.test(requestedSymbol) ? { symbol: requestedSymbol, horizon: requestedHorizon } : null;
+      const message = error.name === "AbortError" ? "資料讀取逾時，請重試或使用示範資料與 CSV 匯入。" : error.message || "無法連線至服務，請稍後重試。";
+      showError(`${requestedSymbol}（${sourceNames[requestedSource]}）：${message}`, retry);
       $("empty-state").hidden = Boolean(analysis);
     } finally {
       window.clearTimeout(timeout);
@@ -274,10 +290,21 @@
   }
 
   form.addEventListener("submit", (event) => { event.preventDefault(); runAnalysis(); });
-  source.addEventListener("change", () => { $("csv-area").hidden = source.value !== "csv"; });
+  source.addEventListener("change", updateSourceUi);
+  $("twse-retry").addEventListener("click", () => {
+    if (!twseRetry) return;
+    symbol.value = twseRetry.symbol;
+    horizon.value = twseRetry.horizon;
+    source.value = "twse";
+    updateSourceUi();
+    runAnalysis();
+  });
   document.querySelectorAll("[data-symbol]").forEach((button) => button.addEventListener("click", () => {
     symbol.value = button.dataset.symbol;
-    if (source.value === "csv") { source.value = "demo"; $("csv-area").hidden = true; }
+    if (button.dataset.source) source.value = button.dataset.source;
+    else if (source.value === "csv") source.value = "demo";
+    else if (source.value === "twse" && !/^\d{4,6}\.TW$/.test(button.dataset.symbol)) source.value = "yahoo";
+    updateSourceUi();
     runAnalysis();
   }));
   document.querySelectorAll("[data-range]").forEach((button) => button.addEventListener("click", () => {
@@ -324,5 +351,11 @@
   });
   let resizeTimer;
   window.addEventListener("resize", () => { window.clearTimeout(resizeTimer); resizeTimer = window.setTimeout(renderChart, 100); });
+  const initial = new URLSearchParams(window.location.search);
+  const initialSymbol = initial.get("symbol")?.trim().toUpperCase();
+  if (initialSymbol && /^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$/.test(initialSymbol)) symbol.value = initialSymbol;
+  if (["demo", "yahoo", "twse"].includes(initial.get("source"))) source.value = initial.get("source");
+  if (["5", "10", "20"].includes(initial.get("horizon"))) horizon.value = initial.get("horizon");
+  updateSourceUi();
   runAnalysis();
 })();

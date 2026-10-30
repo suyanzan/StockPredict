@@ -37,6 +37,12 @@ docker build --secret id=proxy_ca,src=/etc/ssl/certs/ca-certificates.crt -t stoc
 
 ## 上線驗證
 
+### 更新既有 Render 服務
+
+本專案的 `render.yaml` 設定 `autoDeploy: false`，因此 GitHub 推送新版本後，既有網站仍需在 Render 服務頁右上角選 **Manual Deploy → Deploy latest commit**。待該筆部署顯示 Live，再重新整理瀏覽器。
+
+台股新增「證交所（上市）」來源後，可點「聯電 2303」或在代碼填 `2303.TW` 並選證交所。需從實際 Render 服務驗證 `www.twse.com.tw` 可用；開發環境的網路設定不會改變 Render 的對外連線。若上游無法使用，保留明確錯誤，CSV 仍可分析。
+
 - `/api/health` 回傳 `{"status":"ok"}`。
 - 首頁載入且圖表可見；示範資料清楚標示「非真實行情」。
 - 台股與美股快速切換可用，預測期間變更後筆數正確。
