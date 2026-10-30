@@ -22,6 +22,7 @@ EXAMPLES = {
     "AAPL": ("Apple", "USD", 220.0),
     "MSFT": ("Microsoft", "USD", 430.0),
 }
+YAHOO_CLOSE_DELAY = timedelta(minutes=15)
 
 
 class DataSourceError(Exception):
@@ -100,6 +101,31 @@ def parse_csv(text: str) -> list[dict]:
     return points
 
 
+def _now(timezone: ZoneInfo) -> datetime:
+    return datetime.now(timezone)
+
+
+def _today_session_completed(meta: dict, now: datetime) -> bool:
+    """Use Yahoo's session schedule, including early closes and DST.
+
+    Wait an additional fifteen minutes before trusting a same-day daily candle.
+    Missing, malformed, or another day's schedule keeps today's candle excluded.
+    This is a conservative application policy, not a promise of publication time.
+    """
+    try:
+        if not isinstance(meta.get("exchangeTimezoneName"), str):
+            return False
+        session = meta["currentTradingPeriod"]["regular"]
+        start, end = session["start"], session["end"]
+        if type(start) is not int or type(end) is not int or not 0 < end - start <= 86400:
+            return False
+        opens = datetime.fromtimestamp(start, now.tzinfo)
+        closes = datetime.fromtimestamp(end, now.tzinfo)
+        return opens.date() == closes.date() == now.date() and now >= closes + YAHOO_CLOSE_DELAY
+    except (KeyError, TypeError, ValueError, OverflowError, OSError):
+        return False
+
+
 def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
     """Daily closes, never silently fall back to synthetic data on failure."""
     url = (
@@ -148,12 +174,14 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
             raise ValueError("invalid upstream price series")
         if len(closes) != len(timestamps):
             raise ValueError("mismatched timestamps and prices")
-        # Today's candle may still be in flight. Keep completed previous dates only.
-        today = datetime.now(timezone).date()
+        # A daily candle is mutable while the exchange session is in progress.
+        now = _now(timezone)
+        today = now.date()
+        include_today = _today_session_completed(meta, now)
         points = []
         for timestamp, close in zip(timestamps, closes):
             day = datetime.fromtimestamp(timestamp, timezone).date()
-            if close is not None and day < today:
+            if close is not None and (day < today or (include_today and day == today)):
                 points.append({"date": day.isoformat(), "close": float(close)})
         points.sort(key=lambda p: p["date"])
         validate_points(points)

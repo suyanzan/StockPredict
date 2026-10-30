@@ -23,7 +23,10 @@ app.include_router(community_router)
 @app.middleware("http")
 async def community_cache_policy(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith("/api/community") or request.url.path == "/admin":
+    if (
+        request.url.path.startswith(("/api/community", "/api/analysis"))
+        or request.url.path == "/admin"
+    ):
         response.headers["Cache-Control"] = "no-store"
     if request.url.path == "/admin":
         response.headers["X-Robots-Tag"] = "noindex, nofollow"

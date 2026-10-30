@@ -21,6 +21,8 @@ from stockpredict.data import DataSourceError
 from stockpredict.forecast import MAX_PRICE, MIN_PRICE, validate_points
 
 CACHE_TTL = 3600
+PENDING_CLOSE_TTL = 300
+CLOSE_AVAILABLE_HOUR = 15
 ERROR_TTL = 60
 MAX_CACHE_SIZE = 64
 REQUEST_INTERVAL = 3.0
@@ -28,14 +30,14 @@ MAX_MONTHS = 6
 TARGET_POINTS = 100
 
 _LOCK = Lock()
-_CACHE: OrderedDict[str, tuple[date, float, list[dict], dict]] = OrderedDict()
+_CACHE: OrderedDict[str, tuple[tuple[date, bool], float, list[dict], dict]] = OrderedDict()
 _ERRORS: OrderedDict[str, tuple[float, str]] = OrderedDict()
 _last_request_at: float | None = None
 _sleep = time.sleep
 
 
-def _today() -> date:
-    return datetime.now(ZoneInfo("Asia/Taipei")).date()
+def _now() -> datetime:
+    return datetime.now(ZoneInfo("Asia/Taipei"))
 
 
 def _clock() -> float:
@@ -107,7 +109,9 @@ def _fetch_month(code: str, month: date) -> dict:
         raise DataSourceError("證交所回應格式無法解析，請稍後重試或匯入 CSV。") from exc
 
 
-def _parse_month(payload: dict, code: str, month: date, today: date) -> tuple[list[dict], str]:
+def _parse_month(
+    payload: dict, code: str, month: date, today: date, include_today: bool = False
+) -> tuple[list[dict], str]:
     try:
         status = payload.get("stat")
         if isinstance(status, str) and "沒有符合條件的資料" in status:
@@ -134,7 +138,7 @@ def _parse_month(payload: dict, code: str, month: date, today: date) -> tuple[li
             if day.year != month.year or day.month != month.month or day in seen:
                 raise ValueError("duplicate or mismatched month")
             seen.add(day)
-            if day >= today:
+            if day > today or (day == today and not include_today):
                 continue
             close_text = row[close_index]
             if close_text == "--":  # Suspended/no-trade sessions have no usable close.
@@ -170,16 +174,22 @@ def twse_data(symbol: str) -> tuple[list[dict], dict]:
 
     A single lock coalesces concurrent downloads, including aliases 2303 and
     2303.TW, and enforces a process-wide three-second request spacing. Successful
-    results live one hour (never across a Taipei date change); failures cool down
-    for a minute. Neither cache is persisted or allowed to grow without bound.
+    Today's official row is eligible only after our conservative 15:00 Taipei
+    cutoff, which is a product policy rather than a guaranteed publication time.
+    Results live one hour, except weekday post-cutoff results still missing
+    today's close, which live five minutes. The cutoff and midnight invalidate
+    successful caches; failures cool down for a minute. Neither cache persists.
     """
     normalized = normalize_twse_symbol(symbol)
     code = normalized.removesuffix(".TW")
     with _fetch_slot():
-        today = _today()
+        local_now = _now()
+        today = local_now.date()
+        include_today = local_now.hour >= CLOSE_AVAILABLE_HOUR
+        cache_period = (today, include_today)
         now = _clock()
         cached = _CACHE.get(code)
-        if cached and cached[0] == today and cached[1] > now:
+        if cached and cached[0] == cache_period and cached[1] > now:
             _CACHE.move_to_end(code)
             return deepcopy((cached[2], cached[3]))
         failure = _ERRORS.get(code)
@@ -191,7 +201,9 @@ def twse_data(symbol: str) -> tuple[list[dict], dict]:
             points = []
             name = ""
             for _ in range(MAX_MONTHS):
-                monthly, monthly_name = _parse_month(_fetch_month(code, month), code, month, today)
+                monthly, monthly_name = _parse_month(
+                    _fetch_month(code, month), code, month, today, include_today
+                )
                 points.extend(monthly)
                 if not name and monthly_name:
                     name = monthly_name
@@ -212,7 +224,11 @@ def twse_data(symbol: str) -> tuple[list[dict], dict]:
                 "source": "twse",
                 "source_label": "台灣證券交易所每日收盤價（未還原權息）",
             }
-            _remember(_CACHE, code, (today, _clock() + CACHE_TTL, points, metadata))
+            awaiting_close = (
+                include_today and today.weekday() < 5 and points[-1]["date"] != today.isoformat()
+            )
+            ttl = PENDING_CLOSE_TTL if awaiting_close else CACHE_TTL
+            _remember(_CACHE, code, (cache_period, _clock() + ttl, points, metadata))
             _ERRORS.pop(code, None)
             return deepcopy((points, metadata))
         except DataSourceError as exc:

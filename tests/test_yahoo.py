@@ -1,9 +1,10 @@
 """Verify the optional adapter's data/error handling using captured-format fixtures."""
 
 import json
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from io import BytesIO
 from urllib.error import HTTPError, URLError
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -156,3 +157,100 @@ def test_yahoo_rejects_non_finite_closes(monkeypatch):
     mock_response(monkeypatch, payload)
     with pytest.raises(data.DataSourceError):
         data.yahoo_data("AAPL")
+
+
+def session_payload(monkeypatch, now_text, close_time="16:00"):
+    """A daily candle supplied during and after the exchange's regular session."""
+    zone = ZoneInfo("America/New_York")
+    now = datetime.fromisoformat(now_text)
+    local_day = now.astimezone(zone).date()
+    monkeypatch.setattr(data, "_now", lambda tz: now.astimezone(tz))
+    payload = yahoo_payload()
+    result = payload["chart"]["result"][0]
+    opens = datetime.combine(local_day, time(9, 30), zone)
+    closes = datetime.combine(local_day, time.fromisoformat(close_time), zone)
+    result["timestamp"][-1] = int(opens.timestamp())
+    result["meta"].update(
+        exchangeTimezoneName=zone.key,
+        currentTradingPeriod={
+            "regular": {"start": int(opens.timestamp()), "end": int(closes.timestamp())}
+        },
+    )
+    return payload
+
+
+@pytest.mark.parametrize(
+    ("now_text", "close_time", "included"),
+    [
+        ("2026-10-30T15:00:00-04:00", "16:00", False),  # Still trading.
+        ("2026-10-30T16:14:59-04:00", "16:00", False),
+        ("2026-10-30T16:15:00-04:00", "16:00", True),
+        ("2026-11-27T13:14:59-05:00", "13:00", False),  # Half-day session.
+        ("2026-11-27T13:15:00-05:00", "13:00", True),
+        ("2026-03-06T21:15:00+00:00", "16:00", True),  # Before DST.
+        ("2026-03-09T20:15:00+00:00", "16:00", True),  # After DST.
+        ("2026-10-31T04:15:00+08:00", "16:00", True),  # Taipei's next day.
+    ],
+)
+def test_yahoo_only_includes_today_after_reported_session_and_buffer(
+    monkeypatch, now_text, close_time, included
+):
+    payload = session_payload(monkeypatch, now_text, close_time)
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("AAPL")
+    assert (points[-1]["close"] == 999.0) is included
+    assert len(points) == 69 + included
+
+
+@pytest.mark.parametrize(
+    "schedule",
+    [
+        None,
+        [],
+        {},
+        {"regular": None},
+        {"regular": {"start": 1, "end": True}},
+        {"regular": {"start": 1, "end": "1793390400"}},
+        {"regular": {"start": 2, "end": 1}},
+        {"regular": {"start": 1, "end": 2}},  # Another day.
+        {"regular": {"start": 1, "end": 10**30}},
+    ],
+)
+def test_yahoo_unconfirmed_session_keeps_previous_closes(monkeypatch, schedule):
+    payload = session_payload(monkeypatch, "2026-10-30T17:00:00-04:00")
+    payload["chart"]["result"][0]["meta"]["currentTradingPeriod"] = schedule
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("AAPL")
+    assert len(points) == 69 and points[-1]["close"] == 169.0
+
+
+def test_yahoo_missing_timezone_does_not_confirm_today(monkeypatch):
+    payload = session_payload(monkeypatch, "2026-10-30T17:00:00-04:00")
+    del payload["chart"]["result"][0]["meta"]["exchangeTimezoneName"]
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("AAPL")
+    assert points[-1]["close"] == 169.0
+
+
+def test_yahoo_published_close_never_includes_future_candle(monkeypatch):
+    payload = session_payload(monkeypatch, "2026-10-30T17:00:00-04:00")
+    result = payload["chart"]["result"][0]
+    result["timestamp"].append(result["timestamp"][-1] + 86400)
+    result["indicators"]["quote"][0]["close"].append(555.0)
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("AAPL")
+    assert points[-1] == {"date": "2026-10-30", "close": 999.0}
+
+
+@pytest.mark.parametrize("missing", ["null", "absent"])
+def test_yahoo_does_not_invent_close_if_not_published(monkeypatch, missing):
+    payload = session_payload(monkeypatch, "2026-10-30T17:00:00-04:00")
+    result = payload["chart"]["result"][0]
+    if missing == "null":
+        result["indicators"]["quote"][0]["close"][-1] = None
+    else:
+        result["timestamp"].pop()
+        result["indicators"]["quote"][0]["close"].pop()
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("AAPL")
+    assert len(points) == 69 and points[-1]["close"] == 169.0

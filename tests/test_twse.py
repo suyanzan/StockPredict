@@ -3,11 +3,12 @@
 import calendar
 import json
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date
+from datetime import date, datetime
 from io import BytesIO
 from threading import Barrier
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlparse
+from zoneinfo import ZoneInfo
 
 import pytest
 from fastapi.testclient import TestClient
@@ -17,6 +18,11 @@ import stockpredict.twse as twse
 from stockpredict.data import DataSourceError
 
 TODAY = date(2026, 10, 30)
+TAIPEI = ZoneInfo("Asia/Taipei")
+
+
+def taipei_time(day=TODAY, hour=14, minute=59, second=59):
+    return datetime(day.year, day.month, day.day, hour, minute, second, tzinfo=TAIPEI)
 
 
 def month_payload(month, symbol="2303"):
@@ -37,7 +43,7 @@ def month_payload(month, symbol="2303"):
 @pytest.fixture(autouse=True)
 def isolated_cache(monkeypatch):
     twse.clear_cache()
-    monkeypatch.setattr(twse, "_today", lambda: TODAY)
+    monkeypatch.setattr(twse, "_now", taipei_time)
     monkeypatch.setattr(twse, "_sleep", lambda seconds: None)
     clock = {"now": 10_000.0}
     monkeypatch.setattr(twse, "_clock", lambda: clock["now"])
@@ -71,6 +77,53 @@ def test_completed_closes_are_sorted_and_current_date_excluded(monkeypatch):
     assert points == sorted(points, key=lambda p: p["date"])
     assert all(date.fromisoformat(p["date"]) < TODAY and p["close"] == 1234.5 for p in points)
     assert meta["source"] == "twse" and meta["currency"] == "TWD" and meta["name"] == "聯電"
+
+
+@pytest.mark.parametrize(
+    "hour,minute,second,expected_last",
+    [(14, 59, 59, "2026-10-29"), (15, 0, 0, "2026-10-30"), (23, 59, 59, "2026-10-30")],
+)
+def test_today_is_eligible_only_at_the_taipei_cutoff(
+    monkeypatch, hour, minute, second, expected_last
+):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(hour=hour, minute=minute, second=second))
+    mock_months(monkeypatch)
+    points, _ = twse.twse_data("2303")
+    assert points[-1] == {"date": expected_last, "close": 1234.5}
+
+
+def test_post_cutoff_does_not_invent_today_when_official_row_is_missing(monkeypatch):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(hour=15))
+
+    def unpublished(payload):
+        payload["data"] = [row for row in payload["data"] if row[0] != "115/10/30"]
+        return payload
+
+    mock_months(monkeypatch, unpublished)
+    points, _ = twse.twse_data("2303")
+    assert points[-1]["date"] == "2026-10-29"
+
+
+def test_future_rows_still_excluded_after_cutoff(monkeypatch):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(date(2026, 10, 29), hour=15))
+    mock_months(monkeypatch)
+    points, _ = twse.twse_data("2303")
+    assert points[-1]["date"] == "2026-10-29"
+    assert all(point["date"] <= "2026-10-29" for point in points)
+
+
+def test_suspended_today_is_not_treated_as_a_close_after_cutoff(monkeypatch):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(hour=15))
+
+    def suspended(payload):
+        for row in payload["data"]:
+            if row[0] == "115/10/30":
+                row[1] = "--"
+        return payload
+
+    mock_months(monkeypatch, suspended)
+    points, _ = twse.twse_data("2303")
+    assert points[-1]["date"] == "2026-10-29"
 
 
 @pytest.mark.parametrize("symbol", ["2303", "2303.TW", "0050", "0050.tw", "006208"])
@@ -185,11 +238,59 @@ def test_alias_cache_expires_in_one_hour(monkeypatch, isolated_cache):
     assert twse.twse_data("2303") == original and len(calls) == count * 2
 
 
+def test_pre_cutoff_cache_cannot_hide_newly_eligible_close(monkeypatch):
+    calls = mock_months(monkeypatch)
+    before, _ = twse.twse_data("2303")
+    count = len(calls)
+    assert before[-1]["date"] == "2026-10-29"
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(hour=15, minute=0, second=0))
+    after, _ = twse.twse_data("2303")
+    assert after[-1]["date"] == "2026-10-30" and len(calls) > count
+
+
+def test_missing_weekday_close_rechecks_after_five_minutes_then_caches_hour(
+    monkeypatch, isolated_cache
+):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(hour=15))
+    published = {"today": False}
+
+    def official_rows(payload):
+        if not published["today"]:
+            payload["data"] = [row for row in payload["data"] if row[0] != "115/10/30"]
+        return payload
+
+    calls = mock_months(monkeypatch, official_rows)
+    old, _ = twse.twse_data("2303")
+    count = len(calls)
+    assert old[-1]["date"] == "2026-10-29"
+    published["today"] = True
+    isolated_cache["now"] += 299
+    assert twse.twse_data("2303")[0] == old and len(calls) == count
+    isolated_cache["now"] += 1
+    fresh = twse.twse_data("2303")[0]
+    assert fresh[-1]["date"] == "2026-10-30" and len(calls) == count * 2
+    isolated_cache["now"] += 3599
+    assert twse.twse_data("2303")[0] == fresh and len(calls) == count * 2
+    isolated_cache["now"] += 1
+    twse.twse_data("2303")
+    assert len(calls) == count * 3
+
+
+def test_weekend_missing_today_keeps_hour_cache(monkeypatch, isolated_cache):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(date(2026, 10, 31), hour=15))
+    calls = mock_months(monkeypatch)
+    points, _ = twse.twse_data("2303")
+    assert points[-1]["date"] == "2026-10-30"
+    count = len(calls)
+    isolated_cache["now"] += 301
+    assert twse.twse_data("2303")[0] == points and len(calls) == count
+
+
 def test_cache_does_not_survive_taipei_midnight(monkeypatch):
     calls = mock_months(monkeypatch)
     twse.twse_data("2303")
     count = len(calls)
-    monkeypatch.setattr(twse, "_today", lambda: date(2026, 10, 31))
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(date(2026, 10, 31), hour=0))
     twse.twse_data("2303")
     assert len(calls) > count
 
@@ -302,6 +403,21 @@ def test_api_canonical_symbol_and_cache_reused_for_new_horizon(monkeypatch):
     assert short.json()["source"] == long.json()["source"] == "twse"
     assert len(short.json()["forecast"]) == 5 and len(long.json()["forecast"]) == 20
     assert len(calls) == count
+
+
+def test_api_uses_published_today_close_as_forecast_origin_after_cutoff(monkeypatch):
+    monkeypatch.setattr(twse, "_now", lambda: taipei_time(hour=15))
+    mock_months(monkeypatch)
+    with TestClient(main.app) as client:
+        response = client.get(
+            "/api/analysis", params={"source": "twse", "symbol": "2303", "horizon": 5}
+        )
+    assert response.status_code == 200, response.text
+    assert response.headers["cache-control"] == "no-store"
+    result = response.json()
+    assert result["source"] == "twse" and result["as_of"] == "2026-10-30"
+    assert result["history"][-1] == {"date": "2026-10-30", "close": 1234.5}
+    assert result["forecast"][0]["date"] == "2026-11-02"
 
 
 def test_api_does_not_silently_switch_to_yahoo_or_demo(monkeypatch):
