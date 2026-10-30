@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>StockPredict · 私人建議管理</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/admin.css">
+  <script src="/static/i18n.js" defer></script>
+  <script src="/static/admin.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="/">Stock<span class="brand-accent">Predict</span></a>
+    <div class="admin-header-actions"><a href="/" data-i18n="admin.back">返回網站</a>
+      <label for="language-select" class="sr-only" data-i18n="admin.language">語言</label>
+      <select id="language-select"><option value="zh-TW">繁體中文</option><option value="en">English</option></select>
+    </div>
+  </div></header>
+  <main class="page admin-page">
+    <section class="page-intro"><div><p class="eyebrow">OWNER WORKSPACE</p>
+      <h1 data-i18n="admin.title">私人留言與建議</h1><p data-i18n="admin.intro">只有持有管理金鑰的站主可以查看；訪客留言不會公開。</p></div></section>
+    <p id="admin-message" class="notice" role="status" hidden></p>
+    <section class="panel admin-auth" id="admin-auth">
+      <form id="admin-login-form">
+        <label for="admin-key" data-i18n="admin.key">管理金鑰</label>
+        <input id="admin-key" type="password" minlength="32" maxlength="1024" autocomplete="off" required aria-describedby="admin-key-note">
+        <p id="admin-key-note" data-i18n="admin.keyNote">輸入你在 Render 設定的管理金鑰。此頁不會保存金鑰；重新整理後需再次輸入。</p>
+        <button id="admin-login" class="button button-primary" type="submit" data-i18n="admin.login">查看留言</button>
+      </form>
+    </section>
+    <section id="admin-dashboard" hidden>
+      <div class="panel admin-toolbar"><div><label for="admin-filter" data-i18n="admin.filter">狀態</label>
+        <select id="admin-filter"><option value="pending" data-i18n="admin.new">未處理</option><option value="hidden" data-i18n="admin.handled">已處理</option></select></div>
+        <div class="admin-actions"><button id="admin-refresh" class="button button-secondary" type="button" data-i18n="admin.refresh">重新讀取</button><button id="admin-logout" class="button button-secondary" type="button" data-i18n="admin.logout">登出</button></div>
+      </div>
+      <p id="admin-empty" class="panel admin-empty" hidden data-i18n="admin.empty">這個分類目前沒有留言。</p>
+      <div id="admin-list" aria-live="polite"></div>
+      <button id="admin-more" class="button button-secondary" type="button" hidden data-i18n="admin.more">載入更多</button>
+    </section>
+  </main>
+</body>
+</html>

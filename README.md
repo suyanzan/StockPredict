@@ -1,6 +1,8 @@
 # StockPredict
 
-台股與美股的股價研究工具。提供繁體中文網頁、歷史價格圖、1–30 個工作日的走勢估計、波動情境帶，以及逐日重新訓練的歷史回測。第一版使用 FastAPI、NumPy 與原生 JavaScript，無需資料庫、API 金鑰或前端建置工具。
+台股與美股的股價研究工具。提供繁體中文／英文切換、歷史價格圖、1–30 個工作日的走勢估計、波動情境帶，以及逐日重新訓練的歷史回測。使用 FastAPI、NumPy 與原生 JavaScript，行情分析無需資料庫、API 金鑰或前端建置工具。
+
+新增瀏覽統計與僅站主可查看的建議表單。這兩項功能需連接持久資料庫，免費方案設定步驟見 [NEON_SETUP.md](NEON_SETUP.md)。尚未設定時會顯示未啟用；中英文切換與行情分析可獨立使用。
 
 ## 啟動
 
@@ -61,6 +63,9 @@ uv run --no-sync pytest -q
 uv run --no-sync ruff check .
 uv run --no-sync ruff format --check .
 node --check stockpredict/static/app.js
+node --check stockpredict/static/i18n.js
+node --check stockpredict/static/community.js
+node --check stockpredict/static/admin.js
 ```
 
 測試涵蓋 CSV 驗證、數值與日期邊界、回測的時間順序、API、靜態資源與模擬的上游回應，不依賴 Yahoo 連線。相依套件版本由 `uv.lock` 固定。
@@ -76,6 +81,10 @@ POST /api/analysis/csv
 
 CSV 請求 JSON：`{"symbol":"CUSTOM","horizon":5,"csv":"Date,Close\n..."}`。`horizon` 為 1–30；網頁提供 5、10、20 日快捷選項。回應包含 `history`、`forecast`、`summary`、`backtest`、`model`、`warnings`；百分比欄位單位為百分點（例如 2.5 表示 2.5%）。CSV 不推測幣別。
 
+行情 API 支援 `lang=zh-TW`／`lang=en`（CSV 也用 query 參數）。成功回應另含 `locales` 的雙語說明，前端切換語言時保留既有數值、輸入與圖表，不重新下載行情。語言偏好保存在瀏覽器；也可用 `?lang=en` 開啟。
+
+瀏覽／建議 API 位於 `/api/community`，包括 `stats`、`visits`、`comments` 與 Bearer 管理金鑰驗證的 `admin/comments`。私人模式的公開 API 不回傳留言內容或留言數。每次頁面載入使用唯一 ID，重試不重複計數；每個匿名瀏覽器 10 分鐘內最多送出 3 則建議。管理頁位於 `/admin`，不保存金鑰；管理回應禁止快取。
+
 ## 專案結構
 
 網站部署方式見 [DEPLOY.md](DEPLOY.md)，附有 Dockerfile 與 Render Blueprint 設定。發布 Codex 開發環境與部署公開網站是分開的步驟。
@@ -85,9 +94,11 @@ stockpredict/
   main.py       # HTTP API 與靜態網頁
   data.py       # 示範、CSV 與 Yahoo 資料來源
   twse.py       # 證交所月行情、日期轉換與快取／請求節流
+  community.py  # 持久化瀏覽統計與站主私人建議
+  localization.py # 行情 API 的中英文說明與錯誤訊息
   forecast.py   # 預測、回測與數值驗證
   static/       # HTML、CSS、JavaScript 介面
 tests/          # 自動化測試
 ```
 
-本版為單人研究與開發用途，沒有登入、持倉、交易下單或持久儲存。正式對外部署前需另行配置反向代理、存取控制、請求大小與速率限制、資料授權及營運監控。
+本版為個人研究與 Side Project，沒有持倉、交易下單或投資績效保證。訪客不需登入，私人建議由持有管理金鑰的站主查看。行情 CSV 不持久儲存；啟用資料庫後僅瀏覽統計與送出的建議持久保存。正式營運仍需依實際需求管理服務、資料授權與營運監控。

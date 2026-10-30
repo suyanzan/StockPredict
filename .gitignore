@@ -4,6 +4,10 @@ __pycache__/
 .ruff_cache/
 *.py[cod]
 .env
+.env.*
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 *.log
 coverage.xml
 .coverage

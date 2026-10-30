@@ -6,12 +6,23 @@
   const source = $("source");
   const symbol = $("symbol");
   const horizon = $("horizon");
-  const number = new Intl.NumberFormat("zh-TW", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const shortNumber = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 1 });
-  const dateLabel = new Intl.DateTimeFormat("zh-TW", { month: "2-digit", day: "2-digit", timeZone: "UTC" });
-  const weekday = new Intl.DateTimeFormat("zh-TW", { weekday: "short", timeZone: "UTC" });
+  const I18n = window.StockPredictI18n;
+  const t = I18n.t;
+  let number;
+  let shortNumber;
+  let dateLabel;
+  let weekday;
+
+  function updateFormatters() {
+    const locale = I18n.getLanguage();
+    number = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    shortNumber = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+    dateLabel = new Intl.DateTimeFormat(locale, { month: "2-digit", day: "2-digit", timeZone: "UTC" });
+    weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
+  }
+  updateFormatters();
   const ns = "http://www.w3.org/2000/svg";
-  const sourceNames = { demo: "示範資料", yahoo: "Yahoo 每日行情", twse: "證交所每日行情", csv: "CSV 匯入" };
+  const sourceKey = { demo: "source.demoShort", yahoo: "source.yahoo", twse: "source.twseShort", csv: "source.csv" };
   let analysis = null;
   let csvText = null;
   let range = 126;
@@ -21,6 +32,13 @@
   let chartGeometry = null;
   let chartIndex = -1;
   let twseRetry = null;
+  let errorState = null;
+  let loading = false;
+  let loadingSource = source.value;
+
+  function presentation() {
+    return analysis?.locales?.[I18n.getLanguage()] || analysis;
+  }
 
   const format = (value) => Number.isFinite(value) ? number.format(value) : "—";
   const percent = (value, signed = false) => Number.isFinite(value) ? `${signed && value > 0 ? "+" : ""}${format(value)}%` : "—";
@@ -31,11 +49,28 @@
   };
   const text = (id, value) => { $(id).textContent = value; };
 
-  function showError(message, retry = null) {
-    text("error-text", `${message}${analysis ? ` 畫面保留上次成功的 ${analysis.symbol}（${analysis.source_label}）分析結果。` : ""}`);
-    twseRetry = retry;
-    $("twse-retry").hidden = !retry;
+  function renderError() {
+    if (!errorState) return;
+    const language = I18n.getLanguage();
+    const message = errorState.key ? t(errorState.key) : errorState.locales?.[language]
+      || (errorState.language === language ? errorState.message : t("error.generic"));
+    const prefix = errorState.symbol ? `${errorState.symbol} (${t(sourceKey[errorState.source])}): ` : "";
+    const previous = analysis ? ` ${t("error.preserved", { symbol: analysis.symbol, source: presentation().source_label })}` : "";
+    text("error-text", `${prefix}${message}${previous}`);
+    $("twse-retry").hidden = !twseRetry;
     $("error-message").hidden = false;
+  }
+
+  function showError(state, retry = null) {
+    errorState = typeof state === "string" ? { message: state, language: I18n.getLanguage() } : state;
+    twseRetry = retry;
+    renderError();
+  }
+
+  function translatedError(key) {
+    const error = new Error(t(key));
+    error.translationKey = key;
+    return error;
   }
 
   function updateSourceUi() {
@@ -43,33 +78,37 @@
     $("source-help").hidden = source.value !== "twse";
   }
 
-  function setLoading(loading, requestedSource = source.value) {
+  function setLoading(active, requestedSource = loadingSource) {
+    loading = active;
+    loadingSource = requestedSource;
     $("loading-message").hidden = !loading;
-    text("loading-text", requestedSource === "twse" ? "正在取得證交所歷史資料並執行回測；首次讀取可能需要 20–60 秒，請稍候…" : "正在讀取資料並執行歷史回測…");
+    text("loading-text", t(requestedSource === "twse" ? "loading.twse" : "loading.analysis"));
     $("analyze-button").disabled = loading;
-    $("analyze-button").querySelector("span").textContent = loading ? "分析中…" : "開始分析";
+    $("analyze-button").querySelector("span").textContent = t(loading ? "controls.analyzing" : "controls.analyze");
     $("results").setAttribute("aria-busy", String(loading));
     document.querySelectorAll("[data-symbol]").forEach((button) => { button.disabled = loading; });
   }
 
   function errorDetail(body) {
     if (typeof body.detail === "string") return body.detail;
-    if (Array.isArray(body.detail)) return body.detail.map((item) => item.msg).filter(Boolean).join("；");
-    return "分析未成功，請檢查資料與設定後重試。";
+    if (Array.isArray(body.detail)) return t("error.validation");
+    return t("error.generic");
   }
 
   async function runAnalysis() {
     const requestedSymbol = symbol.value.trim().toUpperCase();
-    if (!requestedSymbol) { showError("請輸入股票代碼，例如 2330.TW 或 AAPL。"); symbol.focus(); return; }
-    if (source.value === "csv" && csvText === null) { showError("請先選擇包含 Date、Close 欄位的 CSV 檔案。"); $("csv-file").focus(); return; }
+    if (!requestedSymbol) { showError({ key: "error.symbol" }); symbol.focus(); return; }
+    if (source.value === "csv" && csvText === null) { showError({ key: "error.csvRequired" }); $("csv-file").focus(); return; }
     symbol.value = requestedSymbol;
     const requestedSource = source.value;
     const requestedHorizon = horizon.value;
+    const requestedLanguage = I18n.getLanguage();
     if (request) request.abort();
     const controller = new AbortController();
     request = controller;
     const currentRequest = ++requestId;
     $("error-message").hidden = true;
+    errorState = null;
     $("twse-retry").hidden = true;
     twseRetry = null;
     $("empty-state").hidden = true;
@@ -77,23 +116,30 @@
     const timeout = window.setTimeout(() => controller.abort(), requestedSource === "twse" ? 60000 : 35000);
     try {
       const fromCsv = requestedSource === "csv";
-      const endpoint = fromCsv ? "/api/analysis/csv" : `/api/analysis?${new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon })}`;
+      const endpoint = fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon, lang: requestedLanguage })}`;
       const response = await fetch(endpoint, fromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ symbol: requestedSymbol, horizon: Number(requestedHorizon), csv: csvText }),
         signal: controller.signal,
       } : { signal: controller.signal });
       let body;
-      try { body = await response.json(); } catch { throw new Error("伺服器未回傳有效資料，請稍後重試。"); }
-      if (!response.ok) throw new Error(errorDetail(body));
+      try { body = await response.json(); } catch { throw translatedError("error.response"); }
+      if (!response.ok) {
+        const error = new Error(errorDetail(body));
+        error.locales = body.locales;
+        if (Array.isArray(body.detail)) error.translationKey = "error.validation";
+        throw error;
+      }
       if (currentRequest !== requestId) return;
       analysis = body;
       renderResults();
     } catch (error) {
       if (currentRequest !== requestId) return;
       const retry = requestedSource === "yahoo" && /^\d{4,6}(?:\.TW)?$/.test(requestedSymbol) ? { symbol: requestedSymbol, horizon: requestedHorizon } : null;
-      const message = error.name === "AbortError" ? "資料讀取逾時，請重試或使用示範資料與 CSV 匯入。" : error.message || "無法連線至服務，請稍後重試。";
-      showError(`${requestedSymbol}（${sourceNames[requestedSource]}）：${message}`, retry);
+      const key = error.name === "AbortError" ? "error.timeout" : error.translationKey
+        || (error instanceof TypeError ? "error.connection" : null);
+      showError({ key, message: error.message || t("error.connection"), locales: error.locales,
+        language: requestedLanguage, symbol: requestedSymbol, source: requestedSource }, retry);
       $("empty-state").hidden = Boolean(analysis);
     } finally {
       window.clearTimeout(timeout);
@@ -103,37 +149,40 @@
 
   function renderResults() {
     const { summary, backtest, forecast, history } = analysis;
+    const view = presentation();
     $("results").hidden = false;
-    text("security-name", analysis.name || analysis.symbol);
-    text("security-initial", (analysis.name || analysis.symbol).slice(0, 1));
+    text("security-name", presentation().name || analysis.symbol);
+    text("security-initial", (presentation().name || analysis.symbol).slice(0, 1));
     text("result-symbol", analysis.symbol);
-    text("result-date", `資料截至 ${analysis.as_of} · ${history.length} 筆歷史收盤`);
-    text("source-badge", analysis.source_label);
+    text("result-date", t("result.date", { date: analysis.as_of, count: history.length }));
+    text("source-badge", view.source_label);
     $("source-badge").classList.toggle("real", analysis.source !== "demo");
-    text("currency-label", analysis.currency || "價格");
+    text("currency-label", analysis.currency || t("result.price"));
     text("last-close", format(summary.last_close));
-    text("day-change", `${percent(summary.day_change_pct, true)} 較前一筆收盤`);
+    text("day-change", t("result.dayChange", { change: percent(summary.day_change_pct, true) }));
     changeClass($("day-change"), summary.day_change_pct);
     text("forecast-change", percent(summary.forecast_change_pct, true));
     changeClass($("forecast-change"), summary.forecast_change_pct);
-    text("forecast-caption", `${forecast.length} 個平日後 · 預估 ${format(forecast.at(-1).close)}`);
+    text("forecast-caption", t("result.forecastCaption", { count: forecast.length, price: format(forecast.at(-1).close) }));
     text("volatility", percent(summary.annualized_volatility_pct));
     text("mae", format(backtest.mae));
-    text("mae-caption", `模型一天預測 · ${analysis.currency || "價格單位"}`);
+    text("mae-caption", t("result.maeCaption", { currency: analysis.currency || t("result.priceUnit") }));
     text("model-mae", format(backtest.mae));
     text("baseline-mae", format(backtest.baseline_mae));
-    text("backtest-description", `保留最後 ${backtest.observations} 筆，逐日向前驗證`);
+    text("backtest-description", t("backtest.description", { count: backtest.observations }));
     text("direction-accuracy", percent(backtest.direction_accuracy_pct));
     text("rmse", format(backtest.rmse));
     text("mape", percent(backtest.mape_pct));
-    text("observations", `${backtest.observations} 筆`);
+    text("observations", t("backtest.count", { count: backtest.observations }));
     const maxError = Math.max(backtest.mae, backtest.baseline_mae, Number.EPSILON);
     $("model-bar").style.width = `${Math.max(0, backtest.mae / maxError * 100)}%`;
     $("baseline-bar").style.width = `${Math.max(0, backtest.baseline_mae / maxError * 100)}%`;
     $("baseline-comparison").classList.toggle("underperform", !backtest.model_beats_baseline);
-    text("baseline-comparison", backtest.model_beats_baseline ? "此次回測：模型誤差低於前日收盤基準。" : "此次回測：模型未優於前日收盤基準。解讀預測時請留意。 ");
-    text("model-description", analysis.model.description);
-    text("interval-description", analysis.model.interval_description);
+    text("baseline-comparison", t(backtest.model_beats_baseline ? "backtest.better" : "backtest.worse"));
+    $("model-description").removeAttribute("data-i18n");
+    $("interval-description").removeAttribute("data-i18n");
+    text("model-description", view.model.description);
+    text("interval-description", view.model.interval_description);
     renderWarnings();
     const recent = history.slice(-30).map((point) => point.close);
     const low = Math.min(...recent), spread = Math.max(...recent) - low || 1;
@@ -145,7 +194,7 @@
   function renderWarnings() {
     const container = $("warnings");
     container.replaceChildren();
-    const warnings = analysis.warnings || [];
+    const warnings = presentation().warnings || [];
     if (!warnings.length) return;
     const notice = document.createElement("div");
     notice.className = "notice";
@@ -155,7 +204,7 @@
     if (warnings.length > 1) {
       const details = document.createElement("details");
       const summary = document.createElement("summary");
-      summary.textContent = `資料與模型限制（${warnings.length - 1} 項）`;
+      summary.textContent = t("result.limitations", { count: warnings.length - 1 });
       details.append(summary);
       const list = document.createElement("ul");
       for (const warning of warnings.slice(1)) {
@@ -250,7 +299,7 @@
     const bandBottom = [...forward].reverse().map((p, i) => `L${x(start + forward.length - 1 - i)},${y(p.lower)}`).join(" ");
     svg.append(svgElement("path", { d: `${bandTop} ${bandBottom} Z`, class: "band" }));
     svg.append(svgElement("line", { x1: x(start), y1: top, x2: x(start), y2: top + chartHeight, class: "boundary" }));
-    svg.append(svgElement("text", { x: Math.min(x(start) + 9, width - 100), y: top + 13, class: "chart-date-label" }, "預測開始"));
+    svg.append(svgElement("text", { x: Math.min(x(start) + 9, width - 100), y: top + 13, class: "chart-date-label" }, t("chart.boundary")));
     svg.append(svgElement("path", { d: historyPath, class: "history-path" }));
     svg.append(svgElement("path", { d: forward.map((p, i) => `${i ? "L" : "M"}${x(start + i)},${y(p.close)}`).join(" "), class: "forecast-path" }));
     svg.append(svgElement("circle", { cx: x(start), cy: y(initial.close), r: 3.5, fill: "#3973c8", stroke: "white", "stroke-width": 2 }));
@@ -258,8 +307,11 @@
     for (const index of labelIndexes) svg.append(svgElement("text", { x: x(index), y: height - 13, "text-anchor": index === 0 ? "start" : index === chartPoints.length - 1 ? "end" : "middle" }, dateLabel.format(parsedDate(chartPoints[index].date))));
     svg.append(svgElement("line", { id: "chart-crosshair", class: "crosshair", x1: 0, x2: 0, y1: top, y2: top + chartHeight, visibility: "hidden" }));
     svg.append(svgElement("circle", { id: "chart-hover-dot", r: 4.5, fill: "#17293d", stroke: "#fff", "stroke-width": 2, visibility: "hidden" }));
-    svg.setAttribute("aria-label", `${analysis.name || analysis.symbol}：${history.length} 筆歷史收盤與 ${forecast.length} 個平日預測。最新收盤 ${format(initial.close)}，期末預估 ${format(forecast.at(-1).close)}。使用左右方向鍵查看各日期價格。`);
-    text("chart-point-count", `顯示 ${history.length} 筆歷史 · ${forecast.length} 筆預測`);
+    svg.removeAttribute("data-i18n-aria-label");
+    svg.setAttribute("aria-label", t("chart.aria", { name: presentation().name || analysis.symbol,
+      history: history.length, forecast: forecast.length, close: format(initial.close),
+      forecastClose: format(forecast.at(-1).close) }));
+    text("chart-point-count", t("chart.pointCount", { history: history.length, forecast: forecast.length }));
   }
 
   function showChartPoint(index) {
@@ -270,10 +322,10 @@
     crosshair.setAttribute("x1", x(chartIndex)); crosshair.setAttribute("x2", x(chartIndex)); crosshair.setAttribute("visibility", "visible");
     dot.setAttribute("cx", x(chartIndex)); dot.setAttribute("cy", y(point.close)); dot.setAttribute("visibility", "visible");
     tooltip.replaceChildren();
-    const date = document.createElement("small"); date.textContent = `${point.date} · ${point.predicted ? "模型預測" : "歷史收盤"}`;
+    const date = document.createElement("small"); date.textContent = `${point.date} · ${t(point.predicted ? "chart.predictedPoint" : "chart.historical")}`;
     const price = document.createElement("strong"); price.textContent = `${format(point.close)} ${analysis.currency || ""}`;
     tooltip.append(date, price);
-    if (point.predicted) { const band = document.createElement("small"); band.textContent = `情境 ${format(point.lower)} – ${format(point.upper)}`; tooltip.append(band); }
+    if (point.predicted) { const band = document.createElement("small"); band.textContent = t("chart.scenario", { lower: format(point.lower), upper: format(point.upper) }); tooltip.append(band); }
     tooltip.hidden = false;
     const rect = $("price-chart").getBoundingClientRect();
     const px = x(chartIndex) / width * rect.width;
@@ -316,13 +368,13 @@
     csvText = null;
     const file = event.target.files[0];
     if (!file) return;
-    if (file.size > 2_000_000) { showError("CSV 檔案超過 2 MB，請縮小檔案後重試。"); return; }
+    if (file.size > 2_000_000) { showError({ key: "error.csvTooLarge" }); return; }
     try {
       csvText = await file.text();
-      if (!csvText.trim()) { csvText = null; showError("CSV 檔案沒有內容，請選擇包含歷史股價的檔案。"); return; }
+      if (!csvText.trim()) { csvText = null; showError({ key: "error.csvEmpty" }); return; }
       source.value = "csv";
       runAnalysis();
-    } catch { showError("無法讀取 CSV 檔案，請重新選擇。"); }
+    } catch { showError({ key: "error.csvRead" }); }
   });
   $("export-button").addEventListener("click", () => {
     if (!analysis) return;
@@ -330,7 +382,7 @@
       const cell = String(value);
       return /[",\r\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell;
     };
-    const rows = ["Date,ForecastClose,LowerScenario,UpperScenario,Source,Symbol,SourceLabel", ...analysis.forecast.map((p) => [p.date, p.close, p.lower, p.upper, analysis.source, analysis.symbol, analysis.source_label].map(csvCell).join(","))];
+    const rows = ["Date,ForecastClose,LowerScenario,UpperScenario,Source,Symbol,SourceLabel", ...analysis.forecast.map((p) => [p.date, p.close, p.lower, p.upper, analysis.source, analysis.symbol, presentation().source_label].map(csvCell).join(","))];
     const url = URL.createObjectURL(new Blob([rows.join("\r\n")], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a"); link.href = url;
     link.download = `StockPredict-${analysis.symbol.replace(/[^\w.-]/g, "_")}-${analysis.source}-${analysis.as_of}.csv`;
@@ -356,6 +408,12 @@
   if (initialSymbol && /^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$/.test(initialSymbol)) symbol.value = initialSymbol;
   if (["demo", "yahoo", "twse"].includes(initial.get("source"))) source.value = initial.get("source");
   if (["5", "10", "20"].includes(initial.get("horizon"))) horizon.value = initial.get("horizon");
+  I18n.subscribe(() => {
+    updateFormatters();
+    if (analysis) renderResults();
+    if (errorState) renderError();
+    setLoading(loading, loadingSource);
+  });
   updateSourceUi();
   runAnalysis();
 })();

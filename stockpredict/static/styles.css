@@ -1601,3 +1601,409 @@ tbody tr:hover {
   white-space:normal;
   text-align:right;
 }
+
+/* Language control and community feedback. */
+.sr-only {
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+.header-actions {
+  display:flex;
+  align-items:center;
+  gap:18px;
+  margin-left:auto;
+}
+
+.language-control {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:5px 8px;
+  color:var(--muted);
+  background:#fff;
+}
+
+.language-control svg {
+  width:16px;
+  height:16px;
+  flex-shrink:0;
+}
+
+.language-control select {
+  color:var(--ink);
+  border:0;
+  background:transparent;
+  font-size:11px;
+  padding:3px 0;
+  min-width:80px;
+  cursor:pointer;
+}
+
+h1>span[data-i18n] {
+  color:inherit;
+}
+
+html[lang="en"] h1 {
+  font-size:27px;
+  letter-spacing:-.5px;
+  line-height:1.35;
+  max-width:750px;
+}
+
+html[lang="en"] .intro-note {
+  min-width:225px;
+}
+
+.community-section {
+  padding:28px;
+  margin:4px 0 32px;
+}
+
+.community-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:28px;
+}
+
+.community-heading h2 {
+  font-size:23px;
+  line-height:1.45;
+  margin:7px 0 7px;
+  letter-spacing:-.3px;
+}
+
+.community-heading p {
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.visitor-metrics {
+  display:flex;
+  gap:30px;
+  flex-shrink:0;
+  background:#f5faf9;
+  border:1px solid #dfefea;
+  padding:17px 25px;
+  border-radius:12px;
+  min-width:260px;
+}
+
+.visitor-metrics>div {
+  min-width:90px;
+}
+
+.visitor-metrics span {
+  display:block;
+  color:#6b817b;
+  font-size:11px;
+}
+
+.visitor-metrics strong {
+  display:block;
+  color:var(--green);
+  font-size:29px;
+  letter-spacing:-1px;
+  line-height:1.35;
+  margin-top:4px;
+  font-variant-numeric:tabular-nums;
+}
+
+.community-privacy {
+  color:#7b8b99;
+  font-size:10px;
+  line-height:1.8;
+  margin:18px 0 0;
+}
+
+.community-status {
+  color:#5b7783;
+  background:#f4f7fb;
+  border:1px solid #e6edf3;
+  border-radius:8px;
+  font-size:12px;
+  line-height:1.8;
+  padding:10px 13px;
+  margin:13px 0 23px;
+}
+
+.community-content {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:28px;
+}
+
+#community-fields {
+  border:0;
+  padding:0;
+  margin:0;
+  min-width:0;
+}
+
+#community-fields:disabled {
+  opacity:.65;
+}
+
+.feedback-fields {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.form-field textarea {
+  width:100%;
+  border:1px solid #d9e3ec;
+  border-radius:7px;
+  background:#fff;
+  color:var(--ink);
+  font:inherit;
+  font-size:13px;
+  line-height:1.8;
+  padding:12px 14px;
+  resize:vertical;
+  min-height:130px;
+}
+
+.form-field textarea::placeholder {
+  color:#94a0ad;
+}
+
+textarea:focus-visible {
+  outline:3px solid #70c9be;
+  outline-offset:3px;
+}
+
+.feedback-footer {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin-top:12px;
+}
+
+#feedback-count {
+  color:#81909d;
+  font-size:11px;
+  font-variant-numeric:tabular-nums;
+}
+
+#feedback-submit {
+  min-width:140px;
+}
+
+.feedback-note {
+  font-size:11px;
+  line-height:1.8;
+  color:#6b8378;
+  margin:16px 0 0;
+}
+
+.feedback-message {
+  font-size:12px;
+  line-height:1.8;
+  padding:11px 13px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  margin:14px 0 0;
+}
+
+.feedback-success {
+  background:#eff8f4;
+  border-color:#d6ece1;
+  color:#267652;
+}
+
+.feedback-error {
+  background:#fff3f0;
+  border-color:#f2d8d2;
+  color:#9f4b3e;
+}
+
+.comments-area {
+  border-top:1px solid var(--border);
+  padding-top:20px;
+}
+
+.comments-area h3 {
+  margin:0 0 15px;
+  font-size:15px;
+}
+
+.feedback-entry {
+  padding:15px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.feedback-entry-heading {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  font-size:12px;
+}
+
+.feedback-category {
+  background:#eff5f9;
+  color:#648098;
+  font-size:10px;
+  border-radius:4px;
+  padding:2px 6px;
+}
+
+.feedback-date {
+  margin-left:auto;
+  font-size:10px;
+  color:#8a97a3;
+}
+
+.feedback-body {
+  margin:8px 0 0;
+  font-size:13px;
+  color:#546575;
+  overflow-wrap:anywhere;
+  line-height:1.8;
+}
+
+#comments-empty {
+  font-size:12px;
+  color:var(--muted);
+}
+
+#comments-more {
+  margin-top:16px;
+}
+
+.community-retry {
+  background:transparent;
+  border:0;
+  padding:0;
+  color:var(--green);
+  font-size:inherit;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+
+@media(max-width:1120px) {
+  .header-inner {
+    gap:24px;
+  }
+  .header-actions .header-tag {
+    display:none;
+  }
+  .header-inner nav {
+    gap:24px;
+  }
+}
+
+@media(max-width:800px) {
+  .header-inner {
+    flex-wrap:wrap;
+    gap:0;
+    padding-top:14px;
+  }
+  .header-actions {
+    margin-left:auto;
+  }
+  .header-inner nav {
+    width:100%;
+    margin:8px 0 0;
+    min-height:40px;
+    align-self:auto;
+    justify-content:center;
+    gap:35px;
+    order:3;
+  }
+  .header-inner nav a:last-child {
+    display:flex;
+  }
+  .community-heading {
+    flex-direction:column;
+    align-items:stretch;
+    gap:20px;
+  }
+  .visitor-metrics {
+    justify-content:space-between;
+    min-width:0;
+  }
+  .community-section {
+    padding:23px;
+    margin-bottom:25px;
+  }
+  html[lang="en"] h1 {
+    font-size:25px;
+  }
+}
+
+@media(max-width:480px) {
+  .language-control {
+    padding:4px 6px;
+    gap:4px;
+  }
+  .language-control svg {
+    width:13px;
+    height:13px;
+  }
+  .language-control select {
+    min-width:75px;
+    font-size:10px;
+  }
+  .header-inner nav {
+    gap:30px;
+  }
+  html[lang="en"] h1 {
+    font-size:23px;
+  }
+  .community-section {
+    padding:19px 17px;
+  }
+  .community-heading h2 {
+    font-size:20px;
+  }
+  .community-heading p {
+    font-size:11px;
+  }
+  .community-privacy {
+    font-size:10px;
+  }
+  .visitor-metrics {
+    padding:15px 18px;
+    gap:20px;
+  }
+  .visitor-metrics strong {
+    font-size:26px;
+  }
+  .community-status {
+    font-size:11px;
+    margin-bottom:18px;
+  }
+  .feedback-fields {
+    grid-template-columns:minmax(0,1fr);
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .form-field textarea {
+    font-size:12px;
+    padding:10px 11px;
+  }
+  .feedback-note {
+    font-size:10px;
+  }
+  .feedback-footer {
+    gap:10px;
+  }
+  #feedback-submit {
+    min-width:125px;
+  }
+}
