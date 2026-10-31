@@ -21,7 +21,7 @@ MODEL = "ar5_adr_directional_v1"
 
 
 def connect():
-    url = os.getenv("SCOREBOARD_DATABASE_URL") or os.getenv("DATABASE_URL", "")
+    url = os.getenv("SCOREBOARD_DATABASE_URL", "").strip() or os.getenv("DATABASE_URL", "").strip()
     if not url.startswith(("postgres://", "postgresql://")):
         raise RuntimeError("PostgreSQL is not configured")
     return psycopg.connect(url, row_factory=dict_row, connect_timeout=5)

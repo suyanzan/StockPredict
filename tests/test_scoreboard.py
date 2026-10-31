@@ -16,6 +16,22 @@ POINTS = [{"date": "2026-10-29", "close": 100.0}]
 PATH = date_path([{"close": 101.0}] * 5, "2026-10-29", "XTAI")
 
 
+@pytest.mark.parametrize("variable", ["SCOREBOARD_DATABASE_URL", "DATABASE_URL"])
+def test_connection_secret_trims_pasted_whitespace_without_changing_security_options(
+    monkeypatch, variable
+):
+    from unittest.mock import Mock
+
+    url = "postgresql://user:pass%20word@example.test/db?sslmode=require&channel_binding=require"
+    monkeypatch.delenv("SCOREBOARD_DATABASE_URL", raising=False)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.setenv(variable, " \r\n" + url + " \n")
+    driver = Mock()
+    monkeypatch.setattr(score.psycopg, "connect", driver)
+    assert score.connect() is driver.return_value
+    driver.assert_called_once_with(url, row_factory=dict_row, connect_timeout=5)
+
+
 @pytest.fixture
 def database(monkeypatch):
     url = os.getenv("TEST_POSTGRES_URL")
