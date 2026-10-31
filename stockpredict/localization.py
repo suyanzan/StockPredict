@@ -7,6 +7,16 @@ from typing import Literal
 Language = Literal["zh-TW", "en"]
 
 ERRORS_EN = {
+    "美股參考僅支援台股的證交所或 Yahoo 真實行情。": (
+        "US reference factors support Taiwan securities with real TWSE or Yahoo prices only."
+    ),
+    "請勿混用新版與舊版美股 CSV 欄位。": ("Do not mix the generic and legacy US CSV fields."),
+    "請提供本股票對應的兩份美股 CSV。": (
+        "Provide both US CSV files required by this stock's reference profile."
+    ),
+    "美股 CSV 標的不符本股票的參考設定。": (
+        "The US CSV symbols do not match this stock's reference profile."
+    ),
     "請檢查股票代碼、資料來源、預測期間與兩份 CSV（每份上限 2 MB）。": (
         "Check the symbol, price source, forecast horizon, and both CSV files (up to 2 MB each)."
     ),
@@ -99,7 +109,7 @@ SOURCE_LABELS_EN = {
 def localize_error(message: str, lang: Language) -> str:
     if lang == "zh-TW":
         return message
-    csv_factor = re.fullmatch(r"(UMC|SOXX) CSV：(.*)", message)
+    csv_factor = re.fullmatch(r"(UMC|TSM|SOXX|SPY|QQQ) CSV：(.*)", message)
     if csv_factor:
         return f"{csv_factor[1]} CSV: {localize_error(csv_factor[2], lang)}"
     if message in ERRORS_EN:

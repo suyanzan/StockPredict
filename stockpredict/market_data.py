@@ -1,6 +1,7 @@
 """Bounded server-side downloads for the two opt-in US reference factors."""
 
 import time
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from datetime import date, datetime
@@ -9,12 +10,15 @@ from threading import Lock
 from zoneinfo import ZoneInfo
 
 from stockpredict.data import DataSourceError, yahoo_data
+from stockpredict.reference_profiles import FACTOR_PAIRS
 
 SYMBOLS = ("UMC", "SOXX")
 CACHE_TTL = 300
 ERROR_TTL = 60
+MAX_CACHE_SIZE = 4
 _LOCK = Lock()
-_CACHE: tuple[date, float, dict[str, list[dict]]] | None = None
+_CACHE: OrderedDict[tuple[str, str], tuple[date, float, dict[str, list[dict]]]] = OrderedDict()
+_ERRORS: OrderedDict[tuple[str, str], tuple[float, str, int | None]] = OrderedDict()
 _ERROR: tuple[float, str, int | None] | None = None
 
 
@@ -27,9 +31,10 @@ def _clock() -> float:
 
 
 def clear_cache() -> None:
-    global _CACHE, _ERROR
+    global _ERROR
     with _LOCK:
-        _CACHE = None
+        _CACHE.clear()
+        _ERRORS.clear()
         _ERROR = None
 
 
@@ -42,25 +47,32 @@ def _factor(symbol: str) -> list[dict]:
     return points
 
 
-def overnight_factors() -> dict[str, list[dict]]:
+def overnight_factors(factor_symbols: tuple[str, str] = SYMBOLS) -> dict[str, list[dict]]:
     """Coalesce callers, cache five minutes, and never return expired data on error."""
-    global _CACHE, _ERROR
+    global _ERROR
+    if not isinstance(factor_symbols, tuple) or factor_symbols not in FACTOR_PAIRS:
+        raise ValueError("Unsupported reference-factor pair.")
     if not _LOCK.acquire(timeout=2):
         raise DataSourceError("美股參考資料正在讀取中，請稍後再試。", code="us_busy", retry_after=2)
     try:
         today, now = _today(), _clock()
-        if _CACHE and _CACHE[0] == today and _CACHE[1] > now:
-            return deepcopy(_CACHE[2])
-        if _ERROR and _ERROR[0] > now:
+        cached = _CACHE.get(factor_symbols)
+        if cached and cached[0] == today and cached[1] > now:
+            _CACHE.move_to_end(factor_symbols)
+            return deepcopy(cached[2])
+        failure = _ERROR if _ERROR and _ERROR[0] > now else _ERRORS.get(factor_symbols)
+        if failure and failure[0] > now:
             raise DataSourceError(
                 "美股參考資料暫時無法取得，請稍後再試。",
-                code=_ERROR[1],
-                http_status=_ERROR[2],
-                retry_after=ceil(_ERROR[0] - now),
+                code=failure[1],
+                http_status=failure[2],
+                retry_after=ceil(failure[0] - now),
             )
+        if _ERROR and _ERROR[0] <= now:
+            _ERROR = None
         downloaded, failures = {}, []
         with ThreadPoolExecutor(max_workers=2) as pool:
-            pending = {symbol: pool.submit(_factor, symbol) for symbol in SYMBOLS}
+            pending = {symbol: pool.submit(_factor, symbol) for symbol in factor_symbols}
             for symbol, future in pending.items():
                 try:
                     downloaded[symbol] = future.result()
@@ -74,15 +86,24 @@ def overnight_factors() -> dict[str, list[dict]]:
                 max(ERROR_TTL, e.retry_after or (300 if e.code == "us_rate_limited" else ERROR_TTL))
                 for e in failures
             )
-            _ERROR = (_clock() + cooldown, failure.code, failure.http_status)
+            error = (_clock() + cooldown, failure.code, failure.http_status)
+            if failure.code == "us_rate_limited":
+                _ERROR = error
+            _ERRORS[factor_symbols] = error
+            _ERRORS.move_to_end(factor_symbols)
+            while len(_ERRORS) > MAX_CACHE_SIZE:
+                _ERRORS.popitem(last=False)
             raise DataSourceError(
                 str(failure),
                 code=failure.code,
                 http_status=failure.http_status,
                 retry_after=cooldown,
             ) from failure
-        _CACHE = (today, _clock() + CACHE_TTL, downloaded)
-        _ERROR = None
+        _CACHE[factor_symbols] = (today, _clock() + CACHE_TTL, downloaded)
+        _CACHE.move_to_end(factor_symbols)
+        while len(_CACHE) > MAX_CACHE_SIZE:
+            _CACHE.popitem(last=False)
+        _ERRORS.pop(factor_symbols, None)
         return deepcopy(downloaded)
     finally:
         _LOCK.release()

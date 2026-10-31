@@ -10,6 +10,7 @@ from test_overnight import fixture_data, ready_now
 import stockpredict.main as main
 import stockpredict.overnight as overnight
 from stockpredict.data import DataSourceError, demo_data
+from stockpredict.reference_profiles import profile_for, profile_payload
 
 
 @pytest.fixture
@@ -68,7 +69,11 @@ def test_factor_result_is_separate_from_base_forecasts(client, real_history, mon
     assert response.status_code == 200
     assert response.headers["cache-control"] == "no-store"
     result = response.json()
-    assert result["market_context"] == {**context, "data_source": "yahoo"}
+    assert result["market_context"] == {
+        **context,
+        "data_source": "yahoo",
+        "reference_profile": profile_payload(profile_for("2303.TW")),
+    }
     for key in ("forecast", "backtest", "history", "summary", "as_of"):
         assert result[key] == base[key]
     assert result["model"]["name"] == "Ridge AR(5)"
@@ -103,7 +108,7 @@ def test_bare_umc_symbol_is_canonicalized_when_reference_requested(
 
 @pytest.mark.parametrize(
     ("source", "symbol"),
-    [("demo", "2303.TW"), ("demo", "2330.TW"), ("yahoo", "AAPL"), ("twse", "2330.TW")],
+    [("demo", "2303.TW"), ("demo", "2330.TW"), ("yahoo", "AAPL"), ("yahoo", "MSFT")],
 )
 def test_context_rejects_unsupported_security_before_network(client, monkeypatch, source, symbol):
     monkeypatch.setattr(main, "overnight_factors", lambda: pytest.fail("Unexpected download"))
@@ -113,7 +118,7 @@ def test_context_rejects_unsupported_security_before_network(client, monkeypatch
         params={"source": source, "symbol": symbol, "market_context": "us_overnight", "lang": "en"},
     )
     assert response.status_code == 400
-    assert "UMC" in response.json()["detail"]
+    assert "Taiwan" in response.json()["detail"]
 
 
 def test_us_download_failure_keeps_base_analysis_and_reports_unavailable(
@@ -185,6 +190,7 @@ def test_unclosed_us_session_skips_download_and_does_not_return_old_factor_data(
     assert context["status"] == "waiting" and context["reason"] == "us_session_not_closed"
     assert context["required_us_session_date"] == "2026-10-29"
     assert context["data_source"] == "yahoo"
+    assert context["reference_profile"]["symbols"] == ["UMC", "SOXX"]
     assert context["factors"] == []
     assert context["forecast"] is context["backtest"] is context["correlations_window"] is None
     assert result["forecast"] == base["forecast"] and result["backtest"] == base["backtest"]

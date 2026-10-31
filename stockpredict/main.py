@@ -16,6 +16,12 @@ from stockpredict.forecast import analyze
 from stockpredict.localization import Language, add_localizations, localize_error
 from stockpredict.market_data import overnight_factors
 from stockpredict.overnight import build_context, pending_context
+from stockpredict.reference_profiles import (
+    canonical_reference_symbol,
+    profile_for,
+    profile_payload,
+    public_catalog,
+)
 from stockpredict.twse import normalize_twse_symbol, twse_data
 
 STATIC = Path(__file__).parent / "static"
@@ -69,8 +75,11 @@ class FactorCsvAnalysis(BaseModel):
     symbol: str = Field(default="2303.TW", min_length=1, max_length=20)
     source: Literal["twse", "yahoo"] = "twse"
     horizon: int = Field(default=5, ge=1, le=30, strict=True)
-    umc_csv: str = Field(min_length=1, max_length=2_000_000)
-    soxx_csv: str = Field(min_length=1, max_length=2_000_000)
+    umc_csv: str | None = Field(default=None, min_length=1, max_length=2_000_000)
+    soxx_csv: str | None = Field(default=None, min_length=1, max_length=2_000_000)
+    factor_csvs: dict[str, Annotated[str, Field(min_length=1, max_length=2_000_000)]] | None = (
+        Field(default=None, min_length=2, max_length=2)
+    )
 
 
 @app.get("/", include_in_schema=False)
@@ -86,6 +95,11 @@ def feedback_admin():
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/api/reference-profiles")
+def reference_profiles():
+    return public_catalog()
 
 
 @app.get("/api/analysis")
@@ -109,10 +123,12 @@ def _market_analysis(
 ):
     try:
         symbol = normalize_twse_symbol(symbol) if source == "twse" else normalize_symbol(symbol)
-        if market_context == "us_overnight" and symbol == "2303":
-            symbol = "2303.TW"
-        if market_context == "us_overnight" and (symbol != "2303.TW" or source == "demo"):
-            raise ValueError("美股參考目前僅支援聯電 2303.TW 的證交所或 Yahoo 真實行情。")
+        profile = None
+        if market_context == "us_overnight":
+            symbol = canonical_reference_symbol(symbol)
+            profile = profile_for(symbol)
+            if profile is None or source == "demo":
+                raise ValueError("美股參考僅支援台股的證交所或 Yahoo 真實行情。")
         providers = {"demo": demo_data, "yahoo": yahoo_data, "twse": twse_data}
         points, metadata = providers[source](symbol)
         result = analyze(points, horizon)
@@ -123,8 +139,18 @@ def _market_analysis(
                 if pending is not None:
                     result["market_context"] = pending
                 else:
-                    factors = factor_data if factor_data is not None else overnight_factors()
-                    result["market_context"] = build_context(points, factors)
+                    factors = factor_data
+                    if factors is None:
+                        factors = (
+                            overnight_factors()
+                            if profile.id == "umc"
+                            else overnight_factors(profile.symbols)
+                        )
+                    result["market_context"] = (
+                        build_context(points, factors)
+                        if profile.id == "umc"
+                        else build_context(points, factors, factor_symbols=profile.symbols)
+                    )
             except DataSourceError as exc:
                 result["market_context"] = {
                     "status": "unavailable",
@@ -140,6 +166,7 @@ def _market_analysis(
                     "correlations_window": None,
                 }
             result["market_context"]["data_source"] = factor_source
+            result["market_context"]["reference_profile"] = profile_payload(profile)
         if source == "demo":
             result["warnings"].insert(0, "所有價格、預測與回測均來自合成資料，不代表真實市場表現。")
         else:
@@ -156,13 +183,24 @@ def _market_analysis(
 @app.post("/api/analysis/overnight/csv")
 def analyze_factor_csv(body: FactorCsvAnalysis, lang: Language = "zh-TW"):
     try:
-        normalized = normalize_twse_symbol(body.symbol)
-        if normalized != "2303.TW":
-            raise ValueError("美股參考目前僅支援聯電 2303.TW 的證交所或 Yahoo 真實行情。")
+        normalized = canonical_reference_symbol(body.symbol)
+        profile = profile_for(normalized)
+        if profile is None:
+            raise ValueError("美股參考僅支援台股的證交所或 Yahoo 真實行情。")
+        if body.factor_csvs is not None:
+            if body.umc_csv is not None or body.soxx_csv is not None:
+                raise ValueError("請勿混用新版與舊版美股 CSV 欄位。")
+            csvs = body.factor_csvs
+        else:
+            if profile.id != "umc" or body.umc_csv is None or body.soxx_csv is None:
+                raise ValueError("請提供本股票對應的兩份美股 CSV。")
+            csvs = {"UMC": body.umc_csv, "SOXX": body.soxx_csv}
+        if set(csvs) != set(profile.symbols):
+            raise ValueError("美股 CSV 標的不符本股票的參考設定。")
         factors = {}
-        for factor, csv_text in (("UMC", body.umc_csv), ("SOXX", body.soxx_csv)):
+        for factor in profile.symbols:
             try:
-                factors[factor] = parse_csv(csv_text)
+                factors[factor] = parse_csv(csvs[factor])
             except ValueError as exc:
                 raise ValueError(f"{factor} CSV：{exc}") from exc
         return _market_analysis(

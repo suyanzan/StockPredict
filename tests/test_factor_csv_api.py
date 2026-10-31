@@ -110,7 +110,9 @@ def test_unsupported_target_source_is_rejected_before_network(client, imported_f
 
 
 @pytest.mark.parametrize("symbol", ["AAPL", "2330.TW", "2303.TWO"])
-def test_unsupported_stock_is_rejected_before_network(client, imported_factors, symbol):
+def test_legacy_umc_files_are_rejected_for_other_stocks_before_network(
+    client, imported_factors, symbol
+):
     response = client.post(ENDPOINT, json={**imported_factors["body"], "symbol": symbol})
     assert response.status_code == 400
     assert imported_factors["requests"] == []

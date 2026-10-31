@@ -58,25 +58,33 @@ Date,Close
 
 本工具僅供研究與教學，不構成投資建議。
 
-### 聯電的隔夜美股參考（選用）
+### 台股的隔夜美股參考（選用）
 
-聯電 `2303`／`2303.TW` 使用證交所或 Yahoo 真實行情時，可勾選「美股參考」，從 Yahoo 取得 **UMC ADR** 與 **SOXX 半導體 ETF** 的每日資料。這裡指台灣夜間的美股正常交易時段，不是期貨夜盤或盤後交易。預設關閉，不需要新帳號、金鑰或付費服務。
+上市及上櫃台股／ETF 使用真實行情時，可勾選「美股參考」。上市數字代碼可選證交所；上櫃 `.TWO` 或帶英文字尾的 ETF 請用 Yahoo。純數字代碼在此模式會補為 `.TW`，上櫃請明確輸入 `.TWO`。參考設定由伺服器的單一對照表提供，前端選項、CSV 標籤、模型與快取使用相同因子：
+
+| 台股 | 美股候選參考 | 用途 |
+| --- | --- | --- |
+| 聯電 `2303.TW` | UMC、SOXX | 聯電 ADR 與半導體 ETF |
+| 台積電 `2330.TW` | TSM、SOXX | 台積電 ADR 與半導體 ETF |
+| 其他台股／ETF | SPY、QQQ | 美國大盤候選參考，非個股或產業對應 |
+
+這些是候選因子，不代表已驗證的強相關。此功能使用台灣夜間的美股正常交易時段，不是期貨夜盤或盤後交易。預設關閉，不需要新帳號、金鑰或付費服務。美股主標的如 AAPL／MSFT 仍使用原本的每日收盤分析；本項台股隔夜模型不套用於美股主標的，避免誤用台北的開／收盤時間。
 
 新增的單日 Ridge 模型使用五個台股歷史對數報酬，加上兩項隔夜美股對數報酬。模型只對「下一個平日」另提供比較，不修改既有 AR(5) 的圖表或多日路徑，因為未來美股報酬尚未知。參考因子由資料估計，不預設強相關，也不手動固定高權重；面板列出對齊後最近最多 60 筆報酬率的相關係數、樣本數與期間。價格水準的相關與因果或領先效果不能混為一談；ADR 也可能反映台股已發生的行情。
 
 每筆台股目標日以台北 09:00 作為資訊截止，隔夜因子計算前一個台股觀測日 13:30 後至截止前的美股累積報酬。即時查詢還受查詢當下時間限制，未收盤的當晚美股不會被使用。沒有歷史公布時間日誌，因此保守假設美股交易日紐約 16:15 才可用；此時間由交易所時區處理夏令時間，提早收盤日也延後到此門檻。它不是實際逐筆公布時間，歷史行情亦可能經後續修訂，不能將這種時間對齊回測視為完整的歷史資訊版本回放。
 
-**只使用本次預測對應的美股交易日收盤，不以前一天替代。** 系統先判斷該交易日是否已完成收盤及保守等待時間；尚未完成時直接顯示「無當日美股收盤資料」，不下載 UMC／SOXX，也不計算或顯示美股相關係數、回測及因子預測，主分析仍用原 AR(5)。已過收盤門檻但來源或 CSV 缺少指定交易日，也不顯示舊資料。歷史資料僅在指定交易日資料齊全後用於模型訓練與回測，不冒充本次行情。畫面標示所需美股交易日，避免與台北日期混淆。
+**所有參考組合只使用本次預測對應的美股交易日收盤，不以前一天替代。** 系統先判斷該交易日是否已完成收盤及保守等待時間；尚未完成時直接顯示「無當日美股收盤資料」，不下載該組合，也不計算或顯示美股相關係數、回測及因子預測，主分析仍用原 AR(5)。已過收盤門檻但來源或 CSV 缺少指定交易日，也不顯示舊資料。歷史資料僅在指定交易日資料齊全後用於模型訓練與回測，不冒充本次行情。畫面標示所需美股交易日，避免與台北日期混淆。
 
 本版未導入交易所假日表。缺少應有美國平日資料（包括美國休市或資料缺漏）時，會跳過該回測樣本，或標示當前參考不可用，不將缺值補成零報酬。台股休市後跨多個美股交易日，會累積實際涵蓋區間的報酬。等待當晚收盤、歷史太少、台股資料過期或 Yahoo 限流時，面板清楚顯示狀態，原本的台股分析仍可使用。
 
-至少需要 60 組完整對齊樣本。單日模型固定 Ridge 懲罰 1.0，各次訓練只使用當時歷史前綴的均值與標準差；回測在同一批日期比較跨市場模型、原 AR(5) 與前收盤基準的 MAE，顯示相對 AR(5) 的變化，可能更差。兩模型的標準化、懲罰與訓練樣本設定也不同，差異不能單獨歸因於美股因子。因子資料於伺服器快取 5 分鐘；一般失敗冷卻 60 秒，Yahoo HTTP 429 預設冷卻 300 秒，並遵守有效的 `Retry-After`（至少 60 秒、最多 24 小時）。冷卻期間不重試，不回傳過期因子冒充更新成功。
+至少需要 60 組完整對齊樣本。單日模型固定 Ridge 懲罰 1.0，各次訓練只使用當時歷史前綴的均值與標準差；回測在同一批日期比較跨市場模型、原 AR(5) 與前收盤基準的 MAE，顯示相對 AR(5) 的變化，可能更差。兩模型的標準化、懲罰與訓練樣本設定也不同，差異不能單獨歸因於美股因子。因子依組合分開快取 5 分鐘，上限 4 組，不混用股票資料；一般失敗冷卻 60 秒，Yahoo HTTP 429 預設冷卻 300 秒，並遵守有效的 `Retry-After`（至少 60 秒、最多 24 小時）。429 冷卻涵蓋所有組合，切換股票不會觸發新的上游請求；仍有效的成功快取可繼續使用，並受指定交易日完整性檢查。冷卻期間不重試，不回傳過期因子冒充更新成功。
 
 #### Yahoo 限流與美股 CSV 備援
 
 Render 可能收到 Yahoo HTTP 429，即使其他電腦仍能取得行情。介面會區分限流、拒絕存取、連線失敗與格式錯誤，並顯示剩餘冷卻秒數；反覆重新整理不會解除供應商的限制。本工具不透過換 IP、換網域或密集重試規避限流，也不需要為此重新設定 Neon 金鑰。
 
-想先使用原模型，可取消「參考美股」，主股票來源維持「證交所（上市）」。若要繼續比較美股因子，勾選後將**美股資料來源**切換為 CSV，分別選擇 **UMC ADR** 與 **SOXX** 的歷史檔案，再點「開始分析」。這個選項與主股票的 CSV 匯入不同；主股票仍由證交所或 Yahoo 提供。
+想先使用原模型，可取消「參考美股」，主股票來源維持「證交所（上市）」或 Yahoo。若要繼續比較美股因子，勾選後將**美股資料來源**切換為 CSV，依目前畫面標籤選擇兩份歷史檔案，再點「開始分析」；台積電需 TSM／SOXX，其他一般台股需 SPY／QQQ，不能沿用聯電 UMC 檔案。這個選項與主股票的 CSV 匯入不同；主股票仍由證交所或 Yahoo 提供。切換股票或參考組合時，會清除已選 CSV 與尚在進行的讀取狀態，避免混用。
 
 兩份檔案均使用 `Date,Close`，日期為美國紐約交易日、價格為對應標的的美元收盤價，至少 60 筆、最多 5,000 筆、每份最多 2 MB；建議提供至少 120 筆以取得足夠對齊樣本。接受標準 Yahoo CSV 的額外欄位，但只採 `Close`，請勿誤用 `Adj Close` 或其他標的。CSV 的來源、幣別、正確股票及權息處理由使用者確認，網站不會從檔案內容推定身分。
 
@@ -100,9 +108,11 @@ node --check stockpredict/static/admin.js
 
 ```text
 GET  /api/health
+GET  /api/reference-profiles
 GET  /api/analysis?symbol=2330.TW&source=demo&horizon=5
 GET  /api/analysis?symbol=2303&source=twse&horizon=5
 GET  /api/analysis?symbol=2303&source=twse&market_context=us_overnight
+GET  /api/analysis?symbol=2330&source=twse&market_context=us_overnight
 POST /api/analysis/overnight/csv
 POST /api/analysis/csv
 ```
@@ -111,9 +121,9 @@ CSV 請求 JSON：`{"symbol":"CUSTOM","horizon":5,"csv":"Date,Close\n..."}`。`h
 
 行情 API 支援 `lang=zh-TW`／`lang=en`（CSV 也用 query 參數）。成功回應另含 `locales` 的雙語說明，前端切換語言時保留既有數值、輸入與圖表，不重新下載行情。語言偏好保存在瀏覽器；也可用 `?lang=en` 開啟。
 
-`market_context=us_overnight` 僅支援真實來源的聯電，回應另含獨立的 `market_context`。其 `status` 為 `ready`、`waiting` 或 `unavailable`，提供 `required_us_session_date` 所需交易日與 `available_after` 保守採用時間，以及資料可用時的相關性及同期間回測；尚無當日資料時，`forecast`、`backtest`、`correlations_window` 為 `null` 且 `factors` 為空。省略參數不讀取美股參考資料。前端可用 `/?symbol=2303.TW&source=twse&market_context=us_overnight` 預選此功能。
+`market_context=us_overnight` 支援真實來源的台股，回應另含獨立的 `market_context` 與 `reference_profile`（組合 ID、標的及中英文名稱）。其 `status` 為 `ready`、`waiting` 或 `unavailable`，提供 `required_us_session_date` 所需交易日與 `available_after` 保守採用時間，以及資料可用時的相關性及同期間回測；尚無當日資料時，`forecast`、`backtest`、`correlations_window` 為 `null` 且 `factors` 為空。省略參數不讀取美股參考資料。前端可用 `/?symbol=2330.TW&source=twse&market_context=us_overnight` 預選此功能。
 
-美股 CSV 請求 JSON：`{"symbol":"2303.TW","source":"twse","horizon":5,"umc_csv":"Date,Close\n...","soxx_csv":"Date,Close\n..."}`，同樣接受 `lang`。兩份 CSV 在讀取主股票行情前驗證；錯誤回應不包含原始 CSV。`market_context.data_source` 區分 `yahoo`／`csv`。自動模式失敗時 `reason` 使用白名單原因碼，另提供安全的 `http_status` 與 `retry_after_seconds`，不輸出上游回應內容、原始例外或連線資訊。
+美股 CSV 請求 JSON：`{"symbol":"2330.TW","source":"twse","horizon":5,"factor_csvs":{"TSM":"Date,Close\n...","SOXX":"Date,Close\n..."}}`，同樣接受 `lang`。`factor_csvs` 必須恰好包含本股票對照表中的兩個標的；舊 `umc_csv`／`soxx_csv` 僅保留給聯電，不能與新格式混用。兩份 CSV 在讀取主股票行情前驗證；錯誤回應不包含原始 CSV。`market_context.data_source` 區分 `yahoo`／`csv`。自動模式失敗時 `reason` 使用白名單原因碼，另提供安全的 `http_status` 與 `retry_after_seconds`，不輸出上游回應內容、原始例外或連線資訊。
 
 瀏覽／建議 API 位於 `/api/community`，包括 `stats`、`visits`、`comments` 與 Bearer 管理金鑰驗證的 `admin/comments`。私人模式的公開 API 不回傳留言內容或留言數。每次頁面載入使用唯一 ID，重試不重複計數；每個匿名瀏覽器 10 分鐘內最多送出 3 則建議。管理頁位於 `/admin`，不保存金鑰；管理回應禁止快取。
 
@@ -133,6 +143,7 @@ stockpredict/
   forecast.py   # 預測、回測與數值驗證
   overnight.py  # 聯電隔夜因子對齊、相關性與單日比較回測
   market_data.py # 固定美股參考來源的有界快取與失敗處理
+  reference_profiles.py # 台股與美股候選因子的單一對照表
   static/       # HTML、CSS、JavaScript 介面
 tests/          # 自動化測試
 ```

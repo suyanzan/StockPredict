@@ -16,6 +16,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 from stockpredict.forecast import LAGS, fit_predict, validate_points
+from stockpredict.reference_profiles import FACTOR_PAIRS
 
 FACTORS = ("UMC", "SOXX")
 MIN_ALIGNED_ROWS = 60
@@ -58,17 +59,23 @@ def _session_window(previous: date, target: date) -> tuple[date, list[date]]:
 
 
 def _window_returns(
-    baseline: date, sessions: list[date], factors: dict[str, dict[date, float]]
+    baseline: date,
+    sessions: list[date],
+    factors: dict[str, dict[date, float]],
+    factor_symbols: tuple[str, str] = FACTORS,
 ) -> np.ndarray | None:
     if not sessions:
         return None
     # Intermediate weekday prices are required even though the cumulative
     # return telescopes. This avoids silently treating missing sessions as known.
     required = [baseline, *sessions]
-    if any(day not in factors[symbol] for symbol in FACTORS for day in required):
+    if any(day not in factors[symbol] for symbol in factor_symbols for day in required):
         return None
     return np.array(
-        [np.log(factors[symbol][sessions[-1]] / factors[symbol][baseline]) for symbol in FACTORS]
+        [
+            np.log(factors[symbol][sessions[-1]] / factors[symbol][baseline])
+            for symbol in factor_symbols
+        ]
     )
 
 
@@ -91,7 +98,10 @@ def _correlation(left: np.ndarray, right: np.ndarray) -> float | None:
 
 
 def _historical_rows(
-    points: list[dict], prices: np.ndarray, factors: dict[str, dict[date, float]]
+    points: list[dict],
+    prices: np.ndarray,
+    factors: dict[str, dict[date, float]],
+    factor_symbols: tuple[str, str] = FACTORS,
 ) -> list[_Row]:
     returns = np.diff(np.log(prices))
     rows = []
@@ -99,7 +109,7 @@ def _historical_rows(
         previous = date.fromisoformat(points[index - 1]["date"])
         target = date.fromisoformat(points[index]["date"])
         baseline, sessions = _session_window(previous, target)
-        overnight = _window_returns(baseline, sessions, factors)
+        overnight = _window_returns(baseline, sessions, factors, factor_symbols)
         if overnight is not None:
             rows.append(
                 _Row(
@@ -198,15 +208,21 @@ def pending_context(points: list[dict], *, now: datetime | None = None) -> dict 
 
 
 def build_context(
-    points: list[dict], factors: dict[str, list[dict]], *, now: datetime | None = None
+    points: list[dict],
+    factors: dict[str, list[dict]],
+    *,
+    now: datetime | None = None,
+    factor_symbols: tuple[str, str] = FACTORS,
 ) -> dict:
     """Use the required completed US sessions; never substitute an earlier date."""
+    if not isinstance(factor_symbols, tuple) or factor_symbols not in FACTOR_PAIRS:
+        raise ValueError("Unsupported reference-factor pair.")
     _, last_day, target, result = _timing_context(points, now)
     if result["reason"] is not None:
         return result
     try:
         mapped = {}
-        for symbol in FACTORS:
+        for symbol in factor_symbols:
             observations = factors[symbol]
             validate_points(observations)
             mapped[symbol] = {
@@ -217,11 +233,11 @@ def build_context(
     except (ValueError, TypeError):
         return {**result, "reason": "invalid_factor_data"}
     baseline, sessions = _session_window(last_day, target)
-    overnight = _window_returns(baseline, sessions, mapped)
+    overnight = _window_returns(baseline, sessions, mapped, factor_symbols)
     if overnight is None:
         return {**result, "reason": "missing_us_sessions"}
     prices = np.array([float(point["close"]) for point in points])
-    rows = _historical_rows(points, prices, mapped)
+    rows = _historical_rows(points, prices, mapped, factor_symbols)
     if len(rows) < MIN_ALIGNED_ROWS:
         return {**result, "reason": "insufficient_aligned_history"}
 
@@ -244,7 +260,7 @@ def build_context(
             ),
             "samples": len(window),
         }
-        for index, symbol in enumerate(FACTORS)
+        for index, symbol in enumerate(factor_symbols)
     ]
     result["backtest"] = _backtest(rows, prices)
 

@@ -37,7 +37,11 @@
   let errorState = null;
   let loading = false;
   let loadingSource = source.value;
-  const factorFiles = { UMC: { text: null, name: "", state: "empty", version: 0 }, SOXX: { text: null, name: "", state: "empty", version: 0 } };
+  const factorFiles = ["umc", "soxx"].map((id) => ({ id, text: null, name: "", state: "empty", version: 0 }));
+  let referenceCatalog = null;
+  let catalogState = "loading";
+  let referencePatterns = null;
+  let factorSelectionKey = null;
 
   function presentation() {
     return analysis?.locales?.[I18n.getLanguage()] || analysis;
@@ -85,26 +89,117 @@
     updateFactorFilesUi();
   }
 
+  function validProfile(profile) {
+    return profile && profile.market === "taiwan" && typeof profile.id === "string"
+      && ["adr_sector", "broad_market"].includes(profile.kind)
+      && Array.isArray(profile.symbols) && profile.symbols.length === 2
+      && new Set(profile.symbols).size === 2
+      && profile.symbols.every((code) => typeof code === "string" && /^[A-Z][A-Z0-9.-]{0,9}$/.test(code))
+      && ["zh-TW", "en"].every((language) => Array.isArray(profile.names?.[language])
+        && profile.names[language].length === 2 && profile.names[language].every((name) => typeof name === "string" && name.length <= 100));
+  }
+
+  function canonicalTaiwanSymbol(value) {
+    if (!referencePatterns) return null;
+    const normalized = value.trim().toUpperCase();
+    return referencePatterns.bare.test(normalized) ? `${normalized}.TW` : referencePatterns.taiwan.test(normalized) ? normalized : null;
+  }
+
+  function profileForSymbol(value) {
+    const normalized = canonicalTaiwanSymbol(value);
+    if (!referenceCatalog || !normalized) return null;
+    const id = referenceCatalog.stock_profiles[normalized] || referenceCatalog.default_taiwan_profile;
+    return referenceCatalog.profiles[id] || null;
+  }
+
+  function formProfile(value = symbol.value, selectedSource = source.value) {
+    const normalized = canonicalTaiwanSymbol(value);
+    if (!["twse", "yahoo"].includes(selectedSource) || !normalized) return null;
+    if (selectedSource === "twse" && !/^[0-9]{4,6}\.TW$/.test(normalized)) return null;
+    return profileForSymbol(normalized);
+  }
+
+  function profileNames(profile) {
+    return profile?.names?.[I18n.getLanguage()] || profile?.symbols || [];
+  }
+
+  function returnedProfile(context) {
+    if (validProfile(context.reference_profile)) return context.reference_profile;
+    const configured = profileForSymbol(analysis.symbol);
+    if (configured) return configured;
+    // Compatibility with responses from the original UMC-only release.
+    return analysis.symbol === "2303.TW" ? {
+      id: "umc", market: "taiwan", kind: "adr_sector", symbols: ["UMC", "SOXX"],
+      names: { "zh-TW": ["聯電 ADR（UMC）", "半導體 ETF（SOXX）"], en: ["UMC ADR (UMC)", "Semiconductor ETF (SOXX)"] },
+    } : null;
+  }
+
+  async function loadReferenceCatalog() {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 4000);
+    try {
+      const response = await fetch("/api/reference-profiles", { signal: controller.signal });
+      if (!response.ok) throw new Error("Reference catalog unavailable");
+      const catalog = await response.json();
+      if (!catalog || typeof catalog.profiles !== "object" || !catalog.profiles || Array.isArray(catalog.profiles)
+          || !Object.values(catalog.profiles).every(validProfile)
+          || typeof catalog.stock_profiles !== "object" || !catalog.stock_profiles || Array.isArray(catalog.stock_profiles)
+          || !catalog.profiles[catalog.default_taiwan_profile]
+          || !Object.values(catalog.stock_profiles).every((id) => typeof id === "string" && catalog.profiles[id])
+          || typeof catalog.taiwan_pattern !== "string" || catalog.taiwan_pattern.length > 160
+          || typeof catalog.bare_taiwan_pattern !== "string" || catalog.bare_taiwan_pattern.length > 160) throw new Error("Invalid reference catalog");
+      const patterns = { taiwan: new RegExp(catalog.taiwan_pattern), bare: new RegExp(catalog.bare_taiwan_pattern) };
+      referenceCatalog = catalog;
+      referencePatterns = patterns;
+      catalogState = "ready";
+    } catch {
+      catalogState = "unavailable";
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
   function supportsOvernight(value = symbol.value, selectedSource = source.value) {
-    return ["twse", "yahoo"].includes(selectedSource) && /^2303(?:\.TW)?$/.test(value.trim().toUpperCase());
+    return Boolean(formProfile(value, selectedSource));
+  }
+
+  function clearFactorFiles() {
+    for (const file of factorFiles) {
+      file.version += 1;
+      file.text = null;
+      file.name = "";
+      file.state = "empty";
+      $(`${file.id}-csv-file`).value = "";
+    }
   }
 
   function updateFactorFilesUi() {
+    const profile = formProfile();
+    const selectedTarget = canonicalTaiwanSymbol(symbol.value) || symbol.value.trim().toUpperCase();
+    const selectionKey = `${selectedTarget}:${profile?.id || "unsupported"}`;
+    if (factorSelectionKey !== selectionKey) {
+      clearFactorFiles();
+      factorSelectionKey = selectionKey;
+    }
+    const names = profileNames(profile);
+    text("us-overnight-label", profile ? t("overnight.enable", { symbols: profile.symbols.join(" + ") }) : t("overnight.enableGeneric"));
+    text("us-overnight-help", catalogState === "ready" ? t(profile?.kind === "broad_market" ? "overnight.controlHelpMarket" : "overnight.controlHelp") : t(catalogState === "loading" ? "overnight.catalogLoading" : "overnight.catalogUnavailable"));
+    text("us-factor-csv-option", profile ? t("overnight.sourceCsv", { symbols: profile.symbols.join(" + ") }) : t("overnight.sourceCsvGeneric"));
     const active = overnightControl.checked && supportsOvernight();
     $("us-factor-options").hidden = !active;
     factorSource.disabled = !active;
     $("us-factor-files").hidden = factorSource.value !== "csv";
-    for (const code of ["UMC", "SOXX"]) {
-      const id = code.toLowerCase();
-      $(`${id}-csv-file`).disabled = !active || factorSource.value !== "csv";
-      const file = factorFiles[code];
+    for (const [index, file] of factorFiles.entries()) {
+      const code = profile?.symbols[index] || String(index + 1);
+      $(`${file.id}-csv-label`).textContent = t("overnight.factorCsv", { name: names[index] || t("overnight.factorSlot", { index: index + 1 }) });
+      $(`${file.id}-csv-file`).disabled = !active || factorSource.value !== "csv";
       const key = file.state === "ready" ? "overnight.csvLoaded" : file.state === "reading" ? "overnight.csvReading" : file.state === "empty" ? "overnight.csvNotSelected" : file.state;
-      $(`${id}-csv-status`).textContent = t(key, { symbol: code, name: file.name });
+      $(`${file.id}-csv-status`).textContent = t(key, { symbol: code, name: file.name });
     }
   }
 
-  async function readFactorFile(code, event) {
-    const state = factorFiles[code];
+  async function readFactorFile(index, event) {
+    const state = factorFiles[index];
     const version = ++state.version;
     state.text = null;
     const file = event.target.files[0];
@@ -162,12 +257,13 @@
     const requestedHorizon = horizon.value;
     const requestedLanguage = I18n.getLanguage();
     const requestedContext = overnightControl.checked && supportsOvernight(requestedSymbol, requestedSource);
+    const requestedProfile = requestedContext ? formProfile(requestedSymbol, requestedSource) : null;
     const factorsFromCsv = requestedContext && factorSource.value === "csv";
-    const requestedFactors = { UMC: factorFiles.UMC.text, SOXX: factorFiles.SOXX.text };
-    if (factorsFromCsv && (!requestedFactors.UMC || !requestedFactors.SOXX)) {
-      const reading = Object.values(factorFiles).some((file) => file.state === "reading");
+    const requestedFactors = requestedProfile ? Object.fromEntries(requestedProfile.symbols.map((code, index) => [code, factorFiles[index].text])) : null;
+    if (factorsFromCsv && Object.values(requestedFactors).some((contents) => !contents)) {
+      const reading = factorFiles.some((file) => file.state === "reading");
       showError({ key: reading ? "overnight.csvReading" : "overnight.csvRequired" });
-      $(requestedFactors.UMC ? "soxx-csv-file" : "umc-csv-file").focus();
+      $(`${factorFiles.find((file) => !file.text).id}-csv-file`).focus();
       return;
     }
     if (request) request.abort();
@@ -188,7 +284,7 @@
       const endpoint = factorsFromCsv ? `/api/analysis/overnight/csv?${new URLSearchParams({ lang: requestedLanguage })}` : fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${params}`;
       const response = await fetch(endpoint, factorsFromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: requestedSymbol, source: requestedSource, horizon: Number(requestedHorizon), umc_csv: requestedFactors.UMC, soxx_csv: requestedFactors.SOXX }),
+        body: JSON.stringify({ symbol: requestedSymbol, source: requestedSource, horizon: Number(requestedHorizon), factor_csvs: requestedFactors }),
         signal: controller.signal,
       } : fromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -290,6 +386,10 @@
     $("overnight-available-after").hidden = true;
     panel.hidden = !context;
     if (!context) return;
+    const profile = returnedProfile(context);
+    const names = profileNames(profile);
+    text("overnight-title", t("overnight.title", { symbol: analysis.symbol }));
+    text("overnight-intro", t(profile?.kind === "broad_market" ? "overnight.introMarket" : "overnight.intro"));
     const status = ["ready", "waiting"].includes(context.status) ? context.status : "unavailable";
     const usingFactors = status === "ready";
     const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy"];
@@ -319,13 +419,13 @@
       changeClass($("overnight-factor-change"), estimate.change_pct);
     }
     const factors = usingFactors && Array.isArray(context.factors) ? context.factors : [];
-    cards.hidden = !usingFactors;
-    for (const symbolName of usingFactors ? ["UMC", "SOXX"] : []) {
+    cards.hidden = !usingFactors || !profile;
+    for (const [index, symbolName] of (usingFactors ? profile?.symbols || [] : []).entries()) {
       const factor = factors.find((item) => item?.symbol === symbolName) || {};
       const card = document.createElement("article");
       card.className = "overnight-factor";
       const heading = document.createElement("h4");
-      heading.textContent = t(symbolName === "UMC" ? "overnight.factor.umc" : "overnight.factor.soxx");
+      heading.textContent = names[index] || symbolName;
       const sessions = document.createElement("p");
       sessions.textContent = t("overnight.sessions", { first: factor.first_session || "—", last: factor.last_session || "—" });
       const change = document.createElement("strong");
@@ -525,10 +625,10 @@
   symbol.addEventListener("input", updateSourceUi);
   overnightControl.addEventListener("change", updateFactorFilesUi);
   factorSource.addEventListener("change", updateFactorFilesUi);
-  $("umc-csv-file").addEventListener("change", (event) => readFactorFile("UMC", event));
-  $("soxx-csv-file").addEventListener("change", (event) => readFactorFile("SOXX", event));
+  $("umc-csv-file").addEventListener("change", (event) => readFactorFile(0, event));
+  $("soxx-csv-file").addEventListener("change", (event) => readFactorFile(1, event));
   $("overnight-csv-switch").addEventListener("click", () => {
-    if (!analysis || analysis.symbol !== "2303.TW") return;
+    if (!analysis || !profileForSymbol(analysis.symbol)) return;
     symbol.value = analysis.symbol;
     source.value = ["twse", "yahoo"].includes(analysis.source) ? analysis.source : "twse";
     overnightControl.checked = true;
@@ -603,7 +703,6 @@
   if (initialSymbol && /^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$/.test(initialSymbol)) symbol.value = initialSymbol;
   if (["demo", "yahoo", "twse"].includes(initial.get("source"))) source.value = initial.get("source");
   if (["5", "10", "20"].includes(initial.get("horizon"))) horizon.value = initial.get("horizon");
-  if (initial.get("market_context") === "us_overnight" && supportsOvernight()) overnightControl.checked = true;
   I18n.subscribe(() => {
     updateFormatters();
     updateFactorFilesUi();
@@ -611,6 +710,12 @@
     if (errorState) renderError();
     setLoading(loading, loadingSource);
   });
-  updateSourceUi();
-  runAnalysis();
+  async function initialize() {
+    updateSourceUi();
+    await loadReferenceCatalog();
+    if (requestId === 0 && initial.get("market_context") === "us_overnight" && supportsOvernight()) overnightControl.checked = true;
+    updateSourceUi();
+    if (requestId === 0) runAnalysis();
+  }
+  initialize();
 })();
