@@ -33,4 +33,4 @@ uv run --no-sync pytest -q tests/test_refresh_market_data.py tests/test_auto_csv
 
 讀取 API 時使用 `market_context=us_overnight&factor_source=auto_csv`。回應的 `market_context.data_source` 為 `auto_csv`；資料可用時另含 `snapshot_metadata` 的實際交易日與產生時間。舊 API 未指定 `factor_source` 時仍維持直接 Yahoo 行為，網頁則預設自動 CSV。
 
-網頁先揭露 CSV 中的美元收盤價格與交易日，再列出純台股預測，最後才顯示含已知美股影響的條件比較。原始報價不因綜合模型樣本不足而被隱藏；缺少當日價格的標的仍顯示「無」。多日比較只在第一日納入已知美股影響，後續沿用台股模型遞迴，不假造未來美股收盤價。
+網頁先揭露 CSV 中的美元收盤價格與交易日，再列出純台股預測，最後才顯示含已知美股影響的條件比較。原始報價不因綜合模型樣本不足而被隱藏；缺少當日價格的標的仍顯示「無」。聯電與台積電的 ADR 方向情境將當日 ADR 漲跌的 50% 作為首日修正（上限 ±5%），之後每天保留八成影響，各日皆相對純台股估計修正，不重複複利；這些是明示的情境假設，不是已回測的係數。SOXX 不納入此方向規則，而留在獨立的單日統計模型參考。其他台股的 SPY／QQQ 比較維持首日跨市場模型、後續台股模型遞迴。所有情境都不假造未來美股收盤價；詳見 [README](README.md)。

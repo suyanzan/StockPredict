@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 import stockpredict.overnight as overnight
-from stockpredict.forecast import fit_predict
+from stockpredict.forecast import analyze, fit_predict
 
 
 def weekdays(start, end):
@@ -456,16 +456,25 @@ def test_raw_current_quotes_never_reuse_previous_day_or_expose_future_prices():
 
 
 @pytest.mark.parametrize("horizon", [1, 5, 10, 30])
-def test_conditional_combined_path_matches_requested_horizon_and_single_day_estimate(horizon):
+def test_directional_adr_path_matches_horizon_without_replacing_the_arx_diagnostic(horizon):
     points, factors = fixture_data()
     result = overnight.build_context(points, factors, now=ready_now(), horizon=horizon)
     path = result["scenario_forecast"]
     assert len(path) == horizon
-    assert path[0] == {"date": result["forecast"]["date"], "close": result["forecast"]["close"]}
-    assert all(set(item) == {"date", "close"} for item in path)
+    assert path[0]["date"] == result["forecast"]["date"]
+    assert all(set(item) == {"date", "close", "adr_adjustment_pct"} for item in path)
+    quote = next(item for item in result["quotes"] if item["symbol"] == "UMC")
+    adjustment = np.clip(quote["day_change_pct"] * 0.5, -5, 5)
+    baseline = analyze(points, horizon)["forecast"]
+    for index, (item, original) in enumerate(zip(path, baseline)):
+        assert item["date"] == original["date"]
+        assert item["close"] == pytest.approx(
+            original["close"] * (1 + adjustment * 0.8**index / 100)
+        )
     base = overnight.build_context(points, factors, now=ready_now(), horizon=5)
     assert result["backtest"] == base["backtest"]
     assert result["quotes"] == base["quotes"]
+    assert result["forecast"] == base["forecast"]
 
 
 @pytest.mark.parametrize("horizon", [0, 31, True, 1.5])

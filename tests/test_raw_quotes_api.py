@@ -138,7 +138,7 @@ def test_raw_quote_symbols_follow_the_selected_profile(
     assert all(quote["data_source"] == "auto_csv" for quote in context["quotes"])
 
 
-@pytest.mark.parametrize("horizon", [5, 10])
+@pytest.mark.parametrize("horizon", [1, 5, 10])
 @pytest.mark.parametrize(("symbol", "profile_id", "pair"), PROFILE_CASES)
 def test_conditional_path_matches_requested_dates_and_does_not_change_original_forecast(
     client, quote_history, horizon, symbol, profile_id, pair
@@ -155,10 +155,23 @@ def test_conditional_path_matches_requested_dates_and_does_not_change_original_f
     assert len(scenario) == horizon
     assert [row["date"] for row in scenario] == [row["date"] for row in base["forecast"]]
     assert scenario[0]["date"] == context["forecast"]["date"] == "2026-11-02"
-    assert scenario[0]["close"] == context["forecast"]["close"]
     for key in ("forecast", "history", "summary", "backtest", "as_of"):
         assert result[key] == base[key]
 
+    if profile_id in ("umc", "tsmc"):
+        method = context["scenario_method"]
+        assert method["id"] == "adr_directional_v1" and method["adr_symbol"] == pair[0]
+        quote = next(item for item in context["quotes"] if item["symbol"] == pair[0])
+        expected_adjustment = float(np.clip(quote["day_change_pct"] * 0.5, -5, 5))
+        for index, (row, original) in enumerate(zip(scenario, base["forecast"])):
+            assert row["adr_adjustment_pct"] == pytest.approx(expected_adjustment * 0.8**index)
+            assert row["close"] == pytest.approx(
+                original["close"] * (1 + expected_adjustment * 0.8**index / 100)
+            )
+        return
+
+    assert context.get("scenario_method") is None
+    assert scenario[0]["close"] == context["forecast"]["close"]
     # Independently reproduce only the Taiwan continuation after the US-informed
     # first step, using coefficients fitted once on the original historical data.
     prices = np.array([row["close"] for row in quote_history["points"]])
@@ -185,6 +198,7 @@ def test_valid_raw_quotes_remain_when_model_overlap_is_insufficient(client, quot
         context["status"] == "unavailable" and context["reason"] == "insufficient_aligned_history"
     )
     assert context["forecast"] is None and context["scenario_forecast"] == []
+    assert context.get("scenario_method") is None
     assert [quote["symbol"] for quote in context["quotes"]] == ["UMC", "SOXX"]
     assert context["quotes"][0]["close"] == 16.68
     assert all(quote["data_source"] == "csv" for quote in context["quotes"])
@@ -201,6 +215,7 @@ def test_partial_current_csv_quotes_do_not_disappear_when_the_pair_cannot_be_mod
     context = response.json()["market_context"]
     assert context["status"] == "unavailable" and context["reason"] == "missing_us_sessions"
     assert context["forecast"] is None and context["scenario_forecast"] == []
+    assert context.get("scenario_method") is None
     assert len(context["quotes"]) == 1
     assert context["quotes"][0]["symbol"] == "UMC"
     assert context["quotes"][0]["close"] == 16.68
@@ -220,6 +235,7 @@ def test_unclosed_session_returns_no_quotes_or_scenario_without_reading_provider
     context = response.json()["market_context"]
     assert context["status"] == "waiting"
     assert context["quotes"] == context["scenario_forecast"] == []
+    assert context.get("scenario_method") is None
 
 
 def test_provider_failure_does_not_show_old_quotes_or_comparison_path(
@@ -235,6 +251,7 @@ def test_provider_failure_does_not_show_old_quotes_or_comparison_path(
     assert context["status"] == "unavailable" and context["reason"] == "auto_csv_missing_session"
     assert context["quotes"] == context["scenario_forecast"] == []
     assert context["forecast"] is None
+    assert context.get("scenario_method") is None
 
 
 def test_unseen_future_us_prices_do_not_change_raw_quotes_or_conditional_path(
@@ -247,3 +264,68 @@ def test_unseen_future_us_prices_do_not_change_raw_quotes_or_conditional_path(
     assert second["quotes"] == first["quotes"]
     assert second["forecast"] == first["forecast"]
     assert second["scenario_forecast"] == first["scenario_forecast"]
+    assert second["scenario_method"] == first["scenario_method"]
+
+
+@pytest.mark.parametrize("source", ["auto_csv", "yahoo", "csv"])
+@pytest.mark.parametrize("symbol", ["2303", "2330"])
+@pytest.mark.parametrize(("close", "direction"), [(96, -1), (104, 1), (100, 0)])
+def test_signed_adr_effect_reaches_all_five_days_independently_of_opposing_sector_move(
+    client, quote_history, source, symbol, close, direction
+):
+    adr = "UMC" if symbol == "2303" else "TSM"
+    for row in quote_history["factors"][adr]:
+        if row["date"] == "2026-10-29":
+            row["close"] = 100
+        elif row["date"] == "2026-10-30":
+            row["close"] = close
+    for row in quote_history["factors"]["SOXX"]:
+        if row["date"] == "2026-10-29":
+            row["close"] = 100
+        elif row["date"] == "2026-10-30":
+            row["close"] = 130 if direction <= 0 else 70
+    response = request_context(client, quote_history, symbol=symbol, source=source)
+    assert response.status_code == 200, response.text
+    result = response.json()
+    context = result["market_context"]
+    assert context["status"] == "ready"
+    assert len(context["scenario_forecast"]) == 5
+    assert context["scenario_method"]["adr_change_pct"] == pytest.approx(close - 100)
+    for adjusted, original in zip(context["scenario_forecast"], result["forecast"]):
+        assert adjusted["date"] == original["date"]
+        if direction < 0:
+            assert adjusted["close"] < original["close"]
+        elif direction > 0:
+            assert adjusted["close"] > original["close"]
+        else:
+            assert adjusted["close"] == original["close"]
+    # Sector data and its learned model remain independently available; they
+    # must not be silently described as ingredients of this ADR-only rule.
+    assert any(item["symbol"] == "SOXX" for item in context["factors"])
+    assert context["forecast"] is not None and context["backtest"] is not None
+
+
+def test_directional_rule_uses_latest_adr_session_not_cumulative_model_return(
+    client, quote_history, monkeypatch
+):
+    original = overnight._window_returns
+
+    def opposing_window(baseline, sessions, factors, factor_symbols=overnight.FACTORS):
+        value = original(baseline, sessions, factors, factor_symbols)
+        if value is not None and sessions[-1] == date(2026, 10, 30):
+            # A cumulative model input and the latest session need not have the
+            # same sign. Isolate that distinction independently of alignment.
+            return np.log(np.array([1.2, 1.1]))
+        return value
+
+    monkeypatch.setattr(overnight, "_window_returns", opposing_window)
+    response = request_context(client, quote_history)
+    assert response.status_code == 200, response.text
+    result = response.json()
+    context = result["market_context"]
+    assert context["factors"][0]["return_pct"] == pytest.approx(20)
+    assert context["scenario_method"]["adr_change_pct"] == pytest.approx((16.68 / 18.04 - 1) * 100)
+    assert all(
+        row["close"] < original["close"]
+        for row, original in zip(context["scenario_forecast"], result["forecast"])
+    )

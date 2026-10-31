@@ -2171,6 +2171,47 @@ textarea:focus-visible {
   font-size:12px;
 }
 
+.adr-impact-summary {
+  margin:0 23px 18px;
+  padding:15px 17px;
+  border:1px solid var(--border);
+  border-left:3px solid #7b8fa1;
+  border-radius:7px;
+  background:#f8fafc;
+  overflow-wrap:anywhere;
+}
+
+.adr-impact-summary[data-direction="positive"] {
+  border-left-color:#008c75;
+}
+
+.adr-impact-summary[data-direction="negative"] {
+  border-left-color:#ed655f;
+}
+
+.adr-impact-summary h4 {
+  margin:0 0 9px;
+  color:var(--ink);
+  font-size:15px;
+}
+
+.adr-impact-summary p {
+  margin:7px 0 0;
+  color:#63788b;
+  font-size:12px;
+  line-height:1.75;
+}
+
+.combined-diagnostics h4 {
+  margin:14px 0 8px;
+  font-size:13px;
+}
+
+.combined-diagnostics .overnight-forecast {
+  margin-left:0;
+  margin-right:0;
+}
+
 .combined-scenario {
   margin:0 23px 24px;
 }
@@ -2361,7 +2402,7 @@ textarea:focus-visible {
   .analysis-section-heading h2 {
     font-size:18px;
   }
-  .combined-empty,.combined-scenario,.combined-diagnostics {
+  .combined-empty,.combined-scenario,.combined-diagnostics,.adr-impact-summary {
     margin-left:16px;
     margin-right:16px;
   }

@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 
+from stockpredict.adr_scenario import ADR_SYMBOLS, directional_adr_forecast
 from stockpredict.forecast import LAGS, conditional_forecast, fit_predict, validate_points
 from stockpredict.reference_profiles import FACTOR_PAIRS
 
@@ -185,6 +186,7 @@ def _timing_context(points: list[dict], now: datetime | None) -> tuple[datetime,
         "assumed_availability": True,
         "forecast": None,
         "scenario_forecast": [],
+        "scenario_method": None,
         "quotes": [],
         "factors": [],
         "backtest": None,
@@ -278,6 +280,19 @@ def build_context(
     if len(rows) < MIN_ALIGNED_ROWS:
         return {**result, "reason": "insufficient_aligned_history"}
 
+    if factor_symbols[0] in ADR_SYMBOLS:
+        adr_quote = next(
+            (quote for quote in result["quotes"] if quote["symbol"] == factor_symbols[0]), None
+        )
+        try:
+            scenario, scenario_method = directional_adr_forecast(points, adr_quote, horizon)
+        except ValueError:
+            # Never substitute an older/multiple-session ADR move or silently
+            # revert to a path whose direction could oppose the requested rule.
+            return {**result, "reason": "missing_us_sessions"}
+        result["scenario_forecast"] = scenario
+        result["scenario_method"] = scenario_method
+
     window = rows[-60:]
     targets = np.array([row.target for row in window])
     result["correlations_window"] = {
@@ -312,9 +327,10 @@ def build_context(
         "base_close": previous_close,
         "change_pct": (exp(predicted_return) - 1) * 100,
     }
-    result["scenario_forecast"] = conditional_forecast(
-        points, result["forecast"]["close"], horizon=horizon
-    )
+    if factor_symbols[0] not in ADR_SYMBOLS:
+        result["scenario_forecast"] = conditional_forecast(
+            points, result["forecast"]["close"], horizon=horizon
+        )
     for index, item in enumerate(result["factors"]):
         item.update(
             first_session=sessions[0].isoformat(),

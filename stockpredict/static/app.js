@@ -389,9 +389,10 @@
     const rows = $("overnight-backtest-rows");
     const comparisonRows = $("combined-comparison-rows");
     for (const element of [cards, correlations, rows, comparisonRows]) element.replaceChildren();
-    for (const id of ["overnight-forecast", "overnight-backtest", "overnight-correlation-period", "combined-scenario", "combined-diagnostics", "overnight-required-session", "overnight-available-after", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-retry-help", "overnight-csv-switch"]) $(id).hidden = true;
-    for (const id of ["overnight-status", "overnight-raw-status", "overnight-data-source", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-required-session", "overnight-available-after", "overnight-retry-help", "overnight-target", "overnight-factor-close", "overnight-ar-close", "overnight-factor-change", "overnight-correlation-period", "overnight-backtest-period", "overnight-backtest-verdict", "combined-empty-reason", "combined-direction", "combined-scenario-note"]) text(id, "");
+    for (const id of ["overnight-forecast", "overnight-backtest", "overnight-correlation-period", "combined-scenario", "combined-diagnostics", "adr-impact-summary", "overnight-required-session", "overnight-available-after", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-retry-help", "overnight-csv-switch"]) $(id).hidden = true;
+    for (const id of ["overnight-status", "overnight-raw-status", "overnight-data-source", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-required-session", "overnight-available-after", "overnight-retry-help", "overnight-target", "overnight-factor-close", "overnight-ar-close", "overnight-factor-change", "overnight-correlation-period", "overnight-backtest-period", "overnight-backtest-verdict", "combined-empty-reason", "combined-direction", "combined-scenario-note", "adr-impact-title", "adr-impact-return", "adr-impact-rule", "adr-impact-cap", "adr-impact-assumptions", "combined-model-reference"]) text(id, "");
     changeClass($("overnight-factor-change"), null);
+    delete $("adr-impact-summary").dataset.direction;
     text("base-forecast-heading", t("comparison.baseTitle", { market: t(isTaiwan ? "comparison.taiwan" : "comparison.stock"), count: analysis.forecast.length }));
     text("combined-base-column", t("comparison.baseColumn", { market: t(isTaiwan ? "comparison.taiwan" : "comparison.stock") }));
     panel.hidden = !context && !isTaiwan;
@@ -470,9 +471,16 @@
     $("overnight-retry-help").hidden = !retrySeconds;
     $("overnight-csv-switch").hidden = !context || context.data_source === "csv" || status !== "unavailable" || !["data_unavailable", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context.reason);
     const scenario = context?.scenario_forecast;
-    const scenarioReady = status === "ready" && completeQuotes && Array.isArray(scenario) && scenario.length === analysis.forecast.length && scenario.every((point, index) => point?.date === analysis.forecast[index].date && Number.isFinite(point.close) && point.close > 0);
+    const method = context?.scenario_method;
+    const expectsAdr = profile?.kind === "adr_sector";
+    const adrQuote = expectsAdr ? validQuotes.get(profile.symbols[0]) : null;
+    const directional = expectsAdr && method?.id === "adr_directional_v1" && method.adr_symbol === profile.symbols[0] && method.session_date === requiredSession && method.session_date === adrQuote?.session_date && method.previous_session_date === adrQuote?.previous_session_date && [method.adr_change_pct, method.sensitivity, method.daily_decay, method.max_adjustment_pct, method.initial_adjustment_pct, method.uncapped_adjustment_pct].every(Number.isFinite) && method.sensitivity >= 0 && method.sensitivity <= 1 && method.daily_decay > 0 && method.daily_decay <= 1 && method.max_adjustment_pct > 0 && Math.abs(method.initial_adjustment_pct) <= method.max_adjustment_pct && typeof method.capped === "boolean";
+    text("combined-title", t(expectsAdr ? "comparison.adrTitle" : "comparison.title"));
+    text("combined-copy", t(expectsAdr ? "comparison.adrCopy" : "comparison.copy"));
+    text("combined-scenario-column", t(expectsAdr ? "comparison.adrColumn" : "comparison.scenarioColumn"));
+    const scenarioReady = status === "ready" && completeQuotes && (!expectsAdr || directional) && Array.isArray(scenario) && scenario.length === analysis.forecast.length && scenario.every((point, index) => point?.date === analysis.forecast[index].date && Number.isFinite(point.close) && point.close > 0);
     const combinedReason = !context ? t("comparison.notEnabled") : reason || t("comparison.scenarioMissing");
-    text("overnight-status", scenarioReady ? t("comparison.available") : `${t("comparison.none")} · ${combinedReason}`);
+    text("overnight-status", scenarioReady ? t(directional ? "comparison.adrAvailable" : "comparison.available") : `${t("comparison.none")} · ${combinedReason}`);
     $("overnight-status").dataset.status = scenarioReady ? "ready" : "unavailable";
     text("combined-empty-reason", combinedReason);
     $("combined-empty").hidden = scenarioReady;
@@ -488,7 +496,19 @@
       changeClass($("overnight-factor-change"), estimate.change_pct);
     }
     $("combined-scenario").hidden = false;
-    text("combined-scenario-note", t(scenario.length > 1 ? "comparison.scenarioNote" : "comparison.scenarioNoteOne", { remaining: scenario.length - 1 }));
+    text("combined-scenario-note", t(directional ? "comparison.adrScenarioNote" : scenario.length > 1 ? "comparison.scenarioNote" : "comparison.scenarioNoteOne", { remaining: scenario.length - 1 }));
+    text("combined-model-reference", t(directional ? "comparison.modelReference" : "comparison.modelReferenceBroad", { symbols: profile.symbols.join(" + ") }));
+    if (directional) {
+      $("adr-impact-summary").hidden = false;
+      const impact = method.initial_adjustment_pct;
+      text("adr-impact-title", t(impact > 0 ? "comparison.adrPositive" : impact < 0 ? "comparison.adrNegative" : "comparison.adrNeutral", { symbol: method.adr_symbol }));
+      $("adr-impact-summary").dataset.direction = impact > 0 ? "positive" : impact < 0 ? "negative" : "neutral";
+      text("adr-impact-return", t("comparison.adrReturn", { symbol: method.adr_symbol, date: method.session_date, previous: method.previous_session_date, change: percent(method.adr_change_pct, true) }));
+      text("adr-impact-rule", t("comparison.adrRule", { sensitivity: percent(method.sensitivity * 100), adjustment: percent(impact, true), decay: percent(method.daily_decay * 100) }));
+      text("adr-impact-cap", t(method.capped ? "comparison.adrCapped" : "comparison.adrNotCapped", { cap: percent(method.max_adjustment_pct), uncapped: percent(method.uncapped_adjustment_pct, true) }));
+      text("adr-impact-assumptions", t("comparison.adrAssumptions"));
+    }
+
     for (const [index, point] of scenario.entries()) {
       const base = analysis.forecast[index];
       const row = document.createElement("tr");
@@ -527,7 +547,7 @@
     $("overnight-correlation-period").hidden = !correlationWindow;
     text("overnight-correlation-period", correlationWindow ? t("overnight.correlationPeriod", { start: correlationWindow.start || "—", end: correlationWindow.end || "—", count: Number.isInteger(correlationWindow.samples) ? correlationWindow.samples : "—" }) : "");
     const backtest = context.backtest;
-    $("combined-diagnostics").hidden = !backtest && !factors.length;
+    $("combined-diagnostics").hidden = !backtest && !factors.length && !Number.isFinite(estimate?.close);
     $("overnight-backtest").hidden = !backtest;
     if (!backtest) return;
     text("overnight-backtest-period", t("overnight.backtestPeriod", { start: backtest.start || "—", end: backtest.end || "—", count: Number.isInteger(backtest.observations) ? backtest.observations : "—" }));
