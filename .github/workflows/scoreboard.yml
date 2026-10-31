@@ -27,6 +27,6 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       - run: uv sync --locked --no-dev
-      - run: uv run --no-sync python -m stockpredict.scoreboard run
+      - run: uv run --no-sync python -m stockpredict.scoreboard run --strict
         env:
           SCOREBOARD_DATABASE_URL: ${{ secrets.SCOREBOARD_DATABASE_URL }}

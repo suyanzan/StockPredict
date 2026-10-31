@@ -1,0 +1,13 @@
+{
+  "base_commit": "a8fd5d2",
+  "tests_passed": 619,
+  "postgres_integration": true,
+  "ruff_check": true,
+  "ruff_format": true,
+  "workflow_yaml_parsed": true,
+  "docker_nonroot_api_smoke": true,
+  "independent_monitor_healthy_exit": 0,
+  "browser": "roadmap-browser.json",
+  "production_model_parameters_changed": false,
+  "schema_migration_required": false
+}

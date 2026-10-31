@@ -134,3 +134,40 @@ def test_api_source_failure_and_invalid_symbol(monkeypatch):
     client = TestClient(app)
     assert client.get("/api/historical-backtest").status_code == 502
     assert client.get("/api/historical-backtest?symbol=AAPL").status_code == 422
+
+
+@pytest.mark.parametrize("months,days", [(3, 90), (6, 180), (12, 365)])
+def test_long_periods_request_long_history_and_show_partial_coverage(
+    points, monkeypatch, months, days
+):
+    monkeypatch.setattr(history, "_long_history", lambda *a: (points, {"source": "yahoo"}))
+    monkeypatch.setattr(history, "twse_data", lambda *a: pytest.fail("Short TWSE data used"))
+    monkeypatch.setattr(history, "overnight_factors", lambda *a: {})
+    report = history.historical_report(
+        "2303.TW", months=months, now=datetime.fromisoformat("2026-10-31T12:00:00+08:00")
+    )
+    assert (
+        date.fromisoformat(report["test_end"]) - date.fromisoformat(report["test_start"])
+    ).days == days - 1
+    assert report["source"]["source"] == "yahoo"
+    assert report["coverage"]["tested_sessions"] <= report["coverage"]["requested_sessions"]
+    if months >= 6:
+        assert not report["coverage"]["complete_training_coverage"]
+
+
+def test_fast_forecast_is_identical_to_original_model(points):
+    from stockpredict.forecast import analyze, forecast_path
+
+    fast = forecast_path(points, 5)
+    original = analyze(points, 5)["forecast"]
+    assert [p["close"] for p in fast] == [p["close"] for p in original]
+
+
+@pytest.mark.parametrize("months", [1, 3, 6, 12])
+def test_api_accepts_each_period_as_query_string(monkeypatch, months):
+    monkeypatch.setattr(
+        history, "historical_report", lambda symbol, **kw: {"months": kw.get("months", 1)}
+    )
+    response = TestClient(app).get("/api/historical-backtest", params={"months": months})
+    assert response.status_code == 200 and response.json()["months"] == months
+    assert TestClient(app).get("/api/historical-backtest?months=2").status_code == 422

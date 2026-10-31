@@ -87,6 +87,8 @@
     return message.startsWith("score.") ? `${t("error")} (${value})` : message;
   }
   function render() {
+    window.StockPredictEvaluation.comparison($("score-comparison"), scores?.comparison);
+    window.StockPredictEvaluation.alerts($("score-alerts"), scores?.alerts, scores?.status === "ready");
     for (const id of ["score-head", "score-summary", "score-record-head", "score-records", "score-calendar"]) $(id).replaceChildren();
     row($("score-head"), t("columns").split(","), true);
     row($("score-record-head"), t("recordColumns").split(","), true);

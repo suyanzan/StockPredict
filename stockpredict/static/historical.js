@@ -3,7 +3,7 @@
   const i18n = window.StockPredictI18n;
   i18n.register({
     "zh-TW": {
-      "history.title": "最近 30 日歷史回測", "history.run": "執行歷史回測",
+      "history.title": "歷史訓練與回測", "history.run": "執行歷史回測",
       "history.description": "逐日使用當時以前至少 60 筆歷史收盤訓練，測試第 1、5 個交易日；純台股與 ADR 情境分開。",
       "history.idle": "按下按鈕取得真實歷史行情並回測。", "history.loading": "正在讀取歷史行情並逐日回測，首次可能需要 20–60 秒…",
       "history.note": "這是事後逐日模擬，歷史行情可能經過修訂，公布時間採日曆假設。結果不寫入盤前成績看板；未到期或缺資料不計分。",
@@ -15,7 +15,7 @@
       "history.missing_actual_close": "缺少該日收盤（不計分）",
     },
     en: {
-      "history.title": "Historical backtest · Last 30 days", "history.run": "Run historical backtest",
+      "history.title": "Historical training and backtest", "history.run": "Run historical backtest",
       "history.description": "Train each day on at least 60 preceding historical closes; evaluate trading days 1 and 5. Taiwan-only and ADR scenarios are separate.",
       "history.idle": "Run to fetch real historical prices and evaluate them.", "history.loading": "Fetching historical prices and running walk-forward tests; the first request may take 20–60 seconds…",
       "history.note": "This is a retrospective simulation. Historical prices may be revised, and availability times are calendar assumptions. Results do not enter the live pre-open scoreboard. Pending or missing actuals are excluded.",
@@ -42,6 +42,10 @@
     parent.append(tr);
   }
   function render() {
+    const evaluation = window.StockPredictEvaluation;
+    evaluation.comparison($("historical-comparison"), report?.comparison);
+    evaluation.review($("historical-review"), report?.model_review);
+    $("historical-coverage").textContent = report ? `${evaluation.t("source")}: ${report.source?.source || "—"} · ${evaluation.t("coverage")}: ${report.coverage?.tested_sessions ?? "—"}/${report.coverage?.requested_sessions ?? "—"}${report.coverage?.complete_training_coverage ? "" : ` · ${evaluation.t("partial")}`}` : "";
     for (const id of ["historical-head", "historical-summary", "historical-record-head", "historical-records", "historical-skipped"]) $(id).replaceChildren();
     const columns = score("columns").split(",");
     row($("historical-head"), [...columns, t("baseline")], true);
@@ -67,15 +71,16 @@
   $("historical-run").addEventListener("click", async () => {
     if (loading) return;
     loading = true; state = "loading"; report = null;
-    $("historical-run").disabled = $("historical-symbol").disabled = true; render();
+    $("historical-run").disabled = $("historical-symbol").disabled = $("historical-months").disabled = true; render();
     try {
-      const response = await fetch(`/api/historical-backtest?symbol=${encodeURIComponent($("historical-symbol").value)}`, {cache:"no-store"});
+      const response = await fetch(`/api/historical-backtest?symbol=${encodeURIComponent($("historical-symbol").value)}&months=${encodeURIComponent($("historical-months").value)}`, {cache:"no-store"});
       const data = await response.json();
       if (!response.ok) throw new Error(data.reason || "unavailable");
       report = data; state = "idle";
     } catch { state = "error"; }
-    finally { loading = false; $("historical-run").disabled = $("historical-symbol").disabled = false; render(); }
+    finally { loading = false; $("historical-run").disabled = $("historical-symbol").disabled = $("historical-months").disabled = false; render(); }
   });
   $("historical-symbol").addEventListener("change", () => {report = null; state = "idle"; render();});
+  $("historical-months").addEventListener("change", () => {report = null; state = "idle"; render();});
   i18n.subscribe(render); render();
 })();

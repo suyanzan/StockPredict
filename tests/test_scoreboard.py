@@ -187,6 +187,15 @@ def test_invalid_price_or_nontrading_path_rejected(database):
             save(conn, path=[{**p, "date": "2026-10-31"} for p in PATH])
 
 
+def test_monitor_health_is_read_only_and_does_not_return_archive(database):
+    response = TestClient(app).get("/api/scoreboard/health")
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    body = response.json()
+    assert body["status"] == "ready" and body["alerts"][0]["code"] == "no_checks"
+    assert set(body) == {"status", "alerts", "last_checked_at"}
+
+
 def test_concurrent_captures_have_one_winner(database):
     from concurrent.futures import ThreadPoolExecutor
 

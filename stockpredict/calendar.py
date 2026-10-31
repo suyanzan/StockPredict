@@ -13,6 +13,7 @@ def calendar(market: str):
     return xc.get_calendar(market, start="2000-01-01", end="2035-12-31")
 
 
+@lru_cache(maxsize=10000)
 def is_session(day: date, market: str = "XTAI") -> bool:
     return bool(calendar(market).is_session(day.isoformat()))
 
@@ -37,6 +38,7 @@ def opens_at(day: date, market: str = "XTAI") -> datetime:
     return calendar(market).session_open(day.isoformat()).to_pydatetime()
 
 
+@lru_cache(maxsize=10000)
 def available_at(day: date, market: str = "XTAI") -> datetime:
     delay = timedelta(minutes=90 if market == "XTAI" else 15)
     return calendar(market).session_close(day.isoformat()).to_pydatetime() + delay

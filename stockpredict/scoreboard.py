@@ -13,6 +13,7 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from stockpredict.calendar import available_at, date_path, next_session, opens_at, previous_session
+from stockpredict.comparison import paired_comparison
 
 router = APIRouter()
 SYMBOLS = ("2303.TW", "2330.TW")
@@ -141,6 +142,7 @@ def evaluate(predictions, actuals):
                 {
                     "id": prediction["id"],
                     "symbol": prediction["symbol"],
+                    "origin_date": prediction["snapshot"]["forecast"][0]["date"],
                     "scenario": prediction["scenario"],
                     "horizon": horizon,
                     "created_at": prediction["created_at"].isoformat(),
@@ -181,7 +183,7 @@ def evaluate(predictions, actuals):
                         else None,
                     }
                 )
-    return {"summary": summary, "predictions": rows}
+    return {"summary": summary, "predictions": rows, "comparison": paired_comparison(rows)}
 
 
 @router.get("/api/scoreboard")
@@ -195,7 +197,18 @@ def scoreboard():
             check = connection.execute(
                 "SELECT checked_at,details FROM sp_scoreboard_checks ORDER BY id DESC LIMIT 1"
             ).fetchone()
-        return {"status": "ready", **evaluate(predictions, actuals), "last_check": check}
+            first = connection.execute(
+                "SELECT min(checked_at) AS started_at FROM sp_scoreboard_checks"
+            ).fetchone()
+        from stockpredict.monitoring import health_alerts
+
+        result = evaluate(predictions, actuals)
+        return {
+            "status": "ready",
+            **result,
+            "last_check": check,
+            "alerts": health_alerts(result["predictions"], check, first["started_at"]),
+        }
     except (psycopg.Error, RuntimeError):
         return JSONResponse(
             status_code=503,
@@ -206,6 +219,18 @@ def scoreboard():
                 "predictions": [],
             },
         )
+
+
+@router.get("/api/scoreboard/health")
+def scoreboard_health():
+    result = scoreboard()
+    if not isinstance(result, dict):
+        return result
+    return {
+        "status": result["status"],
+        "alerts": result["alerts"],
+        "last_checked_at": result["last_check"]["checked_at"] if result["last_check"] else None,
+    }
 
 
 def run_job():
@@ -289,10 +314,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=("init", "run"))
+    parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
     if args.command == "init":
         with connect() as connection:
             initialize(connection)
         print("Scoreboard schema ready")
     else:
-        print(json.dumps(run_job(), ensure_ascii=False))
+        checks = run_job()
+        print(json.dumps(checks, ensure_ascii=False))
+        if args.strict:
+            from stockpredict.monitoring import collection_failures
+
+            if collection_failures(checks):
+                print("::error::Required market data collection failed; inspect scoreboard status")
+                raise SystemExit(1)

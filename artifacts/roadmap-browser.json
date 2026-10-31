@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "checks": [
+    "live 12-month API",
+    "same-origin paired comparison and coverage",
+    "independent holdout model review",
+    "production unchanged",
+    "zh-TW/en",
+    "critical schedule alert",
+    "mobile overflow",
+    "period selection clears previous result"
+  ],
+  "pageErrors": []
+}

@@ -12,3 +12,5 @@ __pycache__/
 coverage.xml
 .coverage
 htmlcov/
+artifacts/roadmap-*.TW-*.json
+artifacts/roadmap-browser-live-*.json

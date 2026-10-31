@@ -95,6 +95,13 @@ def conditional_forecast(points: list[dict], first_close: float, horizon: int = 
     return forecasts
 
 
+def forecast_path(points: list[dict], horizon: int = 5) -> list[dict]:
+    """Same recursive prices as analyze, without unused backtest and band diagnostics."""
+    validate_points(points)
+    prices = np.asarray([p["close"] for p in points], dtype=float)
+    return conditional_forecast(points, fit_predict(prices), horizon)
+
+
 def _backtest(prices: np.ndarray) -> dict:
     count = min(30, len(prices) // 5)
     start = len(prices) - count

@@ -1,6 +1,9 @@
 """Retrospective walk-forward evaluation, deliberately independent of the live archive."""
 
+import time
+from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
+from functools import lru_cache
 from typing import Literal
 from zoneinfo import ZoneInfo
 
@@ -14,15 +17,25 @@ from stockpredict.calendar import (
     opens_at,
     previous_session,
 )
-from stockpredict.data import DataSourceError
-from stockpredict.forecast import MIN_POINTS, analyze, validate_points
+from stockpredict.data import DataSourceError, yahoo_data
+from stockpredict.forecast import MIN_POINTS, forecast_path, validate_points
 from stockpredict.market_data import overnight_factors
+from stockpredict.model_review import review_models
 from stockpredict.overnight import build_context
 from stockpredict.reference_profiles import profile_for
 from stockpredict.scoreboard import SYMBOLS, evaluate
 from stockpredict.twse import twse_data
 
 router = APIRouter()
+PERIOD_DAYS = {1: 30, 3: 90, 6: 180, 12: 365}
+
+
+@lru_cache(maxsize=8)
+def _long_history(symbol, bucket):
+    points, metadata = yahoo_data(symbol)
+    if metadata.get("currency") != "TWD" or metadata.get("exchange_timezone") != "Asia/Taipei":
+        raise DataSourceError("Invalid Taiwan history", code="us_invalid_data")
+    return points, metadata
 
 
 def walk_forward(symbol, points, factors, start: date, end: date, *, factor_reason=None):
@@ -31,7 +44,7 @@ def walk_forward(symbol, points, factors, start: date, end: date, *, factor_reas
     Actuals are evaluated separately after generating every path. Today's historic
     feeds may contain revisions; simulated cutoffs are not publication evidence.
     """
-    if symbol not in SYMBOLS or not 0 <= (end - start).days <= 31:
+    if symbol not in SYMBOLS or not 0 <= (end - start).days <= 365:
         raise ValueError("Unsupported historical test window")
     validate_points(points)
     points = [p for p in points if p["date"] <= end.isoformat()]
@@ -54,8 +67,7 @@ def walk_forward(symbol, points, factors, start: date, end: date, *, factor_reas
             target += timedelta(days=1)
             continue
         cutoff = opens_at(target) - timedelta(microseconds=1)
-        base = analyze(prefix, 5)
-        paths = {"taiwan": date_path(base["forecast"], prefix[-1]["date"], "XTAI")}
+        paths = {"taiwan": date_path(forecast_path(prefix, 5), prefix[-1]["date"], "XTAI")}
         # No future US rows are passed into the historical cross-market model.
         eligible = {
             code: [
@@ -68,7 +80,14 @@ def walk_forward(symbol, points, factors, start: date, end: date, *, factor_reas
             for code, observations in (factors or {}).items()
         }
         context = (
-            build_context(prefix, eligible, now=cutoff, horizon=5, factor_symbols=profile.symbols)
+            build_context(
+                prefix,
+                eligible,
+                now=cutoff,
+                horizon=5,
+                factor_symbols=profile.symbols,
+                diagnostics=False,
+            )
             if eligible
             else None
         )
@@ -132,20 +151,39 @@ def walk_forward(symbol, points, factors, start: date, end: date, *, factor_reas
         "symbol": symbol,
         "test_start": str(start),
         "test_end": str(end),
+        "coverage": {
+            "requested_sessions": len(calendar_sessions(start, end)),
+            "tested_sessions": len(training),
+            "first_tested_origin": training[0]["date"] if training else None,
+            "complete_training_coverage": len(training) == len(calendar_sessions(start, end)),
+        },
         "data_as_of": points[-1]["date"] if points else None,
         "training": training,
         "skipped": skipped,
+        "model_review": review_models(points, result["predictions"]),
         **result,
         "assumed_availability": True,
         "writes_live_archive": False,
     }
 
 
-def historical_report(symbol, *, now=None):
+def calendar_sessions(start, end):
+    from stockpredict.calendar import calendar
+
+    return calendar("XTAI").sessions_in_range(start, end)
+
+
+def historical_report(symbol, *, now=None, months=1):
     now = now or datetime.now(timezone.utc)
     end = now.astimezone(ZoneInfo("Asia/Taipei")).date()
-    start = end - timedelta(days=29)
-    points, metadata = twse_data(symbol)
+    if months not in PERIOD_DAYS:
+        raise ValueError("Unsupported period")
+    start = end - timedelta(days=PERIOD_DAYS[months] - 1)
+    points, metadata = (
+        twse_data(symbol)
+        if months == 1
+        else deepcopy(_long_history(symbol, int(time.monotonic() // 300)))
+    )
     # A provider bar is not an eligible actual until the TWSE publication gate.
     points = [p for p in points if available_at(date.fromisoformat(p["date"])) <= now]
     factors, reason = None, None
@@ -154,13 +192,25 @@ def historical_report(symbol, *, now=None):
     except DataSourceError as exc:
         reason = exc.code
     result = walk_forward(symbol, points, factors, start, end, factor_reason=reason)
-    return {**result, "checked_at": datetime.now(timezone.utc).isoformat(), "source": metadata}
+    return {
+        **result,
+        "months": months,
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "source": metadata,
+    }
 
 
 @router.get("/api/historical-backtest")
-def historical_backtest(symbol: Literal["2303.TW", "2330.TW"] = "2303.TW"):
+def historical_backtest(
+    symbol: Literal["2303.TW", "2330.TW"] = "2303.TW",
+    months: Literal["1", "3", "6", "12"] = "1",
+):
     try:
-        return historical_report(symbol)
+        return (
+            historical_report(symbol)
+            if months == "1"
+            else historical_report(symbol, months=int(months))
+        )
     except DataSourceError as exc:
         return JSONResponse(status_code=502, content={"status": "unavailable", "reason": exc.code})
     except ValueError:

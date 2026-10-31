@@ -2469,3 +2469,5 @@ textarea:focus-visible {
 .scoreboard-panel th { color: #45576c; background: #f4f7fb; }
 .scoreboard-panel details { margin: 16px 0; }
 .scoreboard-panel summary { cursor: pointer; }
+.scoreboard-panel [data-severity="critical"] { color: #a21c28; background: #fff0f1; padding: 12px; border-radius: 8px; }
+.scoreboard-panel [data-severity="warning"] { color: #805300; background: #fff8e4; padding: 12px; border-radius: 8px; }

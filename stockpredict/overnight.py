@@ -9,6 +9,7 @@ treated as zero returns. The ordinary multi-day forecast remains separate.
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
+from functools import lru_cache
 from math import exp
 from zoneinfo import ZoneInfo
 
@@ -42,6 +43,7 @@ def _taiwan_time(day: date, hour: int, minute: int = 0) -> datetime:
     return datetime.combine(day, time(hour, minute), TAIPEI).astimezone(timezone.utc)
 
 
+@lru_cache(maxsize=10000)
 def _session_window(previous: date, target: date) -> tuple[date, list[date]]:
     """Expected baseline and US sessions strictly after the preceding TW close."""
     prior_close = _taiwan_time(previous, 13, 30)
@@ -221,6 +223,7 @@ def build_context(
     now: datetime | None = None,
     factor_symbols: tuple[str, str] = FACTORS,
     horizon: int = 5,
+    diagnostics: bool = True,
 ) -> dict:
     """Use the required completed US sessions; never substitute an earlier date."""
     if not isinstance(factor_symbols, tuple) or factor_symbols not in FACTOR_PAIRS:
@@ -312,7 +315,7 @@ def build_context(
         }
         for index, symbol in enumerate(factor_symbols)
     ]
-    result["backtest"] = _backtest(rows, prices)
+    result["backtest"] = _backtest(rows, prices) if diagnostics else None
 
     features = np.r_[np.diff(np.log(prices))[-LAGS:], overnight]
     predicted_return = _fit_predict(

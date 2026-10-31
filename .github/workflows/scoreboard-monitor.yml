@@ -1,0 +1,26 @@
+name: Monitor prediction collection
+
+on:
+  schedule:
+    # Taipei 09:45 / 16:30; independent of the collection job.
+    - cron: "45 1 * * 1-5"
+    - cron: "30 8 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+          python-version: "3.12"
+      - run: uv sync --locked --no-dev
+      - run: uv run --no-sync python -m stockpredict.monitoring --url "$MONITOR_URL"
+        env:
+          MONITOR_URL: ${{ vars.SCOREBOARD_MONITOR_URL || 'https://stockpredict-xwar.onrender.com/api/scoreboard/health' }}

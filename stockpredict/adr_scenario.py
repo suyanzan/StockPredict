@@ -9,7 +9,7 @@ never compounded as if the same move occurred on subsequent US trading days.
 from datetime import date
 from math import isfinite
 
-from stockpredict.forecast import analyze
+from stockpredict.forecast import forecast_path
 
 ADR_SYMBOLS = frozenset({"UMC", "TSM"})
 SENSITIVITY = 0.5
@@ -69,7 +69,7 @@ def directional_adr_forecast(
         raise ValueError("ADR 漲跌幅超出有效範圍。")
     uncapped = change_pct * SENSITIVITY
     initial = max(-MAX_ADJUSTMENT_PCT, min(MAX_ADJUSTMENT_PCT, uncapped))
-    baseline = analyze(points, horizon)["forecast"]
+    baseline = forecast_path(points, horizon)
     path = []
     for step, point in enumerate(baseline):
         adjustment = initial * DAILY_DECAY**step
