@@ -258,7 +258,8 @@
     const requestedLanguage = I18n.getLanguage();
     const requestedContext = overnightControl.checked && supportsOvernight(requestedSymbol, requestedSource);
     const requestedProfile = requestedContext ? formProfile(requestedSymbol, requestedSource) : null;
-    const factorsFromCsv = requestedContext && factorSource.value === "csv";
+    const requestedFactorSource = factorSource.value;
+    const factorsFromCsv = requestedContext && requestedFactorSource === "csv";
     const requestedFactors = requestedProfile ? Object.fromEntries(requestedProfile.symbols.map((code, index) => [code, factorFiles[index].text])) : null;
     if (factorsFromCsv && Object.values(requestedFactors).some((contents) => !contents)) {
       const reading = factorFiles.some((file) => file.state === "reading");
@@ -280,7 +281,10 @@
     try {
       const fromCsv = requestedSource === "csv";
       const params = new URLSearchParams({ symbol: requestedSymbol, source: requestedSource, horizon: requestedHorizon, lang: requestedLanguage });
-      if (requestedContext) params.set("market_context", "us_overnight");
+      if (requestedContext) {
+        params.set("market_context", "us_overnight");
+        if (!factorsFromCsv) params.set("factor_source", requestedFactorSource === "yahoo" ? "yahoo" : "auto_csv");
+      }
       const endpoint = factorsFromCsv ? `/api/analysis/overnight/csv?${new URLSearchParams({ lang: requestedLanguage })}` : fromCsv ? `/api/analysis/csv?${new URLSearchParams({ lang: requestedLanguage })}` : `/api/analysis?${params}`;
       const response = await fetch(endpoint, factorsFromCsv ? {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -380,10 +384,12 @@
     $("overnight-forecast").hidden = true;
     $("overnight-backtest").hidden = true;
     $("overnight-correlation-period").hidden = true;
-    for (const id of ["overnight-status", "overnight-data-source", "overnight-required-session", "overnight-available-after", "overnight-target", "overnight-factor-close", "overnight-ar-close", "overnight-factor-change", "overnight-correlation-period", "overnight-backtest-period", "overnight-backtest-verdict"]) text(id, "");
+    for (const id of ["overnight-status", "overnight-data-source", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-required-session", "overnight-available-after", "overnight-target", "overnight-factor-close", "overnight-ar-close", "overnight-factor-change", "overnight-correlation-period", "overnight-backtest-period", "overnight-backtest-verdict"]) text(id, "");
     changeClass($("overnight-factor-change"), null);
     $("overnight-required-session").hidden = true;
     $("overnight-available-after").hidden = true;
+    $("overnight-snapshot-session").hidden = true;
+    $("overnight-snapshot-generated").hidden = true;
     panel.hidden = !context;
     if (!context) return;
     const profile = returnedProfile(context);
@@ -392,11 +398,19 @@
     text("overnight-intro", t(profile?.kind === "broad_market" ? "overnight.introMarket" : "overnight.intro"));
     const status = ["ready", "waiting"].includes(context.status) ? context.status : "unavailable";
     const usingFactors = status === "ready";
-    const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy"];
+    const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"];
     const reason = reasonKeys.includes(context.reason) ? ` ${t(`overnight.reason.${context.reason}`)}` : "";
     text("overnight-status", `${t(`overnight.status.${status}`)}${reason}`);
     $("overnight-status").dataset.status = status;
-    text("overnight-data-source", t(usingFactors ? context.data_source === "csv" ? "overnight.dataSourceCsv" : "overnight.dataSourceYahoo" : "overnight.noDataUsed"));
+    const sourceKey = context.data_source === "auto_csv" ? "overnight.dataSourceAuto" : context.data_source === "csv" ? "overnight.dataSourceCsv" : "overnight.dataSourceYahoo";
+    text("overnight-data-source", t(usingFactors ? sourceKey : "overnight.noDataUsed"));
+    const snapshot = usingFactors && context.data_source === "auto_csv" ? context.snapshot_metadata : null;
+    const snapshotSession = typeof snapshot?.snapshot_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(snapshot.snapshot_session_date) ? snapshot.snapshot_session_date : null;
+    text("overnight-snapshot-session", snapshotSession ? t("overnight.snapshotSession", { date: snapshotSession }) : "");
+    $("overnight-snapshot-session").hidden = !snapshotSession;
+    const generatedAt = formatInstant(snapshot?.generated_at);
+    text("overnight-snapshot-generated", generatedAt !== "—" ? t("overnight.snapshotGenerated", { time: generatedAt }) : "");
+    $("overnight-snapshot-generated").hidden = generatedAt === "—";
     const requiredSession = typeof context.required_us_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(context.required_us_session_date) ? context.required_us_session_date : null;
     text("overnight-required-session", requiredSession ? t("overnight.requiredSession", { date: requiredSession }) : "");
     $("overnight-required-session").hidden = !requiredSession;
@@ -404,9 +418,10 @@
     text("overnight-available-after", availableAfter !== "—" ? t("overnight.availableAfter", { time: availableAfter }) : "");
     $("overnight-available-after").hidden = availableAfter === "—";
     const retrySeconds = Number.isFinite(context.retry_after_seconds) && context.retry_after_seconds > 0 ? Math.ceil(context.retry_after_seconds) : null;
-    text("overnight-retry-help", retrySeconds ? t("overnight.retryHelp", { seconds: retrySeconds }) : "");
+    const automaticSource = context.data_source === "auto_csv" || ["auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context.reason);
+    text("overnight-retry-help", retrySeconds ? t(automaticSource ? "overnight.autoRetryHelp" : "overnight.retryHelp", { seconds: retrySeconds }) : "");
     $("overnight-retry-help").hidden = !retrySeconds;
-    $("overnight-csv-switch").hidden = context.data_source === "csv" || status !== "unavailable" || !["data_unavailable", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy"].includes(context.reason);
+    $("overnight-csv-switch").hidden = context.data_source === "csv" || status !== "unavailable" || !["data_unavailable", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context.reason);
     const estimate = context.forecast;
     const originalEstimate = analysis.forecast?.[0]?.close;
     const ready = status === "ready" && Number.isFinite(estimate?.close) && Number.isFinite(originalEstimate);

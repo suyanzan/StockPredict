@@ -34,6 +34,9 @@ DATA_ERROR_CODES = frozenset(
         "us_invalid_data",
         "us_unavailable",
         "us_busy",
+        "auto_csv_unavailable",
+        "auto_csv_missing_session",
+        "auto_csv_invalid_data",
     }
 )
 

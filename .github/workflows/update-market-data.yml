@@ -1,0 +1,85 @@
+name: Update completed US market CSVs
+
+on:
+  schedule:
+    # New York 16:30 during DST, or 15:30 then 16:30 in standard time.
+    # The generator exits before downloading if the session is not complete.
+    - cron: "30 20,21 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-market-data.yml"
+      - "stockpredict/refresh_market_data.py"
+      - "stockpredict/data.py"
+      - "pyproject.toml"
+      - "uv.lock"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: completed-us-market-csvs
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+          python-version: "3.12"
+          enable-cache: true
+      - name: Install locked application dependencies
+        run: uv sync --locked --no-dev
+      - name: Prepare a separate data-branch worktree
+        id: data
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_data_dir=$(mktemp -d "${RUNNER_TEMP}/stockpredict-market-data.XXXXXX")
+          if git ls-remote --exit-code --heads origin refs/heads/market-data > "${RUNNER_TEMP}/stockpredict-data-ref"; then
+            git fetch --no-tags origin refs/heads/market-data
+            git worktree add --detach "$task_data_dir" FETCH_HEAD
+          else
+            task_lookup_status=$?
+            if [ "$task_lookup_status" -ne 2 ]; then
+              exit "$task_lookup_status"
+            fi
+            git worktree add --detach "$task_data_dir" HEAD
+            git -C "$task_data_dir" switch --orphan market-data
+          fi
+          echo "data_dir=$task_data_dir" >> "$GITHUB_OUTPUT"
+      - name: Generate a complete snapshot
+        env:
+          CSV_DATA_DIR: ${{ steps.data.outputs.data_dir }}
+        run: |
+          set -euo pipefail
+          PYTHONPATH="$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/.venv/bin/python" \
+            -m stockpredict.refresh_market_data --output-dir "$CSV_DATA_DIR"
+      - name: Publish only validated CSV data
+        env:
+          CSV_DATA_DIR: ${{ steps.data.outputs.data_dir }}
+        run: |
+          set -euo pipefail
+          if [ ! -f "$CSV_DATA_DIR/manifest.json" ]; then
+            exit 0
+          fi
+          git -C "$CSV_DATA_DIR" add -- manifest.json snapshots
+          if git -C "$CSV_DATA_DIR" diff --cached --quiet; then
+            exit 0
+          fi
+          task_session_date=$("$GITHUB_WORKSPACE/.venv/bin/python" -c \
+            'import json, sys; print(json.load(open(sys.argv[1]))["session_date"])' \
+            "$CSV_DATA_DIR/manifest.json")
+          git -C "$CSV_DATA_DIR" config user.name "github-actions[bot]"
+          git -C "$CSV_DATA_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$CSV_DATA_DIR" commit -m "Update completed US closes for $task_session_date"
+          git -C "$CSV_DATA_DIR" push origin HEAD:refs/heads/market-data

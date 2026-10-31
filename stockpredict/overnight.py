@@ -207,6 +207,11 @@ def pending_context(points: list[dict], *, now: datetime | None = None) -> dict 
     return result if result["reason"] is not None else None
 
 
+def reference_timing(points: list[dict], *, now: datetime | None = None) -> dict:
+    """Describe the exact required session, including when data is eligible."""
+    return _timing_context(points, now)[3]
+
+
 def build_context(
     points: list[dict],
     factors: dict[str, list[dict]],

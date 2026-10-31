@@ -10,12 +10,13 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from stockpredict.auto_csv import auto_csv_factors
 from stockpredict.community import router as community_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
 from stockpredict.localization import Language, add_localizations, localize_error
 from stockpredict.market_data import overnight_factors
-from stockpredict.overnight import build_context, pending_context
+from stockpredict.overnight import build_context, pending_context, reference_timing
 from stockpredict.reference_profiles import (
     canonical_reference_symbol,
     profile_for,
@@ -109,8 +110,11 @@ def analysis(
     horizon: Annotated[int, Query(ge=1, le=30)] = 5,
     lang: Language = "zh-TW",
     market_context: Literal["none", "us_overnight"] = "none",
+    factor_source: Literal["yahoo", "auto_csv"] = "yahoo",
 ):
-    return _market_analysis(symbol, source, horizon, lang, market_context)
+    return _market_analysis(
+        symbol, source, horizon, lang, market_context, factor_download_source=factor_source
+    )
 
 
 def _market_analysis(
@@ -120,6 +124,7 @@ def _market_analysis(
     lang: Language,
     market_context: Literal["none", "us_overnight"],
     factor_data: dict[str, list[dict]] | None = None,
+    factor_download_source: Literal["yahoo", "auto_csv"] = "yahoo",
 ):
     try:
         symbol = normalize_twse_symbol(symbol) if source == "twse" else normalize_symbol(symbol)
@@ -133,7 +138,9 @@ def _market_analysis(
         points, metadata = providers[source](symbol)
         result = analyze(points, horizon)
         if market_context == "us_overnight":
-            factor_source = "csv" if factor_data is not None else "yahoo"
+            factor_source = "csv" if factor_data is not None else factor_download_source
+            snapshot_metadata = None
+            timing = None
             try:
                 pending = pending_context(points)
                 if pending is not None:
@@ -141,11 +148,17 @@ def _market_analysis(
                 else:
                     factors = factor_data
                     if factors is None:
-                        factors = (
-                            overnight_factors()
-                            if profile.id == "umc"
-                            else overnight_factors(profile.symbols)
-                        )
+                        if factor_source == "auto_csv":
+                            timing = reference_timing(points)
+                            factors, snapshot_metadata = auto_csv_factors(
+                                profile.symbols, timing["required_us_session_date"]
+                            )
+                        else:
+                            factors = (
+                                overnight_factors()
+                                if profile.id == "umc"
+                                else overnight_factors(profile.symbols)
+                            )
                     result["market_context"] = (
                         build_context(points, factors)
                         if profile.id == "umc"
@@ -165,8 +178,15 @@ def _market_analysis(
                     "backtest": None,
                     "correlations_window": None,
                 }
+                if timing is not None:
+                    result["market_context"].update(
+                        required_us_session_date=timing["required_us_session_date"],
+                        available_after=timing["available_after"],
+                    )
             result["market_context"]["data_source"] = factor_source
             result["market_context"]["reference_profile"] = profile_payload(profile)
+            if snapshot_metadata is not None:
+                result["market_context"]["snapshot_metadata"] = snapshot_metadata
         if source == "demo":
             result["warnings"].insert(0, "所有價格、預測與回測均來自合成資料，不代表真實市場表現。")
         else:
