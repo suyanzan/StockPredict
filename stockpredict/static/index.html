@@ -10,6 +10,7 @@
   <script src="/static/app.js" defer></script>
   <script src="/static/community.js" defer></script>
   <script src="/static/scoreboard.js" defer></script>
+  <script src="/static/historical.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -80,6 +81,17 @@
       <h3 data-i18n="score.calendar">台美交易日曆與資料狀態</h3>
       <div id="score-calendar" aria-live="polite"></div>
       <p class="small-note" data-i18n="score.calendarNote">使用交易所日曆，含美股夏令時間及提早收盤。可用時間為保守門檻，仍需來源公布；缺資料不以舊價替代。</p>
+    </section>
+    <section id="historical-backtest" class="panel scoreboard-panel" aria-labelledby="historical-title">
+      <h2 id="historical-title" data-i18n="history.title">最近 30 日歷史回測</h2>
+      <p data-i18n="history.description">逐日使用當時以前至少 60 筆歷史收盤訓練，測試第 1、5 個交易日；純台股與 ADR 情境分開。</p>
+      <label for="historical-symbol" data-i18n="controls.symbol">股票代碼</label>
+      <select id="historical-symbol"><option value="2303.TW" data-i18n="security.umc">聯電</option><option value="2330.TW" data-i18n="security.tsmc">台積電</option></select>
+      <button id="historical-run" class="button button-secondary" type="button" data-i18n="history.run">執行歷史回測</button>
+      <p id="historical-status" role="status" aria-live="polite" data-i18n="history.idle">按下按鈕取得真實歷史行情並回測。</p>
+      <p class="small-note" data-i18n="history.note">這是事後逐日模擬，歷史行情可能經過修訂，公布時間採日曆假設。結果不寫入盤前成績看板；未到期或缺資料不計分。</p>
+      <div class="table-scroll"><table><caption class="sr-only" data-i18n="history.title">最近 30 日歷史回測</caption><thead id="historical-head"></thead><tbody id="historical-summary"></tbody></table></div>
+      <details><summary data-i18n="history.details">逐日結果與缺資料原因</summary><div id="historical-skipped"></div><div class="table-scroll"><table><thead id="historical-record-head"></thead><tbody id="historical-records"></tbody></table></div></details>
     </section>
     <div id="error-message" class="notice notice-error" role="alert" hidden><span id="error-text"></span><button id="twse-retry" class="button button-secondary error-retry" type="button" data-i18n="error.retryTwse" hidden>改用證交所資料</button></div>
     <div id="loading-message" class="loading-message" role="status" hidden><span class="spinner"></span><span id="loading-text" data-i18n="loading.analysis">正在讀取資料並執行歷史回測…</span></div>

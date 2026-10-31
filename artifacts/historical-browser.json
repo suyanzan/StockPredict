@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "live UMC walk-forward API",
+    "live TSMC walk-forward API",
+    "zh-TW/en",
+    "1/5 day horizons and separate ADR groups",
+    "missing actual labels",
+    "selection clears old results",
+    "loading lock",
+    "390px mobile",
+    "upstream failure handling"
+  ],
+  "pageErrors": []
+}

@@ -15,6 +15,7 @@ from stockpredict.calendar import data_status, date_path
 from stockpredict.community import router as community_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
+from stockpredict.historical import router as historical_router
 from stockpredict.localization import Language, add_localizations, localize_error
 from stockpredict.market_data import overnight_factors
 from stockpredict.overnight import build_context, pending_context, reference_timing
@@ -32,6 +33,7 @@ app = FastAPI(title="StockPredict", version="0.1.0")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 app.include_router(community_router)
 app.include_router(scoreboard_router)
+app.include_router(historical_router)
 
 
 @app.middleware("http")
@@ -39,7 +41,13 @@ async def community_cache_policy(request: Request, call_next):
     response = await call_next(request)
     if (
         request.url.path.startswith(
-            ("/api/community", "/api/analysis", "/api/scoreboard", "/api/calendar")
+            (
+                "/api/community",
+                "/api/analysis",
+                "/api/scoreboard",
+                "/api/calendar",
+                "/api/historical-backtest",
+            )
         )
         or request.url.path == "/admin"
     ):
