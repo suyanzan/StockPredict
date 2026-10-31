@@ -329,6 +329,7 @@
     text("result-symbol", analysis.symbol);
     text("result-date", t("result.date", { date: analysis.as_of, count: history.length }));
     window.dispatchEvent(new CustomEvent("stockpredict-data-status", { detail: analysis.data_status || null }));
+    window.dispatchEvent(new CustomEvent("stockpredict-analysis", {detail:analysis}));
     text("source-badge", view.source_label);
     $("source-badge").classList.toggle("real", analysis.source !== "demo");
     text("currency-label", analysis.currency || t("result.price"));
@@ -679,6 +680,15 @@
     svg.append(svgElement("path", { d: historyPath, class: "history-path" }));
     svg.append(svgElement("path", { d: forward.map((p, i) => `${i ? "L" : "M"}${x(start + i)},${y(p.close)}`).join(" "), class: "forecast-path" }));
     svg.append(svgElement("circle", { cx: x(start), cy: y(initial.close), r: 3.5, fill: "#3973c8", stroke: "white", "stroke-width": 2 }));
+    const eventDates=new Map();
+    for(const event of analysis.corporate_actions?.events || []) {if(!eventDates.has(event.date))eventDates.set(event.date,[]);eventDates.get(event.date).push(event);}
+    for(const [date,events] of eventDates) {
+      const index=chartPoints.findIndex(p=>p.date===date);if(index<0)continue;
+      const group=svgElement("g",{class:"corporate-event"});
+      group.append(svgElement("line",{x1:x(index),x2:x(index),y1:top+22,y2:top+chartHeight,stroke:"#b36b00","stroke-dasharray":"3 4"}));
+      group.append(svgElement("text",{x:x(index),y:top+20,"text-anchor":"middle",fill:"#995a00"},[...new Set(events.map(e=>e.type==="split"?"S":"D"))].join("/")));
+      group.append(svgElement("title",{},`${date} · ${events.map(e=>t(`audit.${e.type}`)).join(" / ")}`));svg.append(group);
+    }
     const labelIndexes = new Set([0, Math.round((chartPoints.length - 1) * .25), Math.round((chartPoints.length - 1) * .5), Math.round((chartPoints.length - 1) * .75), chartPoints.length - 1]);
     for (const index of labelIndexes) svg.append(svgElement("text", { x: x(index), y: height - 13, "text-anchor": index === 0 ? "start" : index === chartPoints.length - 1 ? "end" : "middle" }, dateLabel.format(parsedDate(chartPoints[index].date))));
     svg.append(svgElement("line", { id: "chart-crosshair", class: "crosshair", x1: 0, x2: 0, y1: top, y2: top + chartHeight, visibility: "hidden" }));
@@ -701,6 +711,7 @@
     const date = document.createElement("small"); date.textContent = `${point.date} · ${t(point.predicted ? "chart.predictedPoint" : "chart.historical")}`;
     const price = document.createElement("strong"); price.textContent = `${format(point.close)} ${analysis.currency || ""}`;
     tooltip.append(date, price);
+    for(const event of analysis.corporate_actions?.events || []) if(event.date===point.date){const note=document.createElement("small");note.textContent=t(`audit.${event.type}`);tooltip.append(note);}
     if (point.predicted) { const band = document.createElement("small"); band.textContent = t("chart.scenario", { lower: format(point.lower), upper: format(point.upper) }); tooltip.append(band); }
     tooltip.hidden = false;
     const rect = $("price-chart").getBoundingClientRect();
@@ -717,6 +728,9 @@
     $("chart-hover-dot")?.setAttribute("visibility", "hidden");
   }
 
+  window.addEventListener("stockpredict-corporate-actions-ready",event=>{
+    if(analysis===event.detail.analysis){analysis.corporate_actions=event.detail.actions;renderChart();}
+  });
   form.addEventListener("submit", (event) => { event.preventDefault(); runAnalysis(); });
   source.addEventListener("change", updateSourceUi);
   symbol.addEventListener("input", updateSourceUi);

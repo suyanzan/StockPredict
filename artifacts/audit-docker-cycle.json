@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "local_test_schema_only": true,
+  "symbol": "2330.TW",
+  "months": 3,
+  "run_id": "6f752d80-ba8a-4ea3-a53a-68ed5ed6c5c1",
+  "matches_saved_result": true,
+  "upstream_requests_during_replay": 0,
+  "csv_bytes": 41522,
+  "fingerprint": "ed794e762ac11331db5a052dd757ec542db9424857b54c574377022334fea097",
+  "replay_after_process_restart": true
+}

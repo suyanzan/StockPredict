@@ -102,7 +102,7 @@ SOURCE_LABELS_EN = {
     "demo": "Synthetic demo data (not actual market prices)",
     "csv": "Imported CSV data",
     "twse": "TWSE daily closing prices (unadjusted)",
-    "yahoo": "Yahoo Finance daily closing prices (delayed, unadjusted)",
+    "yahoo": "Yahoo Finance daily closes (delayed, provider price basis)",
 }
 
 
@@ -163,6 +163,12 @@ def add_localizations(result: dict, lang: Language = "zh-TW") -> dict:
             0,
             "CSV data is supplied by the user. Verify its origin, currency, "
             "and treatment of corporate actions.",
+        )
+    elif source == "yahoo":
+        warnings.insert(
+            0,
+            "Yahoo historical closes may include split adjustments and revisions; "
+            "corporate actions can affect returns and backtests.",
         )
     else:
         warnings.insert(

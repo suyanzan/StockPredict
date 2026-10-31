@@ -94,7 +94,13 @@
     row($("score-record-head"), t("recordColumns").split(","), true);
     $("score-status").textContent = scores?.status === "ready" ? t("ready") : t("unavailable");
     for (const s of scores?.summary || []) row($("score-summary"), [stock(s.symbol), t(s.scenario), s.horizon, s.samples, s.pending, number(s.mae), percent(s.mape), percent(s.direction_accuracy == null ? null : s.direction_accuracy * 100)]);
-    for (const s of scores?.predictions || []) row($("score-records"), [stock(s.symbol), t(s.scenario), s.horizon, stamp(s.created_at), s.target_date, number(s.predicted_close), s.actual_close == null ? t("pending") : number(s.actual_close), number(s.error), s.direction_hit == null ? "—" : t(s.direction_hit ? "hit" : "miss")]);
+    for (const s of scores?.predictions || []) {
+      row($("score-records"), [stock(s.symbol), t(s.scenario), s.horizon, stamp(s.created_at), s.target_date, number(s.predicted_close), s.actual_close == null ? t("pending") : number(s.actual_close), number(s.error), s.direction_hit == null ? "—" : t(s.direction_hit ? "hit" : "miss")]);
+      const cell=document.createElement("td"), button=document.createElement("button");
+      button.type="button";button.className="button button-secondary";button.textContent=window.StockPredictAudit.t("detail");
+      button.addEventListener("click",()=>window.StockPredictAudit.showPrediction(s.id));cell.append(button);$("score-records").lastElementChild.append(cell);
+    }
+    const detailHead=document.createElement("th");detailHead.scope="col";detailHead.textContent=window.StockPredictAudit.t("detail");$("score-record-head").firstElementChild.append(detailHead);
     if (calendar?.markets) {
       paragraph($("score-calendar"), `${t("checked")}: ${stamp(calendar.checked_at)} (Asia/Taipei)`);
       for (const m of calendar.markets) paragraph($("score-calendar"), `${m.exchange} · ${t("publishable")}: ${m.latest_publishable_session} · ${t("next")}: ${m.next_session} · ${t("open")}: ${stamp(m.opens_at)} · ${t("close")}: ${stamp(m.closes_at)} · ${t("available")}: ${stamp(m.available_after)}`);

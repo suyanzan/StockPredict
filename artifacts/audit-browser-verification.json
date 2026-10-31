@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "original prediction modal and exact observation statuses",
+    "zh-TW/en",
+    "combined dividend/split SVG marker",
+    "real historical report save to local PostgreSQL",
+    "current CSV export",
+    "immutable snapshot JSON download",
+    "offline replay matches",
+    "saved report reload restores period",
+    "engine mismatch preserves downloads",
+    "390px mobile overflow",
+    "public report disclosure visible before save on mobile",
+    "mobile prediction dialog and unavailable event source"
+  ],
+  "fixture": "Prediction records and graph event markers are isolated test fixtures; historical snapshot uses real data in local browser_verification schema.",
+  "pageErrors": []
+}

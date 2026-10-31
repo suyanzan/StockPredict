@@ -1,0 +1,28 @@
+[
+  {
+    "symbol": "2303.TW",
+    "status": "ready",
+    "reason": null,
+    "source": "Yahoo Finance",
+    "checked_at": "2026-10-31T16:45:30.414374+00:00",
+    "coverage_start": "2024-10-30",
+    "coverage_end": "2026-10-30",
+    "event_count": 2,
+    "event_types": [
+      "dividend"
+    ]
+  },
+  {
+    "symbol": "2330.TW",
+    "status": "ready",
+    "reason": null,
+    "source": "Yahoo Finance",
+    "checked_at": "2026-10-31T16:45:31.927097+00:00",
+    "coverage_start": "2024-10-30",
+    "coverage_end": "2026-10-30",
+    "event_count": 8,
+    "event_types": [
+      "dividend"
+    ]
+  }
+]

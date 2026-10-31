@@ -13,7 +13,10 @@ from stockpredict.main import app
 
 
 @pytest.fixture
-def points():
+def points(monkeypatch):
+    from stockpredict.corporate_actions import unavailable
+
+    monkeypatch.setattr(history, "actions_for", lambda symbol: unavailable())
     dates = calendar("XTAI").sessions_in_range("2026-04-01", "2026-10-30")
     rng = np.random.default_rng(918)
     prices = 100 * np.exp(np.cumsum(rng.normal(0, 0.01, len(dates))))

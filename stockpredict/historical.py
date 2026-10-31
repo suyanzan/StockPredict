@@ -17,6 +17,7 @@ from stockpredict.calendar import (
     opens_at,
     previous_session,
 )
+from stockpredict.corporate_actions import actions_for, annotate_report
 from stockpredict.data import DataSourceError, yahoo_data
 from stockpredict.forecast import MIN_POINTS, forecast_path, validate_points
 from stockpredict.market_data import overnight_factors
@@ -192,12 +193,28 @@ def historical_report(symbol, *, now=None, months=1):
     except DataSourceError as exc:
         reason = exc.code
     result = walk_forward(symbol, points, factors, start, end, factor_reason=reason)
-    return {
+    actions = metadata.get("corporate_actions") or actions_for(symbol)
+    result = annotate_report(result, actions)
+    report = {
         **result,
         "months": months,
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "source": metadata,
     }
+    from stockpredict.backtest_runs import register_draft
+
+    return register_draft(
+        report,
+        {
+            "symbol": symbol,
+            "points": points,
+            "factors": factors,
+            "start": str(start),
+            "end": str(end),
+            "factor_reason": reason,
+            "corporate_actions": actions,
+        },
+    )
 
 
 @router.get("/api/historical-backtest")

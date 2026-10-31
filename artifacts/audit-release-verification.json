@@ -1,0 +1,14 @@
+{
+  "tests_passed": 655,
+  "postgres_immutable_snapshot_tests": true,
+  "select_insert_only_role_verified": true,
+  "snapshot_replay_without_upstream": true,
+  "engine_mismatch_and_integrity_guards": true,
+  "docker_nonroot_smoke": true,
+  "browser_report": "audit-browser-verification.json",
+  "event_sources": "corporate-actions-source-check.json",
+  "writes_to_production_database_during_verification": false,
+  "new_table": "sp_backtest_runs",
+  "docker_replay_after_process_restart": true,
+  "mobile_disclosures_visible_before_save": true
+}

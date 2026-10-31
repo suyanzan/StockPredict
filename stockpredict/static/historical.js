@@ -42,6 +42,8 @@
     parent.append(tr);
   }
   function render() {
+    window.dispatchEvent(new CustomEvent("stockpredict-historical-report", {detail:report}));
+    window.StockPredictAudit.renderEvents($("historical-actions"),report?.corporate_actions);
     const evaluation = window.StockPredictEvaluation;
     evaluation.comparison($("historical-comparison"), report?.comparison);
     evaluation.review($("historical-review"), report?.model_review);
@@ -49,7 +51,7 @@
     for (const id of ["historical-head", "historical-summary", "historical-record-head", "historical-records", "historical-skipped"]) $(id).replaceChildren();
     const columns = score("columns").split(",");
     row($("historical-head"), [...columns, t("baseline")], true);
-    row($("historical-record-head"), [t("cutoff"), ...score("recordColumns").split(",").filter((_, i) => i !== 3)], true);
+    row($("historical-record-head"), [t("cutoff"), ...score("recordColumns").split(",").filter((_, i) => i !== 3), window.StockPredictAudit.t("events")], true);
     $("historical-status").textContent = t(state);
     if (!report) return;
     const counts = report.training.map(r => r.training_samples);
@@ -57,7 +59,9 @@
     for (const s of report.summary) row($("historical-summary"), [s.symbol, score(s.scenario), s.horizon, s.samples, s.pending, number(s.mae), percent(s.mape), percent(s.direction_accuracy == null ? null : s.direction_accuracy * 100), number(s.baseline_mae)]);
     for (const r of report.predictions) {
       const decision = new Intl.DateTimeFormat("sv-SE", {timeZone:"Asia/Taipei"}).format(new Date(r.simulated_cutoff));
-      row($("historical-records"), [decision, r.symbol, score(r.scenario), r.horizon, r.target_date, number(r.predicted_close), r.actual_close == null ? (r.pending_reason === "missing_actual_close" ? t("missing_actual_close") : score("pending")) : number(r.actual_close), number(r.error), r.direction_hit == null ? "—" : score(r.direction_hit ? "hit" : "miss")]);
+      const eventText=(r.corporate_actions||[]).map(e=>`${e.date} ${window.StockPredictAudit.t(e.type)}`).join("; ");
+      const eventNote=r.corporate_action_status==="outside_source_coverage"?window.StockPredictAudit.t("outside_source_coverage"):r.corporate_action_status==="unavailable"?window.StockPredictAudit.t("eventUnavailable"):"";
+      row($("historical-records"), [decision, r.symbol, score(r.scenario), r.horizon, r.target_date, number(r.predicted_close), r.actual_close == null ? (r.pending_reason === "missing_actual_close" ? t("missing_actual_close") : score("pending")) : number(r.actual_close), number(r.error), r.direction_hit == null ? "—" : score(r.direction_hit ? "hit" : "miss"), [eventText,eventNote].filter(Boolean).join(" · ") || "—"]);
     }
     for (const skip of report.skipped) {
       let reason = t(skip.reason);
@@ -82,5 +86,8 @@
   });
   $("historical-symbol").addEventListener("change", () => {report = null; state = "idle"; render();});
   $("historical-months").addEventListener("change", () => {report = null; state = "idle"; render();});
+  window.StockPredictHistorical={getReport:()=>report,isLoading:()=>loading,showReport:value=>{
+    if(loading)return false;report=value;state="idle";$("historical-symbol").value=value.symbol;$("historical-months").value=String(value.months);render();return true;
+  }};
   i18n.subscribe(render); render();
 })();

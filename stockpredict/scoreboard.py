@@ -14,6 +14,7 @@ from psycopg.types.json import Jsonb
 
 from stockpredict.calendar import available_at, date_path, next_session, opens_at, previous_session
 from stockpredict.comparison import paired_comparison
+from stockpredict.provenance import model_manifest
 
 router = APIRouter()
 SYMBOLS = ("2303.TW", "2330.TW")
@@ -66,6 +67,9 @@ def initialize(connection):
         CREATE TRIGGER sp_actual_closes_no_truncate BEFORE TRUNCATE ON sp_actual_closes
             FOR EACH STATEMENT EXECUTE FUNCTION sp_reject_archive_mutation();
     """)
+    from stockpredict.backtest_runs import ensure_initialized
+
+    ensure_initialized(connection)
 
 
 def capture_reason(points, now):
@@ -94,7 +98,12 @@ def save_prediction(connection, symbol, scenario, points, path, now, provenance)
     values = [points[-1]["close"], *(p["close"] for p in path)]
     if any(isinstance(v, bool) or not isfinite(float(v)) or float(v) <= 0 for v in values):
         raise ValueError("Invalid forecast price")
-    snapshot = {"history": points, "forecast": path, "provenance": provenance}
+    snapshot = {
+        "history": points,
+        "forecast": path,
+        "provenance": provenance,
+        "engine_manifest": model_manifest(),
+    }
     row = connection.execute(
         """
         INSERT INTO sp_predictions
@@ -219,6 +228,89 @@ def scoreboard():
                 "predictions": [],
             },
         )
+
+
+@router.get("/api/predictions/{prediction_id}")
+def prediction_detail(prediction_id: int):
+    try:
+        with connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM sp_predictions WHERE id=%s", (prediction_id,)
+            ).fetchone()
+            if row is None:
+                return JSONResponse(status_code=404, content={"reason": "prediction_not_found"})
+            path = row["snapshot"]["forecast"]
+            actuals = connection.execute(
+                "SELECT * FROM sp_actual_closes WHERE symbol=%s AND session_date BETWEEN %s AND %s",
+                (row["symbol"], path[0]["date"], path[-1]["date"]),
+            ).fetchall()
+        lookup = {str(a["session_date"]): a for a in actuals}
+        now = datetime.now(timezone.utc)
+        days = []
+        for index, point in enumerate(path, 1):
+            actual = lookup.get(point["date"])
+            reason = (
+                None
+                if actual
+                else "awaiting_publication"
+                if now < available_at(date.fromisoformat(point["date"]))
+                else "missing_actual_close"
+            )
+            days.append(
+                {
+                    "horizon": index,
+                    "target_date": point["date"],
+                    "predicted_close": point["close"],
+                    "actual_close": actual["close"] if actual else None,
+                    "observed_at": actual["observed_at"] if actual else None,
+                    "actual_source": actual["source"] if actual else None,
+                    "evaluation_horizon": index in (1, 5),
+                    "pending_reason": reason,
+                }
+            )
+        provenance = row["snapshot"].get("provenance", {})
+        context = provenance.get("market_context", {})
+        history = row["snapshot"]["history"]
+        return {
+            "id": row["id"],
+            "symbol": row["symbol"],
+            "scenario": row["scenario"],
+            "created_at": row["created_at"],
+            "origin_date": row["target_date"],
+            "base_date": row["base_date"],
+            "base_close": row["base_close"],
+            "model_version": row["model_version"],
+            "engine_manifest": row["snapshot"].get("engine_manifest"),
+            "training": {
+                "start": history[0]["date"],
+                "end": history[-1]["date"],
+                "samples": len(history),
+            },
+            "source": provenance.get("metadata", {}).get("source", "unknown"),
+            "reference_status": context.get("status"),
+            "reference_reason": context.get("reason"),
+            "required_us_session_date": context.get("required_us_session_date"),
+            "reference_source": context.get("data_source"),
+            "reference_quotes": [
+                {
+                    k: q.get(k)
+                    for k in (
+                        "symbol",
+                        "session_date",
+                        "previous_session_date",
+                        "close",
+                        "currency",
+                    )
+                }
+                for q in context.get("quotes", [])
+            ],
+            "forecast": days,
+            "evaluation": evaluate([row], actuals)["predictions"],
+            "immutable": True,
+            "checked_at": now.isoformat(),
+        }
+    except (psycopg.Error, RuntimeError):
+        return JSONResponse(status_code=503, content={"reason": "scoreboard_storage_unavailable"})
 
 
 @router.get("/api/scoreboard/health")

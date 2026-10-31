@@ -182,7 +182,7 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
     """Daily closes, never silently fall back to synthetic data on failure."""
     url = (
         f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol, safe='')}"
-        "?range=2y&interval=1d"
+        "?range=2y&interval=1d&events=div%2Csplits"
     )
     request = Request(url, headers={"User-Agent": "StockPredict/0.1", "Accept": "application/json"})
     try:
@@ -263,12 +263,16 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
             symbol,
         )
         currency = meta.get("currency", "")
+        from stockpredict.corporate_actions import parse_event_payload
+
         return points, {
             "name": name,
             "currency": currency if isinstance(currency, str) else "",
             "source": "yahoo",
-            "source_label": "Yahoo Finance 每日收盤價（非即時、未還原權息）",
+            "source_label": "Yahoo Finance 每日收盤價（非即時、供應商口徑）",
+            "price_basis": "provider_close_may_include_split_adjustments",
             "exchange_timezone": timezone.key,
+            "corporate_actions": parse_event_payload(result),
         }
     except (KeyError, TypeError, ValueError, IndexError, OverflowError) as exc:
         raise DataSourceError(

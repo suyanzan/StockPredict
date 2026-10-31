@@ -1,6 +1,4 @@
-import os
 from datetime import datetime
-from uuid import uuid4
 
 import psycopg
 import pytest
@@ -30,27 +28,6 @@ def test_connection_secret_trims_pasted_whitespace_without_changing_security_opt
     monkeypatch.setattr(score.psycopg, "connect", driver)
     assert score.connect() is driver.return_value
     driver.assert_called_once_with(url, row_factory=dict_row, connect_timeout=5)
-
-
-@pytest.fixture
-def database(monkeypatch):
-    url = os.getenv("TEST_POSTGRES_URL")
-    if not url:
-        pytest.skip("Set TEST_POSTGRES_URL for real PostgreSQL integration tests")
-    schema = "test_" + uuid4().hex
-    with psycopg.connect(url, autocommit=True) as conn:
-        conn.execute(f'CREATE SCHEMA "{schema}"')
-
-    def connect():
-        return psycopg.connect(url, options=f"-c search_path={schema}", row_factory=dict_row)
-
-    monkeypatch.setattr(score, "connect", connect)
-    with connect() as conn:
-        score.initialize(conn)
-        score.initialize(conn)
-    yield connect
-    with psycopg.connect(url, autocommit=True) as conn:
-        conn.execute(f'DROP SCHEMA "{schema}" CASCADE')
 
 
 def save(connection, scenario="taiwan", now=NOW, path=PATH):
@@ -153,6 +130,60 @@ def test_flat_direction_and_zero_error(database):
     )
     assert first["samples"] == 1 and first["mae"] == first["mape"] == 0
     assert first["direction_accuracy"] == 1
+
+
+def test_prediction_detail_exposes_original_inputs_and_exact_observation_status(
+    database, monkeypatch
+):
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime.fromisoformat("2026-10-30T14:59:59+08:00").astimezone(tz)
+
+    provenance = {
+        "metadata": {"source": "twse"},
+        "private_internal_metadata": "do-not-expose",
+        "market_context": {
+            "status": "ready",
+            "data_source": "auto_csv",
+            "required_us_session_date": "2026-10-29",
+            "quotes": [
+                {"symbol": "UMC", "session_date": "2026-10-29", "close": 5, "currency": "USD"}
+            ],
+        },
+    }
+    with database() as conn:
+        score.save_prediction(conn, "2303.TW", "adr", POINTS, PATH, NOW, provenance)
+        row = conn.execute("SELECT * FROM sp_predictions").fetchone()
+    monkeypatch.setattr(score, "datetime", Clock)
+    client = TestClient(app)
+    response = client.get(f"/api/predictions/{row['id']}")
+    assert response.status_code == 200 and response.headers["cache-control"] == "no-store"
+    detail = response.json()
+    assert detail["model_version"] == score.MODEL and detail["engine_manifest"]["engine_hash"]
+    assert detail["training"] == {"start": "2026-10-29", "end": "2026-10-29", "samples": 1}
+    assert detail["reference_quotes"][0]["session_date"] == "2026-10-29"
+    assert all(p["pending_reason"] == "awaiting_publication" for p in detail["forecast"])
+    assert "do-not-expose" not in response.text
+    with database() as conn:
+        score.save_actual(
+            conn,
+            "2303.TW",
+            {**PATH[0], "close": 102},
+            datetime.fromisoformat("2026-10-30T15:00:00+08:00"),
+        )
+    published = client.get(f"/api/predictions/{row['id']}").json()
+    assert published["forecast"][0]["actual_close"] == 102
+    assert published["forecast"][0]["actual_source"] == "TWSE"
+    assert published["forecast"][0]["observed_at"]
+    assert published["evaluation"][0]["error"] == -1
+    assert published["created_at"] == detail["created_at"]
+    assert client.get("/api/predictions/999999999").status_code == 404
+    with database() as conn:
+        assert (
+            conn.execute("SELECT snapshot FROM sp_predictions").fetchone()["snapshot"]
+            == row["snapshot"]
+        )
 
 
 def test_fifth_trading_day_uses_its_own_actual_and_direction(database):

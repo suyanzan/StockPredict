@@ -61,11 +61,21 @@ def test_yahoo_filters_null_prices_and_incomplete_today_candle(monkeypatch):
     assert metadata["source"] == "yahoo"
     assert metadata["currency"] == "USD"
     assert metadata["name"] == "Example Corporation"
+    assert metadata["price_basis"] == "provider_close_may_include_split_adjustments"
     assert len(requests) == 1
     request, timeout = requests[0]
     assert request.full_url.startswith("https://query1.finance.yahoo.com/")
     assert "/AAPL?" in request.full_url
     assert timeout > 0
+
+
+def test_bad_optional_events_do_not_discard_valid_price_history(monkeypatch):
+    payload = yahoo_payload()
+    payload["chart"]["result"][0]["events"] = {"dividends": {"bad": {"date": "invalid"}}}
+    mock_response(monkeypatch, payload)
+    points, metadata = data.yahoo_data("AAPL")
+    assert len(points) == 69
+    assert metadata["corporate_actions"]["status"] == "unavailable"
 
 
 @pytest.mark.parametrize(

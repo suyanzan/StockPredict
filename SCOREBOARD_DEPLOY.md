@@ -41,7 +41,7 @@
    uv run python -m stockpredict.scoreboard init
    ```
 
-   此命令僅新增 `sp_predictions`、`sp_actual_closes`、`sp_scoreboard_checks`
+   此命令新增 `sp_predictions`、`sp_actual_closes`、`sp_scoreboard_checks`、`sp_backtest_runs`
    與相關觸發器，不更動既有留言資料。可安全重跑。
 
 3. 建置並啟動既有 Web 服務（Render 使用既有 Docker 設定）：
@@ -101,7 +101,7 @@
 - 實際執行收集程式，聯電及台積電皆取得 2026-10-30 的 TWSE 行情。
   執行日台北 2026-10-31 為休市日，正確顯示 `outside_capture_day`，不補存預測。
 
-尚未推送分支、修改線上服務或建立 Neon 專案；本次交付為可檢查的開發分支及部署步驟。
+程式已推送至 main；Render 需手動部署對應版本。本機驗證使用隔離 schema，未寫入正式網站紀錄。
 
 ## English deployment notes
 

@@ -8,10 +8,12 @@
   <link rel="stylesheet" href="/static/styles.css">
   <script src="/static/i18n.js" defer></script>
   <script src="/static/evaluation.js" defer></script>
+  <script src="/static/audit.js" defer></script>
   <script src="/static/app.js" defer></script>
   <script src="/static/community.js" defer></script>
   <script src="/static/scoreboard.js" defer></script>
   <script src="/static/historical.js" defer></script>
+  <script src="/static/report_archive.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -100,6 +102,11 @@
       <p id="historical-status" role="status" aria-live="polite" data-i18n="history.idle">按下按鈕取得真實歷史行情並回測。</p>
       <p class="small-note" data-i18n="history.note">這是事後逐日模擬，歷史行情可能經過修訂，公布時間採日曆假設。結果不寫入盤前成績看板；未到期或缺資料不計分。</p>
       <p id="historical-coverage" aria-live="polite"></p>
+      <p class="small-note" data-i18n="audit.publicNote">保存的是公開行情分析，所有訪客可查閱；報告不可覆寫，最多保存 200 份。資料庫不可用時仍可匯出當次 CSV。</p>
+      <div class="report-actions"><button id="report-save" class="button button-secondary" type="button" disabled data-i18n="audit.save">保存本次報告</button><button id="report-csv" class="button button-secondary" type="button" disabled data-i18n="audit.csv">匯出逐筆 CSV</button><button id="report-json" class="button button-secondary" type="button" disabled data-i18n="audit.json">下載完整快照</button><button id="report-replay" class="button button-secondary" type="button" disabled data-i18n="audit.replay">從快照重播核對</button></div>
+      <p id="report-archive-status" role="status" aria-live="polite"></p>
+      <label for="report-saved" data-i18n="audit.savedReports">最近已保存報告</label><select id="report-saved"><option value="">—</option></select><button id="report-load" class="button button-secondary" type="button" data-i18n="audit.load">載入報告</button><button id="report-refresh" class="button button-secondary" type="button" data-i18n="audit.refresh">更新清單</button>
+      <details><summary data-i18n="audit.events">除息與分割事件</summary><div id="historical-actions"></div></details>
       <h3 data-i18n="evaluation.paired">同日期公平比較</h3>
       <p class="small-note" data-i18n="evaluation.pairedNote">僅比較預測起日、目標日、期間與實際收盤相同的純台股及 ADR；覆蓋率分母為已計分的純台股筆數。</p>
       <div id="historical-comparison"></div>
@@ -137,6 +144,7 @@
           <div class="chart-legend"><span><i class="legend-line historical"></i><span data-i18n="chart.historical">歷史收盤</span></span><span><i class="legend-line predicted"></i><span data-i18n="chart.forecast">預測路徑</span></span><span><i class="legend-band"></i><span data-i18n="chart.band">波動情境區間</span></span></div>
           <div class="chart-container" id="chart-container"><svg id="price-chart" viewBox="0 0 940 370" role="img" tabindex="0" data-i18n-aria-label="chart.ariaInitial" aria-label="歷史股價與預測圖表；使用左右方向鍵查看各日期價格。"></svg><div id="chart-tooltip" class="chart-tooltip" role="status" aria-live="polite" aria-atomic="true" hidden></div></div>
           <div class="chart-footnote"><span><span class="status-dot"></span><span id="chart-point-count"></span></span><span data-i18n="chart.bandNote">情境區間不代表已校準的信賴區間</span></div>
+          <details><summary data-i18n="audit.events">除息與分割事件</summary><div id="analysis-actions"></div></details>
         </section>
         <aside class="panel backtest-panel" aria-labelledby="backtest-title">
           <div class="panel-heading"><span class="section-kicker" data-i18n="backtest.kicker">模型表現檢查</span><h3 id="backtest-title" data-i18n="backtest.title">用回測檢視模型</h3><p id="backtest-description"></p></div>
@@ -190,5 +198,6 @@
     </section>
   </main>
   <footer class="site-footer"><span>StockPredict <span class="footer-divider">/</span> <span data-i18n="footer.description">開源股價研究工作台</span></span><p data-i18n="footer.note">預測僅供研究與學習，不構成投資建議。</p></footer>
+  <dialog id="prediction-detail" aria-labelledby="prediction-detail-title"><div class="panel-heading"><h2 id="prediction-detail-title" data-i18n="audit.predictionDetail">原始預測查核詳情</h2><button id="prediction-detail-close" class="button button-secondary" type="button" data-i18n="audit.close">關閉</button></div><div id="prediction-detail-body" aria-live="polite"></div></dialog>
 </body>
 </html>

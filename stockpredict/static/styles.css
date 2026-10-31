@@ -2471,3 +2471,13 @@ textarea:focus-visible {
 .scoreboard-panel summary { cursor: pointer; }
 .scoreboard-panel [data-severity="critical"] { color: #a21c28; background: #fff0f1; padding: 12px; border-radius: 8px; }
 .scoreboard-panel [data-severity="warning"] { color: #805300; background: #fff8e4; padding: 12px; border-radius: 8px; }
+dialog#prediction-detail { width: min(940px, 95vw); max-height: 90vh; border: 1px solid #d9e3ed; border-radius: 14px; padding: 24px; color: #17293d; overflow: auto; }
+dialog#prediction-detail::backdrop { background: #17293d80; }
+#prediction-detail .panel-heading, .report-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+#prediction-detail .table-scroll { overflow-x: auto; }
+#prediction-detail td, #prediction-detail th { padding: 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid #e3e9f1; }
+.corporate-event { pointer-events: none; }
+#report-archive-status, #historical-coverage, #prediction-detail-body p, #prediction-detail-body pre { overflow-wrap: anywhere; }
+#report-saved { max-width: 100%; }
+.scoreboard-panel .small-note { display: block; color: #526579; font-size: 12px; line-height: 1.65; white-space: normal; }
+#historical-backtest [data-i18n="audit.publicNote"] { font-size: 13px; color: #40546a; }

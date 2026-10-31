@@ -11,8 +11,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from stockpredict.auto_csv import auto_csv_factors
+from stockpredict.backtest_runs import router as backtest_runs_router
 from stockpredict.calendar import data_status, date_path
 from stockpredict.community import router as community_router
+from stockpredict.corporate_actions import router as corporate_actions_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
 from stockpredict.historical import router as historical_router
@@ -34,6 +36,8 @@ app.mount("/static", StaticFiles(directory=STATIC), name="static")
 app.include_router(community_router)
 app.include_router(scoreboard_router)
 app.include_router(historical_router)
+app.include_router(backtest_runs_router)
+app.include_router(corporate_actions_router)
 
 
 @app.middleware("http")
@@ -47,6 +51,9 @@ async def community_cache_policy(request: Request, call_next):
                 "/api/scoreboard",
                 "/api/calendar",
                 "/api/historical-backtest",
+                "/api/predictions",
+                "/api/backtest-runs",
+                "/api/corporate-actions",
             )
         )
         or request.url.path == "/admin"
@@ -251,6 +258,10 @@ def _market_analysis(
                 result["market_context"]["snapshot_metadata"] = snapshot_metadata
         if source == "demo":
             result["warnings"].insert(0, "所有價格、預測與回測均來自合成資料，不代表真實市場表現。")
+        elif source == "yahoo":
+            result["warnings"].insert(
+                0, "Yahoo 歷史收盤可能包含分割調整及事後修訂；除權息可能影響報酬與回測。"
+            )
         else:
             result["warnings"].insert(
                 0, "每日收盤價未還原權息，除權息與股票分割可能扭曲報酬與回測。"

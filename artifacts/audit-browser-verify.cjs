@@ -1,0 +1,45 @@
+const {chromium}=require('playwright');const assert=require('node:assert/strict');const fs=require('node:fs');
+(async()=>{
+ const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+ const page=await browser.newPage({viewport:{width:1440,height:1100}});page.setDefaultTimeout(120000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/api/corporate-actions?*',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({status:'ready',source:'Browser test fixture (not official)',checked_at:'2026-11-01T00:00:00+08:00',coverage_start:'2024-11-01',coverage_end:'2026-10-30',absence_is_not_proof:true,events:[{date:'2026-10-15',type:'dividend',amount:2,currency:'TWD',source:'Browser test fixture',status:'provider_reported'},{date:'2026-10-15',type:'split',numerator:2,denominator:1,ratio:2,source:'Browser test fixture',status:'provider_reported'}]})}));
+ await page.goto('http://127.0.0.1:8775/?source=twse&symbol=2330.TW',{waitUntil:'domcontentloaded'});
+ await page.waitForSelector('#score-records button',{state:'attached',timeout:30000});
+ await page.locator('#scoreboard details > summary').click();await page.locator('#score-records button').first().click();
+ await page.waitForSelector('#prediction-detail[open] tbody tr');
+ assert.match(await page.locator('#prediction-detail-body').innerText(),/原始保存時間/);
+ assert.match(await page.locator('#prediction-detail-body').innerText(),/模型版本/);
+ await page.locator('#prediction-detail').screenshot({path:'/workspace/StockPredict-fresh/artifacts/audit-detail-zh.png'});
+ 
+ // The native modal traps outside interaction; close it before changing language.
+ await page.locator('#prediction-detail-close').click();await page.selectOption('#language-select','en');
+ await page.locator('#score-records button').first().click();await page.waitForSelector('#prediction-detail[open] tbody tr');
+ assert.match(await page.locator('#prediction-detail-body').innerText(),/Originally saved at/);await page.locator('#prediction-detail-close').click();
+ await page.waitForSelector('#price-chart .corporate-event text',{timeout:120000});
+ assert.equal(await page.locator('#price-chart .corporate-event text').first().textContent(),'D/S');
+ await page.locator('#analysis-actions').locator('..').locator('summary').click();
+ await page.locator('.chart-panel').screenshot({path:'/workspace/StockPredict-fresh/artifacts/audit-event-markers.png'});
+ await page.selectOption('#historical-symbol','2330.TW');await page.selectOption('#historical-months','1');
+ const reportResponse=page.waitForResponse(r=>r.url().includes('/api/historical-backtest'));
+ await page.locator('#historical-run').click();const response=await reportResponse;assert.equal(response.status(),200);
+ await page.waitForFunction(()=>!document.getElementById('report-save').disabled,{},{timeout:120000});
+ let download=page.waitForEvent('download');await page.locator('#report-csv').click();const csv=await download;await csv.saveAs('/tmp/stockpredict-current.csv');assert.match(fs.readFileSync('/tmp/stockpredict-current.csv','utf8'),/corporate_action_status/);
+ const saveResponse=page.waitForResponse(r=>r.url().endsWith('/api/backtest-runs')&&r.request().method()==='POST');
+ await page.locator('#report-save').click();const saved=await (await saveResponse).json();const id=saved.report.archive.run_id;assert.ok(id);
+ await page.waitForFunction(()=>!document.getElementById('report-replay').disabled);
+ await page.locator('#report-replay').click();await page.waitForFunction(()=>document.getElementById('report-archive-status').textContent.includes('Replay matches'));
+ download=page.waitForEvent('download');await page.locator('#report-json').click();const json=await download;await json.saveAs('/tmp/stockpredict-snapshot.json');const snapshot=JSON.parse(fs.readFileSync('/tmp/stockpredict-snapshot.json','utf8'));assert.ok(snapshot.inputs.points.length>60);assert.equal(snapshot.manifest.engine_hash.length,64);
+ await page.waitForFunction(()=>!document.getElementById('report-replay').disabled);
+ await page.selectOption('#historical-months','3');assert.equal(await page.locator('#historical-summary tr').count(),0);
+ await page.selectOption('#report-saved',id);await page.locator('#report-load').click();await page.waitForFunction(()=>document.getElementById('historical-months').value==='1'&&document.querySelectorAll('#historical-summary tr').length===4);
+ await page.locator('#historical-backtest').screenshot({path:'/workspace/StockPredict-fresh/artifacts/audit-archive-en.png'});
+ await page.selectOption('#language-select','zh-TW');assert.match(await page.locator('#report-archive-status').innerText(),/已保存/);
+ await page.locator('#historical-backtest').screenshot({path:'/workspace/StockPredict-fresh/artifacts/audit-archive-zh.png'});
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.locator('[data-i18n="audit.publicNote"]').isVisible(),true);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.locator('#historical-backtest').screenshot({path:'/workspace/StockPredict-fresh/artifacts/audit-archive-mobile.png'});
+ await page.route(`**/api/backtest-runs/${id}/replay`,route=>route.fulfill({status:409,contentType:'application/json',body:'{"reason":"backtest_engine_mismatch"}'}));
+ await page.locator('#report-replay').click();await page.waitForFunction(()=>document.getElementById('report-archive-status').textContent.includes('版本不同'));
+ assert.equal(await page.locator('#report-json').isDisabled(),false);
+ assert.deepEqual(errors,[]);await browser.close();
+ fs.writeFileSync('/workspace/StockPredict-fresh/artifacts/audit-browser-verification.json',JSON.stringify({passed:true,checks:['original prediction modal and exact observation statuses','zh-TW/en','combined dividend/split SVG marker','real historical report save to local PostgreSQL','current CSV export','immutable snapshot JSON download','offline replay matches','saved report reload restores period','engine mismatch preserves downloads','390px mobile overflow'],fixture:'Prediction records and graph event markers are isolated test fixtures; historical snapshot uses real data in local browser_verification schema.',pageErrors:errors},null,2));console.log('Audit/archive/events browser checks passed');
+})().catch(e=>{console.error(e);process.exit(1)});
