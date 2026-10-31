@@ -144,6 +144,14 @@ def add_localizations(result: dict, lang: Language = "zh-TW") -> dict:
             "2303.TW": "United Microelectronics",
         }.get(result["symbol"], name)
     warnings = list(WARNINGS_EN)
+    if result.get("data_status"):
+        zh["warnings"] = [
+            "台美真實行情的預測日期依交易所交易日曆排除休市日。"
+            if "未來日期僅排除週末" in message
+            else message
+            for message in zh["warnings"]
+        ]
+        warnings[1] = "Live Taiwan/US forecast dates follow exchange sessions and exclude holidays."
     if source == "demo":
         warnings.insert(
             0,

@@ -6,7 +6,7 @@ One observed ADR move shifts each original Taiwan forecast independently; it is
 never compounded as if the same move occurred on subsequent US trading days.
 """
 
-from datetime import date, timedelta
+from datetime import date
 from math import isfinite
 
 from stockpredict.forecast import analyze
@@ -43,9 +43,9 @@ def directional_adr_forecast(
     """Shift the unchanged Taiwan path by a bounded, decaying ADR contribution.
 
     The caller confirms that the current session is the exact required US
-    session and is already available. A missing preceding US weekday is rejected
+    session and is already available. A missing preceding US session is rejected
     here rather than treating a multiple-session change as the current day's
-    return. Without a holiday calendar this rule is deliberately conservative.
+    return. US holidays are excluded using the exchange calendar.
     """
     if not isinstance(quote, dict):
         raise ValueError("ADR 情境需要有效的美元報價。")
@@ -55,9 +55,9 @@ def directional_adr_forecast(
     session = _session_date(quote.get("session_date"))
     previous_session = _session_date(quote.get("previous_session_date"))
     try:
-        expected_previous = session - timedelta(days=1)
-        while expected_previous.weekday() >= 5:
-            expected_previous -= timedelta(days=1)
+        from stockpredict.calendar import previous_session as previous_exchange_session
+
+        expected_previous = previous_exchange_session(session, "XNYS")
     except OverflowError as exc:
         raise ValueError("ADR 交易日超出有效範圍。") from exc
     if previous_session != expected_previous:

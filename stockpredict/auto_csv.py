@@ -13,14 +13,13 @@ from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
-from datetime import time as datetime_time
 from math import ceil
 from threading import Lock
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
-from zoneinfo import ZoneInfo
 
+from stockpredict.calendar import available_at, is_session
 from stockpredict.data import DataSourceError, parse_csv
 from stockpredict.reference_profiles import FACTOR_LABELS, FACTOR_PAIRS
 
@@ -137,7 +136,7 @@ def _validated_manifest(raw: bytes) -> dict:
         if manifest["schema_version"] != 1:
             raise ValueError("Unsupported schema")
         session = _iso_day(manifest["session_date"])
-        if session.weekday() >= 5:
+        if not is_session(session, "XNYS"):
             raise ValueError("Not a regular US weekday")
         snapshot = manifest["snapshot_id"]
         if not isinstance(snapshot, str) or not re.fullmatch(
@@ -148,9 +147,7 @@ def _validated_manifest(raw: bytes) -> dict:
         if not isinstance(generated, str) or len(generated) > 64 or "T" not in generated:
             raise ValueError("Invalid publication time")
         generated_at = datetime.fromisoformat(generated)
-        close_available = datetime.combine(
-            session, datetime_time(16, 15), ZoneInfo("America/New_York")
-        )
+        close_available = available_at(session, "XNYS")
         if (
             generated_at.tzinfo is None
             or generated_at.utcoffset() is None

@@ -1,0 +1,50 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async () => {
+ const browser = await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+ const page = await browser.newPage({viewport:{width:1440,height:1100}});
+ const errors=[]; page.on('pageerror', e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8765/',{waitUntil:'networkidle'});
+ await page.waitForSelector('#score-summary tr');
+ assert.equal(await page.locator('#score-summary tr').count(),8);
+ assert.equal(await page.locator('#score-records tr').count(),8);
+ assert.match(await page.locator('#score-summary').innerText(), /聯電/);
+ await page.locator('#scoreboard details summary').click();
+ assert.match(await page.locator('#score-records').innerText(), /待公布/);
+ await page.locator('#scoreboard').screenshot({path:'/workspace/StockPredict-fresh/artifacts/scoreboard-zh.png'});
+ await page.selectOption('#language-select','en');
+ assert.equal(await page.locator('#score-title').innerText(),'Prediction scoreboard');
+ assert.match(await page.locator('#score-records').innerText(), /Pending publication/);
+ assert.match(await page.locator('#score-summary').innerText(), /ADR scenario/);
+ await page.locator('#score-refresh').click();
+ await page.waitForFunction(()=>!document.getElementById('score-refresh').disabled);
+ await page.locator('#scoreboard').screenshot({path:'/workspace/StockPredict-fresh/artifacts/scoreboard-en.png'});
+ // Existing demo analysis, chart and CSV export remain functional.
+ await page.waitForSelector('#results:not([hidden])');
+ assert.equal(await page.locator('#forecast-rows tr').count(),5);
+ const download = page.waitForEvent('download');
+ await page.locator('#export-button').click();
+ assert.match((await download).suggestedFilename(), /csv$/);
+ // Real TWSE response exposes its session date and check time.
+ await page.selectOption('#source','twse');
+ await page.fill('#symbol','2303.TW');
+ await page.locator('#analyze-button').click();
+ await page.waitForSelector('#analysis-data-status',{timeout:120000});
+ assert.match(await page.locator('#analysis-data-status').innerText(), /Quote session/);
+ assert.match(await page.locator('#analysis-data-status').innerText(), /2026-10-30/);
+ await page.setViewportSize({width:390,height:844});
+ await page.locator('#scoreboard').scrollIntoViewIfNeeded();
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth),true);
+ await page.locator('#scoreboard').screenshot({path:'/workspace/StockPredict-fresh/artifacts/scoreboard-mobile.png'});
+ // Storage failure is explicit; unavailable scores never appear as zero accuracy.
+ await page.route('**/api/scoreboard', route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({status:'unavailable',summary:[],predictions:[]})}));
+ await page.locator('#score-refresh').click();
+ await page.waitForFunction(()=>!document.getElementById('score-refresh').disabled);
+ assert.match(await page.locator('#score-status').innerText(), /unavailable/);
+ assert.equal(await page.locator('#score-summary tr').count(),0);
+ assert.deepEqual(errors,[]);
+ fs.writeFileSync('/workspace/StockPredict-fresh/artifacts/browser-verification.json', JSON.stringify({browser:'system Chromium / Playwright',passed:true,checks:['zh-TW / en switching','8 separate stock/scenario/horizon groups','published and pending records','refresh','existing demo chart and CSV export','live TWSE session and checked time','390px mobile overflow','storage failure'],pageErrors:errors,fixture:'isolated local PostgreSQL browser_verification schema; synthetic forecasts, not real prediction performance'},null,2));
+ await browser.close();
+ console.log('Browser verification passed');
+})().catch(e=>{console.error(e);process.exit(1)});

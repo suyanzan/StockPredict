@@ -221,7 +221,10 @@ def test_generic_umc_csv_matches_legacy_numbers_and_profile(client, profile_hist
         json={"symbol": "2303", "umc_csv": files["UMC"], "soxx_csv": files["SOXX"]},
     )
     assert generic.status_code == legacy.status_code == 200
-    assert generic.json() == legacy.json()
+    generic_body, legacy_body = generic.json(), legacy.json()
+    assert generic_body["data_status"].pop("checked_at")
+    assert legacy_body["data_status"].pop("checked_at")
+    assert generic_body == legacy_body
     assert generic.json()["market_context"]["reference_profile"]["id"] == "umc"
 
 

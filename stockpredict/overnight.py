@@ -1,11 +1,10 @@
 """Optional, one-day Taiwan forecast using already-completed US sessions.
 
 The daily feeds do not contain historical publication timestamps. A US bar is
-therefore assumed available at 16:15 America/New_York on its session date. This
-conservative regular-session convention includes DST and is later than early
-closes; it is not a point-in-time price archive or a guarantee of publication.
-Without a holiday calendar, missing expected US weekdays are excluded rather
-than treated as zero returns. The ordinary multi-day forecast remains separate.
+therefore assumed available fifteen minutes after the calendar's exchange close,
+including DST and early closes. This is not a point-in-time price archive or a
+guarantee of publication. Missing expected sessions are excluded rather than
+treated as zero returns. The ordinary multi-day forecast remains separate.
 """
 
 from dataclasses import dataclass
@@ -16,6 +15,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 from stockpredict.adr_scenario import ADR_SYMBOLS, directional_adr_forecast
+from stockpredict.calendar import available_at, date_path, is_session, next_session
 from stockpredict.forecast import LAGS, conditional_forecast, fit_predict, validate_points
 from stockpredict.reference_profiles import FACTOR_PAIRS
 
@@ -35,7 +35,7 @@ class _Row:
 
 
 def _available_at(day: date) -> datetime:
-    return datetime.combine(day, time(16, 15), NEW_YORK).astimezone(timezone.utc)
+    return available_at(day, "XNYS")
 
 
 def _taiwan_time(day: date, hour: int, minute: int = 0) -> datetime:
@@ -43,17 +43,17 @@ def _taiwan_time(day: date, hour: int, minute: int = 0) -> datetime:
 
 
 def _session_window(previous: date, target: date) -> tuple[date, list[date]]:
-    """Expected baseline and US weekdays strictly after the preceding TW close."""
+    """Expected baseline and US sessions strictly after the preceding TW close."""
     prior_close = _taiwan_time(previous, 13, 30)
     cutoff = _taiwan_time(target, 9)
     baseline = prior_close.astimezone(NEW_YORK).date()
-    while baseline.weekday() >= 5 or _available_at(baseline) > prior_close:
+    while not is_session(baseline, "XNYS") or _available_at(baseline) > prior_close:
         baseline -= timedelta(days=1)
     sessions = []
     day = baseline + timedelta(days=1)
     last = cutoff.astimezone(NEW_YORK).date()
     while day <= last:
-        if day.weekday() < 5 and prior_close < _available_at(day) <= cutoff:
+        if is_session(day, "XNYS") and prior_close < _available_at(day) <= cutoff:
             sessions.append(day)
         day += timedelta(days=1)
     return baseline, sessions
@@ -173,9 +173,7 @@ def _timing_context(points: list[dict], now: datetime | None) -> tuple[datetime,
     now = now.astimezone(timezone.utc)
     validate_points(points)
     last_day = date.fromisoformat(points[-1]["date"])
-    target = last_day + timedelta(days=1)
-    while target.weekday() >= 5:
-        target += timedelta(days=1)
+    target = next_session(last_day)
     cutoff = min(now, _taiwan_time(target, 9))
     _, sessions = _session_window(last_day, target)
     result = {
@@ -331,6 +329,7 @@ def build_context(
         result["scenario_forecast"] = conditional_forecast(
             points, result["forecast"]["close"], horizon=horizon
         )
+    result["scenario_forecast"] = date_path(result["scenario_forecast"], points[-1]["date"], "XTAI")
     for index, item in enumerate(result["factors"]):
         item.update(
             first_session=sessions[0].isoformat(),

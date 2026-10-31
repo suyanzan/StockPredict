@@ -328,6 +328,7 @@
     text("security-initial", (presentation().name || analysis.symbol).slice(0, 1));
     text("result-symbol", analysis.symbol);
     text("result-date", t("result.date", { date: analysis.as_of, count: history.length }));
+    window.dispatchEvent(new CustomEvent("stockpredict-data-status", { detail: analysis.data_status || null }));
     text("source-badge", view.source_label);
     $("source-badge").classList.toggle("real", analysis.source !== "demo");
     text("currency-label", analysis.currency || t("result.price"));

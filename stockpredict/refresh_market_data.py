@@ -16,10 +16,10 @@ import shutil
 import tempfile
 import time
 from datetime import date, datetime, timedelta, timezone
-from datetime import time as day_time
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from stockpredict.calendar import available_at, is_session
 from stockpredict.data import DataSourceError, parse_csv, yahoo_data
 from stockpredict.forecast import validate_points
 
@@ -81,7 +81,7 @@ def _current_manifest(root: Path, session_date: str, now: datetime) -> dict | No
         ):
             return None
         generated = datetime.fromisoformat(manifest["generated_at"])
-        threshold = datetime.combine(date.fromisoformat(session_date), day_time(16, 15), NEW_YORK)
+        threshold = available_at(date.fromisoformat(session_date), "XNYS")
         if (
             generated.tzinfo is None
             or generated.utcoffset() is None
@@ -152,9 +152,9 @@ def refresh(output_dir: Path | str, *, now: datetime | None = None) -> dict:
     local_now = now.astimezone(NEW_YORK)
     session = local_now.date()
     session_date = session.isoformat()
-    if local_now.weekday() >= 5:
+    if not is_session(session, "XNYS"):
         return {"status": "no_session", "session_date": session_date}
-    threshold = datetime.combine(session, day_time(16, 15), NEW_YORK)
+    threshold = available_at(session, "XNYS")
     if local_now < threshold:
         return {"status": "waiting", "session_date": session_date}
     root = Path(output_dir)

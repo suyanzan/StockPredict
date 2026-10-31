@@ -1,0 +1,16 @@
+{
+  "browser": "system Chromium / Playwright",
+  "passed": true,
+  "checks": [
+    "zh-TW / en switching",
+    "8 separate stock/scenario/horizon groups",
+    "published and pending records",
+    "refresh",
+    "existing demo chart and CSV export",
+    "live TWSE session and checked time",
+    "390px mobile overflow",
+    "storage failure"
+  ],
+  "pageErrors": [],
+  "fixture": "isolated local PostgreSQL browser_verification schema; synthetic forecasts, not real prediction performance"
+}

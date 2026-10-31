@@ -148,10 +148,10 @@ def test_cutoff_is_frozen_at_taiwan_open_once_open_has_passed():
     [
         (date(2026, 3, 6), "2026-03-06T21:15:00+00:00"),
         (date(2026, 3, 9), "2026-03-09T20:15:00+00:00"),
-        (date(2026, 11, 27), "2026-11-27T21:15:00+00:00"),
+        (date(2026, 11, 27), "2026-11-27T18:15:00+00:00"),
     ],
 )
-def test_inferred_availability_tracks_dst_and_conservatively_waits_on_half_days(day, available):
+def test_inferred_availability_tracks_dst_and_early_closes(day, available):
     assert overnight._available_at(day).isoformat() == available
 
 
@@ -166,9 +166,9 @@ def test_missing_baseline_or_us_weekday_is_unavailable_not_zero_or_stale_reuse(m
     assert result["correlations_window"] is None
 
 
-def test_unconfirmed_us_holidays_exclude_dates_from_all_comparison_models():
+def test_missing_expected_us_sessions_exclude_dates_from_all_comparison_models():
     points, factors = fixture_data()
-    # Without a US calendar, this holiday is deliberately treated as missing.
+    # Columbus Day is an equity trading session; a missing bar must remain missing.
     for symbol in factors:
         factors[symbol] = [row for row in factors[symbol] if row["date"] != "2026-10-12"]
     result = overnight.build_context(points, factors, now=ready_now())
@@ -323,6 +323,8 @@ def test_missing_factors_and_naive_clock_are_not_silently_accepted():
 
 def test_known_overnight_signal_is_learned_and_changes_only_the_live_forecast():
     """A planted causal direction validates the model, not real-market accuracy."""
+    from stockpredict.calendar import is_session, previous_session
+
     points, factors = fixture_data()
     rng = np.random.default_rng(902)
     mapped = {
@@ -337,9 +339,7 @@ def test_known_overnight_signal_is_learned_and_changes_only_the_live_forecast():
         session = date.fromisoformat(point["date"]) - timedelta(days=1)
         while session.weekday() >= 5:
             session -= timedelta(days=1)
-        previous = session - timedelta(days=1)
-        while previous.weekday() >= 5:
-            previous -= timedelta(days=1)
+        previous = previous_session(session, "XNYS")
         us_return = np.log(mapped["UMC"][session] / mapped["UMC"][previous])
         sector_return = np.log(mapped["SOXX"][session] / mapped["SOXX"][previous])
         tw_return = 0.85 * us_return + 0.10 * sector_return + rng.normal(0, 0.0001)
@@ -352,7 +352,19 @@ def test_known_overnight_signal_is_learned_and_changes_only_the_live_forecast():
     assert result["status"] == "ready"
     umc = next(item for item in result["factors"] if item["symbol"] == "UMC")
     assert umc["correlation"] > 0.97
-    expected_correlation = np.corrcoef(observed_us_returns[-60:], observed_tw_returns[-60:])[0, 1]
+    # Official US holidays have no session and are excluded from aligned rows.
+    eligible = []
+    for i, point in enumerate(points):
+        session = date.fromisoformat(point["date"]) - timedelta(days=1)
+        while session.weekday() >= 5:
+            session -= timedelta(days=1)
+        if i > overnight.LAGS and is_session(session, "XNYS"):
+            eligible.append(i)
+    eligible = eligible[-60:]
+    expected_correlation = np.corrcoef(
+        [observed_us_returns[i] for i in eligible],
+        [observed_tw_returns[i] for i in eligible],
+    )[0, 1]
     assert umc["correlation"] == pytest.approx(expected_correlation)
     metrics = result["backtest"]
     assert metrics["factor_mae"] < 0.2 * metrics["ar_mae"]

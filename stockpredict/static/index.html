@@ -9,6 +9,7 @@
   <script src="/static/i18n.js" defer></script>
   <script src="/static/app.js" defer></script>
   <script src="/static/community.js" defer></script>
+  <script src="/static/scoreboard.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -20,6 +21,7 @@
       <nav data-i18n-aria-label="nav.label" aria-label="主導覽">
         <a href="#analysis" class="nav-current" data-i18n="nav.analysis">分析工作台</a>
         <a href="#method" data-i18n="nav.method">模型說明</a>
+        <a href="#scoreboard" data-i18n="score.title">預測成績看板</a>
         <a href="#community-section" data-i18n="nav.feedback">留言建議</a>
       </nav>
       <div class="header-actions">
@@ -46,7 +48,7 @@
       <form id="analysis-form" novalidate>
         <div class="form-field symbol-field"><label for="symbol" data-i18n="controls.symbol">股票代碼</label><div class="input-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="symbol" name="symbol" value="2330.TW" autocomplete="off" spellcheck="false" maxlength="20" aria-describedby="symbol-help" required></div></div>
         <div class="form-field"><label for="source" data-i18n="controls.source">資料來源</label><select id="source" name="source" aria-describedby="source-help daily-close-help"><option value="demo" data-i18n="source.demo">示範資料（合成）</option><option value="twse" data-i18n="source.twse">證交所（上市）</option><option value="yahoo" data-i18n="source.yahoo">Yahoo 每日行情</option><option value="csv" data-i18n="source.csv">匯入 CSV</option></select></div>
-        <div class="form-field horizon-field"><label for="horizon" data-i18n="controls.horizon">預測期間</label><select id="horizon" name="horizon"><option value="5" data-i18n="horizon.5">未來 5 個平日</option><option value="10" data-i18n="horizon.10">未來 10 個平日</option><option value="20" data-i18n="horizon.20">未來 20 個平日</option></select></div>
+        <div class="form-field horizon-field"><label for="horizon" data-i18n="controls.horizon">預測期間</label><select id="horizon" name="horizon"><option value="5" data-i18n="horizon.5">未來 5 個交易日</option><option value="10" data-i18n="horizon.10">未來 10 個交易日</option><option value="20" data-i18n="horizon.20">未來 20 個交易日</option></select></div>
         <button class="button button-primary" id="analyze-button" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 5-6 5 3 6-9M15 5h5v5"/></svg><span data-i18n="controls.analyze">開始分析</span></button>
       </form>
       <div class="controls-footer">
@@ -68,6 +70,17 @@
       <div class="csv-area" id="csv-area" hidden><label for="csv-file" class="csv-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></svg><span><span data-i18n="csv.choose">選擇歷史股價 CSV</span><small data-i18n="csv.requirements">包含 Date、Close 欄位，至少 60 筆 · 最大 2 MB</small></span></label><input type="file" id="csv-file" accept=".csv,text/csv"><a href="#csv-help" data-i18n="csv.formatHelp">格式說明</a></div>
     </section>
 
+    <section id="scoreboard" class="panel scoreboard-panel" aria-labelledby="score-title">
+      <div class="panel-heading"><h2 id="score-title" data-i18n="score.title">預測成績看板</h2><button id="score-refresh" class="button button-secondary" type="button" data-i18n="score.refresh">更新成績</button></div>
+      <p data-i18n="score.description">聯電與台積電 · 盤前原始預測 · 第 1、5 個交易日。待公布不計分，純台股與 ADR 情境分開。</p>
+      <p id="score-status" role="status" aria-live="polite"></p>
+      <div class="table-scroll"><table><caption class="sr-only" data-i18n="score.title">預測成績看板</caption><thead id="score-head"></thead><tbody id="score-summary"></tbody></table></div>
+      <details><summary data-i18n="score.records">原始預測與逐筆成績</summary><div class="table-scroll"><table><thead id="score-record-head"></thead><tbody id="score-records"></tbody></table></div></details>
+      <p class="small-note" data-i18n="score.method">誤差＝預測減實際；MAPE＝絕對誤差／實際收盤；方向以預測前收盤為基準，持平為獨立方向。預測與收盤紀錄不可覆寫。</p>
+      <h3 data-i18n="score.calendar">台美交易日曆與資料狀態</h3>
+      <div id="score-calendar" aria-live="polite"></div>
+      <p class="small-note" data-i18n="score.calendarNote">使用交易所日曆，含美股夏令時間及提早收盤。可用時間為保守門檻，仍需來源公布；缺資料不以舊價替代。</p>
+    </section>
     <div id="error-message" class="notice notice-error" role="alert" hidden><span id="error-text"></span><button id="twse-retry" class="button button-secondary error-retry" type="button" data-i18n="error.retryTwse" hidden>改用證交所資料</button></div>
     <div id="loading-message" class="loading-message" role="status" hidden><span class="spinner"></span><span id="loading-text" data-i18n="loading.analysis">正在讀取資料並執行歷史回測…</span></div>
     <div id="empty-state" class="panel empty-state" hidden><h2 data-i18n="empty.title">準備好開始分析</h2><p data-i18n="empty.copy">選擇股票與資料來源，點擊「開始分析」。示範模式無需連網即可使用。</p></div>
@@ -105,7 +118,7 @@
         </aside>
       </div>
       <section class="panel forecast-panel" aria-labelledby="forecast-title">
-        <div class="panel-heading forecast-heading"><div><h3 id="forecast-title" data-i18n="forecast.title">未來價格估計</h3><p data-i18n="forecast.copy">按平日排列；未排除市場休市日</p></div><button type="button" id="export-button" class="button button-secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span data-i18n="forecast.export">匯出 CSV</span></button></div>
+        <div class="panel-heading forecast-heading"><div><h3 id="forecast-title" data-i18n="forecast.title">未來價格估計</h3><p data-i18n="forecast.copy">台美真實行情依交易日排列；示範與 CSV 使用平日</p></div><button type="button" id="export-button" class="button button-secondary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span data-i18n="forecast.export">匯出 CSV</span></button></div>
         <div class="table-scroll"><table><thead><tr><th scope="col" data-i18n="forecast.date">日期</th><th scope="col" data-i18n="forecast.close">預估收盤價</th><th scope="col" data-i18n="forecast.relative">相對最新收盤</th><th scope="col" data-i18n="forecast.lower">情境下緣</th><th scope="col" data-i18n="forecast.upper">情境上緣</th></tr></thead><tbody id="forecast-rows"></tbody></table></div>
       </section>
       </section>
@@ -120,7 +133,7 @@
 <div id="overnight-correlations" class="overnight-factors"></div><p id="overnight-correlation-period" class="overnight-note"></p>
         <div id="overnight-backtest" class="overnight-backtest" hidden><h4 data-i18n="overnight.backtestTitle">相同日期的逐日回測</h4><p id="overnight-backtest-period" class="overnight-note"></p><div class="table-scroll"><table><thead><tr><th scope="col" data-i18n="overnight.model">模型</th><th scope="col" data-i18n="overnight.mae">MAE（新台幣）</th><th scope="col" data-i18n="overnight.direction">方向準確率</th></tr></thead><tbody id="overnight-backtest-rows"></tbody></table></div><p id="overnight-backtest-verdict" class="overnight-note"></p></div>
         </details>
-        <details class="overnight-limitations"><summary data-i18n="overnight.limitsTitle">資料與比較方式</summary><ul><li data-i18n="overnight.limitTiming">歷史美股收盤以紐約時間 16:00 加 15 分鐘作為保守可用時間；這是對齊假設，不是實際公布時間，歷史行情也可能經後續修訂。</li><li data-i18n="overnight.limitMissing">美國休市或所需資料缺列時會跳過該日，缺價不當成零漲跌。因子只使用台北 09:00 前且查詢當下已可用的資料。</li><li data-i18n="overnight.limitFuture">ADR 方向情境以明示權重與衰減修正純台股路徑；非 ADR 的廣泛市場情境僅第一日納入已知美股後遞推。兩者均不使用未來美股報酬，上方圖表仍是純個股預測，日期未排除休市日。</li><li data-i18n="overnight.limitCorrelation">相關係數比較對齊後的報酬率，不代表領先因果或保證預測改善；除權息與分割可能影響未還原行情。</li><li data-i18n="overnight.limitModels">跨市場模型與原 AR(5) 的訓練樣本、標準化及正則化設定不同，MAE 差異不能單獨歸因於美股因子。</li></ul></details>
+        <details class="overnight-limitations"><summary data-i18n="overnight.limitsTitle">資料與比較方式</summary><ul><li data-i18n="overnight.limitTiming">歷史美股收盤以交易所收盤加 15 分鐘（含提早收盤）作為保守可用時間；這是對齊假設，不是實際公布時間，歷史行情也可能經後續修訂。</li><li data-i18n="overnight.limitMissing">美國休市或所需資料缺列時會跳過該日，缺價不當成零漲跌。因子只使用台北 09:00 前且查詢當下已可用的資料。</li><li data-i18n="overnight.limitFuture">ADR 方向情境以明示權重與衰減修正純台股路徑；非 ADR 的廣泛市場情境僅第一日納入已知美股後遞推。兩者均不使用未來美股報酬，上方圖表仍是純個股預測，台美真實行情日期排除休市日。</li><li data-i18n="overnight.limitCorrelation">相關係數比較對齊後的報酬率，不代表領先因果或保證預測改善；除權息與分割可能影響未還原行情。</li><li data-i18n="overnight.limitModels">跨市場模型與原 AR(5) 的訓練樣本、標準化及正則化設定不同，MAE 差異不能單獨歸因於美股因子。</li></ul></details>
       </section>
     </div>
 

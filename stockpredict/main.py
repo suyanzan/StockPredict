@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from stockpredict.auto_csv import auto_csv_factors
+from stockpredict.calendar import data_status, date_path
 from stockpredict.community import router as community_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
@@ -23,19 +24,23 @@ from stockpredict.reference_profiles import (
     profile_payload,
     public_catalog,
 )
+from stockpredict.scoreboard import router as scoreboard_router
 from stockpredict.twse import normalize_twse_symbol, twse_data
 
 STATIC = Path(__file__).parent / "static"
 app = FastAPI(title="StockPredict", version="0.1.0")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 app.include_router(community_router)
+app.include_router(scoreboard_router)
 
 
 @app.middleware("http")
 async def community_cache_policy(request: Request, call_next):
     response = await call_next(request)
     if (
-        request.url.path.startswith(("/api/community", "/api/analysis"))
+        request.url.path.startswith(
+            ("/api/community", "/api/analysis", "/api/scoreboard", "/api/calendar")
+        )
         or request.url.path == "/admin"
     ):
         response.headers["Cache-Control"] = "no-store"
@@ -98,6 +103,36 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/calendar")
+def market_calendar():
+    from datetime import datetime, timezone
+
+    from stockpredict.calendar import (
+        available_at,
+        calendar,
+        latest_published,
+        next_session,
+        opens_at,
+    )
+
+    now = datetime.now(timezone.utc)
+    markets = []
+    for market in ("XTAI", "XNYS"):
+        last = latest_published(now, market)
+        day = next_session(last, market)
+        markets.append(
+            {
+                "exchange": market,
+                "latest_publishable_session": last.isoformat(),
+                "next_session": day.isoformat(),
+                "opens_at": opens_at(day, market).isoformat(),
+                "closes_at": calendar(market).session_close(day).isoformat(),
+                "available_after": available_at(day, market).isoformat(),
+            }
+        )
+    return {"checked_at": now.isoformat(), "markets": markets}
+
+
 @app.get("/api/reference-profiles")
 def reference_profiles():
     return public_catalog()
@@ -137,6 +172,14 @@ def _market_analysis(
         providers = {"demo": demo_data, "yahoo": yahoo_data, "twse": twse_data}
         points, metadata = providers[source](symbol)
         result = analyze(points, horizon)
+        if source != "demo" and (
+            symbol.endswith(".TW") or metadata.get("exchange_timezone") == "America/New_York"
+        ):
+            market = "XTAI" if symbol.endswith(".TW") else "XNYS"
+            result["forecast"] = date_path(result["forecast"], points[-1]["date"], market)
+            result["data_status"] = data_status(
+                points, market, publication_delay=15 if source == "yahoo" else None
+            )
         if market_context == "us_overnight":
             factor_source = "csv" if factor_data is not None else factor_download_source
             snapshot_metadata = None

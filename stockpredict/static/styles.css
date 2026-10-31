@@ -2461,3 +2461,11 @@ textarea:focus-visible {
     min-width:400px;
   }
 }
+.scoreboard-panel { padding: 24px; margin: 24px 0; }
+.scoreboard-panel .panel-heading { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.scoreboard-panel .table-scroll { overflow-x: auto; margin: 16px 0; }
+.scoreboard-panel table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+.scoreboard-panel th, .scoreboard-panel td { padding: 12px; text-align: left; border-bottom: 1px solid #e3e9f1; }
+.scoreboard-panel th { color: #45576c; background: #f4f7fb; }
+.scoreboard-panel details { margin: 16px 0; }
+.scoreboard-panel summary { cursor: pointer; }

@@ -1,0 +1,39 @@
+{
+  "base_commit": "7796b00ac57d017cc6420bfd840340635ddab095",
+  "branch": "feat/prediction-scoreboard",
+  "baseline_tests": 559,
+  "final_tests": 591,
+  "test_failures": 0,
+  "checks": [
+    "ruff check",
+    "ruff format --check",
+    "git diff --check",
+    "JavaScript syntax checks"
+  ],
+  "docker": {
+    "image": "stockpredict-fresh:verify",
+    "image_id": "sha256:c30faa9771935a8780efbdf0ea745c97e240f8a3dd081a2bf5281c0acc8006dc",
+    "uid": 10001,
+    "health": "healthy",
+    "verified_http_200": [
+      "/",
+      "/api/health",
+      "/api/calendar",
+      "/api/scoreboard"
+    ]
+  },
+  "live_twse": {
+    "session_date": "2026-10-30",
+    "symbols": [
+      "2303.TW",
+      "2330.TW"
+    ],
+    "status": "current",
+    "capture_result": "outside_capture_day"
+  },
+  "deployment": "Local verification only; no remote push or production deployment",
+  "known_warnings": [
+    "FastAPI TestClient dependency deprecation",
+    "exchange_calendars / pandas deprecation warnings"
+  ]
+}
