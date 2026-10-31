@@ -14,3 +14,5 @@ coverage.xml
 htmlcov/
 artifacts/roadmap-*.TW-*.json
 artifacts/roadmap-browser-live-*.json
+.engineering-loop/
+artifacts/engineering-loop/

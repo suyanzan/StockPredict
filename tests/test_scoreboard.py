@@ -261,3 +261,119 @@ def test_job_after_cutoff_collects_actuals_without_generating_forecasts(database
     with database() as conn:
         assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 0
         assert conn.execute("SELECT count(*) AS n FROM sp_actual_closes").fetchone()["n"] == 2
+
+
+def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(database, monkeypatch):
+    """Exercise the production job/API over five sessions; only clocks/feeds are simulated."""
+    from copy import deepcopy
+    from datetime import date
+
+    import stockpredict.calendar as sessions
+    import stockpredict.main as main
+    import stockpredict.overnight as overnight
+    import stockpredict.twse as twse
+    from stockpredict.monitoring import health_alerts
+
+    clock = {"now": datetime.fromisoformat("2026-11-02T08:10:00+08:00"), "correction": 0}
+    origin = date(2026, 11, 2)
+    days = [
+        d.date() for d in sessions.calendar("XTAI").sessions_in_range("2026-03-01", "2026-11-06")
+    ]
+    past = [d for d in days if d < origin][-150:]
+    future = [d for d in days if d >= origin]
+
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return clock["now"].astimezone(tz)
+
+    def feed(symbol):
+        base = 100.0 if symbol == "2303.TW" else 900.0
+        rows = [
+            {"date": str(d), "close": base + (clock["correction"] if d == past[-1] else 0)}
+            for d in past
+        ]
+        # Deliberately deliver a same-day mutable bar to test the publication gate.
+        rows.extend(
+            {"date": str(d), "close": base + i + 2}
+            for i, d in enumerate(future)
+            if d <= clock["now"].date()
+        )
+        if clock["now"].hour < 13:
+            rows = [p for p in rows if p["date"] < str(clock["now"].date())]
+        return deepcopy(rows), {
+            "source": "twse",
+            "name": symbol,
+            "source_label": "TWSE",
+            "currency": "TWD",
+        }
+
+    def factors(symbols, required):
+        dates = sessions.calendar("XNYS").sessions_in_range("2026-01-01", required)
+        return (
+            {s: [{"date": str(d.date()), "close": 100.0} for d in dates] for s in symbols},
+            {"fixture": True, "session_date": required},
+        )
+
+    monkeypatch.setattr(score, "datetime", Clock)
+    monkeypatch.setattr(overnight, "datetime", Clock)
+    monkeypatch.setattr(sessions, "datetime", Clock)
+    monkeypatch.setattr(twse, "twse_data", feed)
+    monkeypatch.setattr(main, "twse_data", feed)
+    monkeypatch.setattr(main, "auto_csv_factors", factors)
+    client = TestClient(app)
+
+    checks = score.run_job()
+    assert all(c["taiwan"] == c["adr"] == "saved" for c in checks)
+    with database() as conn:
+        originals = conn.execute("SELECT id,snapshot FROM sp_predictions ORDER BY id").fetchall()
+    assert len(originals) == 4
+
+    clock.update(now=datetime.fromisoformat("2026-11-02T08:30:00+08:00"), correction=0.5)
+    assert all(c["taiwan"] == c["adr"] == "already_saved" for c in score.run_job())
+
+    clock["now"] = datetime.fromisoformat("2026-11-02T14:59:59+08:00")
+    score.run_job()
+    pending = client.get("/api/scoreboard").json()
+    assert len(pending["predictions"]) == 8
+    assert all(r["status"] == "pending" for r in pending["predictions"])
+    assert all(c["paired_samples"] == 0 for c in pending["comparison"])
+
+    clock["now"] = datetime.fromisoformat("2026-11-02T15:30:00+08:00")
+    score.run_job()
+    day_one = client.get("/api/scoreboard").json()
+    assert all(
+        r["status"] == ("scored" if r["horizon"] == 1 else "pending")
+        for r in day_one["predictions"]
+    )
+    assert all(
+        c["paired_samples"] == (1 if c["horizon"] == 1 else 0) for c in day_one["comparison"]
+    )
+
+    clock["now"] = datetime.fromisoformat("2026-11-03T09:00:00+08:00")
+    assert all(c["taiwan"] == c["adr"] == "after_cutoff" for c in score.run_job())
+    with database() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 4
+    late = client.get("/api/scoreboard").json()
+    alerts = health_alerts(
+        late["predictions"],
+        late["last_check"],
+        datetime.fromisoformat("2026-11-02T08:10:00+08:00"),
+        now=datetime.fromisoformat("2026-11-03T09:45:00+08:00"),
+    )
+    assert len([a for a in alerts if a["code"] == "preopen_missing"]) == 4
+
+    for d in future[1:]:
+        clock["now"] = datetime.fromisoformat(f"{d}T15:30:00+08:00")
+        score.run_job()
+    completed = client.get("/api/scoreboard").json()
+    assert len(completed["predictions"]) == 8
+    assert all(r["status"] == "scored" for r in completed["predictions"])
+    assert all(c["paired_samples"] == 1 and c["adr_coverage"] == 1 for c in completed["comparison"])
+    for r in completed["predictions"]:
+        assert r["target_date"] == ("2026-11-02" if r["horizon"] == 1 else "2026-11-06")
+    with database() as conn:
+        assert (
+            conn.execute("SELECT id,snapshot FROM sp_predictions ORDER BY id").fetchall()
+            == originals
+        )
