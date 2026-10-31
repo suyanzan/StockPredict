@@ -3,7 +3,7 @@
 import re
 from dataclasses import dataclass
 
-from stockpredict.data import normalize_symbol
+from stockpredict.data import EXAMPLES, SYMBOL_ALIASES, normalize_symbol
 
 TAIWAN_PATTERN = r"^[0-9]{4,6}[A-Z]{0,2}\.(?:TW|TWO)$"
 BARE_TAIWAN_PATTERN = r"^[0-9]{4,6}[A-Z]{0,2}$"
@@ -61,6 +61,8 @@ def public_catalog() -> dict:
     return {
         "profiles": {key: profile_payload(profile) for key, profile in PROFILES.items()},
         "stock_profiles": dict(STOCK_PROFILES),
+        "symbol_aliases": dict(SYMBOL_ALIASES),
+        "demo_symbols": list(EXAMPLES),
         "default_taiwan_profile": "taiwan_market",
         "taiwan_pattern": TAIWAN_PATTERN,
         "bare_taiwan_pattern": BARE_TAIWAN_PATTERN,

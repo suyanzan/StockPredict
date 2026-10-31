@@ -106,3 +106,36 @@ def test_homepage_and_static_assets_are_served(client):
         asset = client.get(f"/static/{name}")
         assert asset.status_code == 200
         assert len(asset.content) > 100
+
+
+@pytest.mark.parametrize("symbol", ["台達電", "台达电", "Delta Electronics", "2308", "2308.TW"])
+@pytest.mark.parametrize("source", ["twse", "yahoo"])
+def test_delta_identity_reaches_provider_without_substitution(client, monkeypatch, symbol, source):
+    from stockpredict.data import parse_csv
+
+    calls = []
+
+    def prices(code):
+        calls.append(code)
+        return parse_csv(csv_text()), {
+            "name": "台達電",
+            "currency": "TWD",
+            "source": source,
+            "source_label": source,
+        }
+
+    monkeypatch.setattr(main, source + "_data", prices)
+    response = client.get("/api/analysis", params={"symbol": symbol, "source": source})
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert calls == ["2308.TW"]
+    assert result["symbol"] == "2308.TW"
+    assert result["name"] == "台達電"
+    assert result["locales"]["en"]["name"] == "Delta Electronics"
+    assert result["summary"]["last_close"] == pytest.approx(105.9)
+
+
+def test_delta_has_no_synthetic_demo(client):
+    response = client.get("/api/analysis", params={"symbol": "台達電", "source": "demo"})
+    assert response.status_code == 400
+    assert "示範" in response.json()["detail"]

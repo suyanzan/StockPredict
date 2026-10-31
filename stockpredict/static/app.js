@@ -99,9 +99,15 @@
         && profile.names[language].length === 2 && profile.names[language].every((name) => typeof name === "string" && name.length <= 100));
   }
 
+  function resolveSymbol(value) {
+    const raw = value.trim().toUpperCase();
+    const resolved = referenceCatalog?.symbol_aliases?.[raw] || raw;
+    return /^[0-9]{4,6}[A-Z]{0,2}$/.test(resolved) ? `${resolved}.TW` : resolved;
+  }
+
   function canonicalTaiwanSymbol(value) {
     if (!referencePatterns) return null;
-    const normalized = value.trim().toUpperCase();
+    const normalized = resolveSymbol(value);
     return referencePatterns.bare.test(normalized) ? `${normalized}.TW` : referencePatterns.taiwan.test(normalized) ? normalized : null;
   }
 
@@ -249,10 +255,14 @@
   }
 
   async function runAnalysis() {
-    const requestedSymbol = symbol.value.trim().toUpperCase();
+    const requestedSymbol = resolveSymbol(symbol.value);
     if (!requestedSymbol) { showError({ key: "error.symbol" }); symbol.focus(); return; }
     if (source.value === "csv" && csvText === null) { showError({ key: "error.csvRequired" }); $("csv-file").focus(); return; }
     symbol.value = requestedSymbol;
+    const switchToTwse = source.value === "demo" && /^[0-9]{4,6}\.TW$/.test(requestedSymbol)
+      && referenceCatalog?.demo_symbols && !referenceCatalog.demo_symbols.includes(requestedSymbol);
+    $("symbol-resolution").hidden = !switchToTwse;
+    if (switchToTwse) { source.value = "twse"; updateSourceUi(); }
     const requestedSource = source.value;
     const requestedHorizon = horizon.value;
     const requestedLanguage = I18n.getLanguage();
@@ -275,6 +285,12 @@
     errorState = null;
     $("twse-retry").hidden = true;
     twseRetry = null;
+    if (analysis && (analysis.symbol !== requestedSymbol || analysis.source !== requestedSource)) {
+      analysis = null;
+      $("results").hidden = true;
+      window.dispatchEvent(new CustomEvent("stockpredict-data-status", { detail: null }));
+      window.dispatchEvent(new CustomEvent("stockpredict-analysis", { detail: null }));
+    }
     $("empty-state").hidden = true;
     setLoading(true, requestedSource);
     const timeout = window.setTimeout(() => controller.abort(), requestedContext ? 90000 : requestedSource === "twse" ? 60000 : 35000);
@@ -811,7 +827,7 @@
   window.addEventListener("resize", () => { window.clearTimeout(resizeTimer); resizeTimer = window.setTimeout(renderChart, 100); });
   const initial = new URLSearchParams(window.location.search);
   const initialSymbol = initial.get("symbol")?.trim().toUpperCase();
-  if (initialSymbol && /^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$/.test(initialSymbol)) symbol.value = initialSymbol;
+  if (initialSymbol && initialSymbol.length <= 20) symbol.value = initialSymbol;
   if (["demo", "yahoo", "twse"].includes(initial.get("source"))) source.value = initial.get("source");
   if (["5", "10", "20"].includes(initial.get("horizon"))) horizon.value = initial.get("horizon");
   I18n.subscribe(() => {

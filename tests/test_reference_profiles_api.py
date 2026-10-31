@@ -19,6 +19,8 @@ from stockpredict.reference_profiles import (
 
 ENDPOINT = "/api/analysis/overnight/csv"
 PROFILE_CASES = [
+    ("台達電", "twse", "2308.TW", "taiwan_market", ("SPY", "QQQ")),
+    ("2308", "yahoo", "2308.TW", "taiwan_market", ("SPY", "QQQ")),
     ("2330", "twse", "2330.TW", "tsmc", ("TSM", "SOXX")),
     ("0050", "twse", "0050.TW", "taiwan_market", ("SPY", "QQQ")),
     ("6488.TWO", "yahoo", "6488.TWO", "taiwan_market", ("SPY", "QQQ")),

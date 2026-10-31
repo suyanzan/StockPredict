@@ -17,7 +17,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
-from stockpredict.data import DataSourceError
+from stockpredict.data import SYMBOL_ALIASES, DataSourceError
 from stockpredict.forecast import MAX_PRICE, MIN_PRICE, validate_points
 
 CACHE_TTL = 3600
@@ -66,6 +66,7 @@ def clear_cache() -> None:
 
 def normalize_twse_symbol(symbol: str) -> str:
     value = symbol.strip().upper()
+    value = SYMBOL_ALIASES.get(value, value)
     if not re.fullmatch(r"[0-9]{4,6}(?:\.TW)?", value):
         raise ValueError(
             "證交所來源僅支援上市台股／ETF，例如 2303 或 2303.TW；"

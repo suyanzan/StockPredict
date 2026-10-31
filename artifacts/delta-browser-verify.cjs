@@ -1,0 +1,44 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async()=>{
+ const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8778/');
+ await page.waitForSelector('#results:not([hidden])');
+ assert.equal(await page.locator('#result-symbol').innerText(),'2330.TW');
+ await page.fill('#symbol','台達電');
+ const responsePromise=page.waitForResponse(r=>r.url().includes('/api/analysis?')&&r.url().includes('2308.TW'),{timeout:90000});
+ await page.locator('#analysis-form').evaluate(f=>f.requestSubmit());
+ const response=await responsePromise;
+ assert.equal(response.status(),200);
+ const data=await response.json();
+ assert.equal(data.symbol,'2308.TW');assert.equal(data.source,'twse');assert.equal(data.name,'台達電');
+ assert.equal(data.summary.last_close,1335);
+ await page.waitForFunction(()=>document.querySelector('#result-symbol').textContent==='2308.TW');
+ assert.equal(await page.locator('#source').inputValue(),'twse');
+ assert.equal(await page.locator('#security-name').innerText(),'台達電');
+ assert.equal(await page.locator('#last-close').innerText(),'1,335.00');
+ assert(await page.locator('#symbol-resolution').isVisible());
+ await page.screenshot({path:'/workspace/StockPredict-fresh/artifacts/delta-zh.png',fullPage:true});
+ // A failed request for a different stock must never leave Delta's prices visible.
+ await page.route('**/api/analysis?*',route=>route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({detail:'Test unavailable'})}));
+ await page.fill('#symbol','9999');
+ await page.locator('#analysis-form').evaluate(f=>f.requestSubmit());
+ await page.waitForSelector('#error-message:not([hidden])');
+ assert.equal(await page.locator('#results').isVisible(),false);
+ await page.unroute('**/api/analysis?*');
+ // Chinese query parameters must resolve, including mobile English presentation.
+ await page.setViewportSize({width:390,height:844});
+ await page.goto('http://127.0.0.1:8778/?symbol='+encodeURIComponent('台達電')+'&lang=en');
+ await page.waitForFunction(()=>document.querySelector('#result-symbol').textContent==='2308.TW',{timeout:90000});
+ assert.equal(await page.locator('#security-name').innerText(),'Delta Electronics');
+ assert.match(await page.locator('#symbol-resolution').innerText(),/real TWSE/);
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+ await page.screenshot({path:'/workspace/StockPredict-fresh/artifacts/delta-en-mobile.png',fullPage:true});
+ assert.deepEqual(errors,[]);
+ fs.writeFileSync('/workspace/StockPredict-fresh/artifacts/delta-verification.json',JSON.stringify({symbol:data.symbol,name:data.name,source:data.source,as_of:data.as_of,last_close:data.summary.last_close,checks:['Chinese name','real TWSE data','source switch notice','failed different symbol hides previous result','Chinese URL parameter','English mobile','no JS errors']},null,2));
+ console.log('Delta browser verification passed',data.as_of,data.summary.last_close);
+ await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

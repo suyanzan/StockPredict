@@ -140,6 +140,7 @@ def add_localizations(result: dict, lang: Language = "zh-TW") -> dict:
     else:
         name = {
             "2330.TW": "TSMC",
+            "2308.TW": "Delta Electronics",
             "0050.TW": "Yuanta Taiwan 50 ETF",
             "2303.TW": "United Microelectronics",
         }.get(result["symbol"], name)

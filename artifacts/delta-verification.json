@@ -1,0 +1,16 @@
+{
+  "symbol": "2308.TW",
+  "name": "台達電",
+  "source": "twse",
+  "as_of": "2026-10-30",
+  "last_close": 1335,
+  "checks": [
+    "Chinese name",
+    "real TWSE data",
+    "source switch notice",
+    "failed different symbol hides previous result",
+    "Chinese URL parameter",
+    "English mobile",
+    "no JS errors"
+  ]
+}

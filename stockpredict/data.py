@@ -18,6 +18,16 @@ import numpy as np
 from stockpredict.forecast import MAX_POINTS, validate_points
 
 SYMBOL_PATTERN = re.compile(r"^[A-Z0-9^][A-Z0-9.^=\-]{0,19}$")
+SYMBOL_ALIASES = {
+    "台達電": "2308.TW",
+    "台达电": "2308.TW",
+    "DELTA ELECTRONICS": "2308.TW",
+    "台積電": "2330.TW",
+    "台积电": "2330.TW",
+    "聯電": "2303.TW",
+    "联电": "2303.TW",
+    "元大台灣50": "0050.TW",
+}
 EXAMPLES = {
     "2330.TW": ("台積電", "TWD", 900.0),
     "0050.TW": ("元大台灣50", "TWD", 55.0),
@@ -64,6 +74,9 @@ class DataSourceError(Exception):
 
 def normalize_symbol(symbol: str) -> str:
     value = symbol.strip().upper()
+    value = SYMBOL_ALIASES.get(value, value)
+    if re.fullmatch(r"[0-9]{4,6}[A-Z]{0,2}", value):
+        value += ".TW"
     if not SYMBOL_PATTERN.fullmatch(value):
         raise ValueError("股票代號格式無效，例如 2330.TW、0050.TW 或 AAPL。")
     return value

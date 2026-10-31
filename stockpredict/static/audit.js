@@ -120,6 +120,7 @@
   $("prediction-detail").addEventListener("close",()=>{detailSequence++;});
   window.addEventListener("stockpredict-analysis",async event=>{
     const value=event.detail;currentAnalysis=value;
+    if(!value){$("analysis-actions").textContent="";return;}
     if(["demo","csv"].includes(value.source)){value.corporate_actions={status:"not_requested",events:[]};renderEvents($("analysis-actions"),value.corporate_actions);return;}
     if(value.corporate_actions){renderEvents($("analysis-actions"),value.corporate_actions);return;}
     value.corporate_actions={status:"loading",events:[]};renderEvents($("analysis-actions"),value.corporate_actions);
