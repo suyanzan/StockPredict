@@ -376,3 +376,100 @@ def test_known_overnight_signal_is_learned_and_changes_only_the_live_forecast():
     assert [item["correlation"] for item in updated["factors"]] == [
         item["correlation"] for item in result["factors"]
     ]
+
+
+def test_current_raw_us_close_is_exposed_in_usd_without_rounding_or_conversion():
+    points, factors = fixture_data()
+    for item in factors["UMC"]:
+        if item["date"] == "2026-10-28":
+            item["close"] = 18.04
+        elif item["date"] == "2026-10-29":
+            item["close"] = 16.68
+    result = overnight.build_context(points, factors, now=ready_now())
+    quote = next(item for item in result["quotes"] if item["symbol"] == "UMC")
+    assert quote == {
+        "symbol": "UMC",
+        "currency": "USD",
+        "session_date": "2026-10-29",
+        "close": 16.68,
+        "previous_session_date": "2026-10-28",
+        "previous_close": 18.04,
+        "day_change": pytest.approx(-1.36),
+        "day_change_pct": pytest.approx((16.68 / 18.04 - 1) * 100),
+    }
+
+
+def test_raw_quotes_remain_available_when_model_has_too_few_aligned_rows():
+    points, factors = fixture_data()
+    factors = {symbol: rows[-65:] for symbol, rows in factors.items()}
+    result = overnight.build_context(points, factors, now=ready_now())
+    assert result["status"] == "unavailable"
+    assert result["reason"] == "insufficient_aligned_history"
+    assert [item["symbol"] for item in result["quotes"]] == ["UMC", "SOXX"]
+    assert all(item["session_date"] == "2026-10-29" for item in result["quotes"])
+    assert result["forecast"] is None and result["scenario_forecast"] == []
+
+
+@pytest.mark.parametrize("problem", ["missing", "invalid", "missing_current"])
+def test_one_verified_quote_is_exposed_when_the_other_factor_cannot_be_used(problem):
+    points, factors = fixture_data()
+    if problem == "missing":
+        del factors["SOXX"]
+    elif problem == "invalid":
+        factors["SOXX"][0]["close"] = float("nan")
+    else:
+        factors["SOXX"] = [row for row in factors["SOXX"] if row["date"] != "2026-10-29"]
+    result = overnight.build_context(points, factors, now=ready_now())
+    assert result["status"] == "unavailable"
+    assert [item["symbol"] for item in result["quotes"]] == ["UMC"]
+    assert result["quotes"][0]["session_date"] == "2026-10-29"
+    assert result["forecast"] is None and result["scenario_forecast"] == []
+
+
+def test_raw_day_change_uses_previous_observed_row_not_the_whole_overnight_window():
+    points, factors = fixture_data()
+    # Missing a baseline prevents the combined model, but does not hide an
+    # independently valid current quote or mislabel the previous observed date.
+    factors["UMC"] = [row for row in factors["UMC"] if row["date"] != "2026-10-28"]
+    lookup = {row["date"]: row["close"] for row in factors["UMC"]}
+    result = overnight.build_context(points, factors, now=ready_now())
+    quote = next(item for item in result["quotes"] if item["symbol"] == "UMC")
+    assert result["reason"] == "missing_us_sessions"
+    assert quote["previous_session_date"] == "2026-10-27"
+    assert quote["day_change_pct"] == pytest.approx(
+        (lookup["2026-10-29"] / lookup["2026-10-27"] - 1) * 100
+    )
+    assert result["scenario_forecast"] == []
+
+
+def test_raw_current_quotes_never_reuse_previous_day_or_expose_future_prices():
+    points, factors = fixture_data()
+    for symbol in factors:
+        factors[symbol] = [row for row in factors[symbol] if row["date"] != "2026-10-29"]
+    result = overnight.build_context(points, factors, now=ready_now())
+    assert result["reason"] == "missing_us_sessions"
+    assert result["quotes"] == [] and result["scenario_forecast"] == []
+    waiting = overnight.build_context(
+        points, factors, now=datetime.fromisoformat("2026-10-30T04:14:59+08:00")
+    )
+    assert waiting["status"] == "waiting" and waiting["quotes"] == []
+
+
+@pytest.mark.parametrize("horizon", [1, 5, 10, 30])
+def test_conditional_combined_path_matches_requested_horizon_and_single_day_estimate(horizon):
+    points, factors = fixture_data()
+    result = overnight.build_context(points, factors, now=ready_now(), horizon=horizon)
+    path = result["scenario_forecast"]
+    assert len(path) == horizon
+    assert path[0] == {"date": result["forecast"]["date"], "close": result["forecast"]["close"]}
+    assert all(set(item) == {"date", "close"} for item in path)
+    base = overnight.build_context(points, factors, now=ready_now(), horizon=5)
+    assert result["backtest"] == base["backtest"]
+    assert result["quotes"] == base["quotes"]
+
+
+@pytest.mark.parametrize("horizon", [0, 31, True, 1.5])
+def test_context_rejects_invalid_scenario_horizon(horizon):
+    points, factors = fixture_data()
+    with pytest.raises(ValueError):
+        overnight.build_context(points, factors, now=ready_now(), horizon=horizon)

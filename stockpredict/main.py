@@ -160,9 +160,16 @@ def _market_analysis(
                                 else overnight_factors(profile.symbols)
                             )
                     result["market_context"] = (
-                        build_context(points, factors)
+                        build_context(
+                            points, factors, **({"horizon": horizon} if horizon != 5 else {})
+                        )
                         if profile.id == "umc"
-                        else build_context(points, factors, factor_symbols=profile.symbols)
+                        else build_context(
+                            points,
+                            factors,
+                            factor_symbols=profile.symbols,
+                            **({"horizon": horizon} if horizon != 5 else {}),
+                        )
                     )
             except DataSourceError as exc:
                 result["market_context"] = {
@@ -177,6 +184,8 @@ def _market_analysis(
                     "factors": [],
                     "backtest": None,
                     "correlations_window": None,
+                    "quotes": [],
+                    "scenario_forecast": [],
                 }
                 if timing is not None:
                     result["market_context"].update(
@@ -185,6 +194,8 @@ def _market_analysis(
                     )
             result["market_context"]["data_source"] = factor_source
             result["market_context"]["reference_profile"] = profile_payload(profile)
+            for quote in result["market_context"].get("quotes", []):
+                quote["data_source"] = factor_source
             if snapshot_metadata is not None:
                 result["market_context"]["snapshot_metadata"] = snapshot_metadata
         if source == "demo":

@@ -56,8 +56,9 @@ def test_factor_result_is_separate_from_base_forecasts(client, real_history, mon
     calls = []
     monkeypatch.setattr(main, "overnight_factors", lambda: downloaded)
 
-    def build(points, factors):
+    def build(points, factors, **kwargs):
         calls.append((deepcopy(points), deepcopy(factors)))
+        assert kwargs == {"horizon": 10}
         return deepcopy(context)
 
     monkeypatch.setattr(main, "build_context", build)

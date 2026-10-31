@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 import stockpredict.forecast as forecast
-from stockpredict.forecast import analyze, fit_predict
+from stockpredict.forecast import analyze, conditional_forecast, fit_predict
 
 
 def points_for(prices, start=date(2025, 1, 6)):
@@ -140,3 +140,54 @@ def test_analyze_rejects_invalid_date():
     history[50]["date"] = "2025-02-30"
     with pytest.raises(ValueError):
         analyze(history, horizon=5)
+
+
+def test_conditional_path_uses_first_estimate_then_original_history_coefficients(monkeypatch):
+    points = points_for(variable_prices())
+    prices = np.array([point["close"] for point in points])
+    original_points = [point.copy() for point in points]
+    first_close = float(prices[-1]) * 0.95
+    coefficients = forecast._fit(prices)
+    expected = [first_close]
+    recursive_prices = np.append(prices, first_close)
+    for _ in range(4):
+        next_close = forecast._next_price(recursive_prices, coefficients)
+        expected.append(next_close)
+        recursive_prices = np.append(recursive_prices, next_close)
+
+    calls = []
+    actual_fit = forecast._fit
+
+    def record_fit(training):
+        calls.append(training.copy())
+        return actual_fit(training)
+
+    monkeypatch.setattr(forecast, "_fit", record_fit)
+    path = conditional_forecast(points, first_close, horizon=5)
+    assert [item["close"] for item in path] == pytest.approx(expected)
+    assert len(calls) == 1
+    np.testing.assert_array_equal(calls[0], prices)
+    assert points == original_points
+    assert all(set(item) == {"date", "close"} for item in path)
+
+
+@pytest.mark.parametrize("horizon", [1, 5, 10, 30])
+def test_conditional_dates_match_base_and_do_not_change_base_analysis(horizon):
+    points = points_for(variable_prices())
+    base = analyze(points, horizon=horizon)
+    path = conditional_forecast(points, base["forecast"][0]["close"] * 0.95, horizon)
+    assert [item["date"] for item in path] == [item["date"] for item in base["forecast"]]
+    assert path[0]["close"] == pytest.approx(base["forecast"][0]["close"] * 0.95)
+    assert analyze(points, horizon=horizon) == base
+
+
+@pytest.mark.parametrize("first_close", [0, -1, float("nan"), float("inf"), True, None, "bad"])
+def test_conditional_path_rejects_invalid_first_price(first_close):
+    with pytest.raises(ValueError):
+        conditional_forecast(points_for(variable_prices()), first_close)
+
+
+@pytest.mark.parametrize("horizon", [0, 31, -1, True, 1.5])
+def test_conditional_path_rejects_invalid_horizon(horizon):
+    with pytest.raises(ValueError):
+        conditional_forecast(points_for(variable_prices()), 100, horizon)

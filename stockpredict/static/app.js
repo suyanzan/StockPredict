@@ -373,116 +373,177 @@
     }).format(instant) : "—";
   }
 
+  function referenceSourceKey(value) {
+    return value === "auto_csv" ? "overnight.rawSourceAuto" : value === "csv" ? "overnight.rawSourceCsv" : value === "yahoo" ? "overnight.rawSourceYahoo" : "overnight.rawSourceUnknown";
+  }
+
   function renderOvernight() {
     const context = analysis.market_context;
-    const panel = $("overnight-panel");
-    const cards = $("overnight-factors");
-    const rows = $("overnight-backtest-rows");
-    cards.replaceChildren();
-    rows.replaceChildren();
-    cards.hidden = true;
-    $("overnight-forecast").hidden = true;
-    $("overnight-backtest").hidden = true;
-    $("overnight-correlation-period").hidden = true;
-    for (const id of ["overnight-status", "overnight-data-source", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-required-session", "overnight-available-after", "overnight-target", "overnight-factor-close", "overnight-ar-close", "overnight-factor-change", "overnight-correlation-period", "overnight-backtest-period", "overnight-backtest-verdict"]) text(id, "");
-    changeClass($("overnight-factor-change"), null);
-    $("overnight-required-session").hidden = true;
-    $("overnight-available-after").hidden = true;
-    $("overnight-snapshot-session").hidden = true;
-    $("overnight-snapshot-generated").hidden = true;
-    panel.hidden = !context;
-    if (!context) return;
-    const profile = returnedProfile(context);
+    const profile = context ? returnedProfile(context) : profileForSymbol(analysis.symbol);
+    const isTaiwan = Boolean(profile);
     const names = profileNames(profile);
-    text("overnight-title", t("overnight.title", { symbol: analysis.symbol }));
-    text("overnight-intro", t(profile?.kind === "broad_market" ? "overnight.introMarket" : "overnight.intro"));
-    const status = ["ready", "waiting"].includes(context.status) ? context.status : "unavailable";
-    const usingFactors = status === "ready";
+    const panel = $("overnight-panel");
+    const combinedPanel = $("combined-panel");
+    const cards = $("overnight-factors");
+    const correlations = $("overnight-correlations");
+    const rows = $("overnight-backtest-rows");
+    const comparisonRows = $("combined-comparison-rows");
+    for (const element of [cards, correlations, rows, comparisonRows]) element.replaceChildren();
+    for (const id of ["overnight-forecast", "overnight-backtest", "overnight-correlation-period", "combined-scenario", "combined-diagnostics", "overnight-required-session", "overnight-available-after", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-retry-help", "overnight-csv-switch"]) $(id).hidden = true;
+    for (const id of ["overnight-status", "overnight-raw-status", "overnight-data-source", "overnight-snapshot-session", "overnight-snapshot-generated", "overnight-required-session", "overnight-available-after", "overnight-retry-help", "overnight-target", "overnight-factor-close", "overnight-ar-close", "overnight-factor-change", "overnight-correlation-period", "overnight-backtest-period", "overnight-backtest-verdict", "combined-empty-reason", "combined-direction", "combined-scenario-note"]) text(id, "");
+    changeClass($("overnight-factor-change"), null);
+    text("base-forecast-heading", t("comparison.baseTitle", { market: t(isTaiwan ? "comparison.taiwan" : "comparison.stock"), count: analysis.forecast.length }));
+    text("combined-base-column", t("comparison.baseColumn", { market: t(isTaiwan ? "comparison.taiwan" : "comparison.stock") }));
+    panel.hidden = !context && !isTaiwan;
+    combinedPanel.hidden = !context && !isTaiwan;
+    $("combined-empty").hidden = false;
+    if (panel.hidden) return;
+    text("overnight-title", t("overnight.rawTitle"));
+    text("overnight-intro", t("overnight.rawIntro", { symbols: profile?.symbols.join(" + ") || "—" }));
+    const status = context && ["ready", "waiting"].includes(context.status) ? context.status : "unavailable";
     const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"];
-    const reason = reasonKeys.includes(context.reason) ? ` ${t(`overnight.reason.${context.reason}`)}` : "";
-    text("overnight-status", `${t(`overnight.status.${status}`)}${reason}`);
-    $("overnight-status").dataset.status = status;
-    const sourceKey = context.data_source === "auto_csv" ? "overnight.dataSourceAuto" : context.data_source === "csv" ? "overnight.dataSourceCsv" : "overnight.dataSourceYahoo";
-    text("overnight-data-source", t(usingFactors ? sourceKey : "overnight.noDataUsed"));
-    const snapshot = usingFactors && context.data_source === "auto_csv" ? context.snapshot_metadata : null;
+    const reason = context && reasonKeys.includes(context.reason) ? t(`overnight.reason.${context.reason}`) : "";
+    const requiredSession = typeof context?.required_us_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(context.required_us_session_date) ? context.required_us_session_date : null;
+    const allowQuotes = context && status !== "waiting" && !["us_session_not_closed", "incomplete_history", "stale_history"].includes(context.reason);
+    const quoted = allowQuotes && Array.isArray(context.quotes) ? context.quotes : [];
+    const validQuotes = new Map();
+    for (const code of profile?.symbols || []) {
+      const quote = quoted.find((item) => item?.symbol === code && item.currency === "USD" && Number.isFinite(item.close) && item.close > 0 && typeof item.session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(item.session_date) && (!requiredSession || item.session_date === requiredSession));
+      if (quote) validQuotes.set(code, quote);
+    }
+    const hasQuotes = validQuotes.size > 0;
+    const completeQuotes = Boolean(profile && validQuotes.size === profile.symbols.length);
+    const rawStatus = !context ? t("overnight.rawNotEnabled") : completeQuotes ? t("overnight.rawAvailable") : hasQuotes ? t("overnight.rawPartial") : `${t("overnight.rawNone")} ${reason}`;
+    text("overnight-raw-status", rawStatus);
+    $("overnight-raw-status").dataset.status = completeQuotes ? "ready" : "unavailable";
+    for (const [index, code] of (profile?.symbols || []).entries()) {
+      const quote = validQuotes.get(code);
+      const card = document.createElement("article");
+      card.className = "overnight-factor raw-quote";
+      card.dataset.symbol = code;
+      const heading = document.createElement("h4");
+      heading.textContent = names[index] || code;
+      const close = document.createElement("strong");
+      close.className = "raw-quote-close";
+      close.textContent = quote ? `${format(quote.close)} USD` : t("comparison.none");
+      card.append(heading, close);
+      if (quote) {
+        const session = document.createElement("p");
+        session.className = "raw-quote-session";
+        session.textContent = t("overnight.rawSession", { date: quote.session_date });
+        const previous = document.createElement("p");
+        previous.className = "raw-quote-previous";
+        const previousAvailable = Number.isFinite(quote.previous_close) && quote.previous_close > 0 && typeof quote.previous_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(quote.previous_session_date) && quote.previous_session_date < quote.session_date;
+        previous.textContent = previousAvailable ? t("overnight.rawPrevious", { close: format(quote.previous_close), date: quote.previous_session_date }) : t("overnight.rawPreviousNone");
+        const change = document.createElement("p");
+        change.className = "raw-quote-change";
+        const absolute = Number.isFinite(quote.day_change) ? `${quote.day_change > 0 ? "+" : ""}${format(quote.day_change)} USD` : t("comparison.none");
+        change.textContent = t("overnight.rawChange", { absolute, percent: Number.isFinite(quote.day_change_pct) ? percent(quote.day_change_pct, true) : t("comparison.none") });
+        changeClass(change, quote.day_change);
+        const source = document.createElement("small");
+        source.className = "raw-quote-source";
+        source.textContent = t("overnight.rawSource", { source: t(referenceSourceKey(quote.data_source || context.data_source)) });
+        card.append(session, previous, change, source);
+      } else {
+        const unavailable = document.createElement("p");
+        unavailable.textContent = t(context ? "overnight.rawQuoteMissing" : "overnight.rawNotEnabled");
+        card.append(unavailable);
+      }
+      cards.append(card);
+    }
+    text("overnight-data-source", hasQuotes ? t("overnight.rawDataRetrieved") : t("overnight.rawNone"));
+    const snapshot = hasQuotes && context?.data_source === "auto_csv" ? context.snapshot_metadata : null;
     const snapshotSession = typeof snapshot?.snapshot_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(snapshot.snapshot_session_date) ? snapshot.snapshot_session_date : null;
     text("overnight-snapshot-session", snapshotSession ? t("overnight.snapshotSession", { date: snapshotSession }) : "");
     $("overnight-snapshot-session").hidden = !snapshotSession;
     const generatedAt = formatInstant(snapshot?.generated_at);
     text("overnight-snapshot-generated", generatedAt !== "—" ? t("overnight.snapshotGenerated", { time: generatedAt }) : "");
     $("overnight-snapshot-generated").hidden = generatedAt === "—";
-    const requiredSession = typeof context.required_us_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(context.required_us_session_date) ? context.required_us_session_date : null;
     text("overnight-required-session", requiredSession ? t("overnight.requiredSession", { date: requiredSession }) : "");
     $("overnight-required-session").hidden = !requiredSession;
-    const availableAfter = formatInstant(context.available_after);
+    const availableAfter = formatInstant(context?.available_after);
     text("overnight-available-after", availableAfter !== "—" ? t("overnight.availableAfter", { time: availableAfter }) : "");
     $("overnight-available-after").hidden = availableAfter === "—";
-    const retrySeconds = Number.isFinite(context.retry_after_seconds) && context.retry_after_seconds > 0 ? Math.ceil(context.retry_after_seconds) : null;
-    const automaticSource = context.data_source === "auto_csv" || ["auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context.reason);
+    const retrySeconds = Number.isFinite(context?.retry_after_seconds) && context.retry_after_seconds > 0 ? Math.ceil(context.retry_after_seconds) : null;
+    const automaticSource = context?.data_source === "auto_csv" || ["auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context?.reason);
     text("overnight-retry-help", retrySeconds ? t(automaticSource ? "overnight.autoRetryHelp" : "overnight.retryHelp", { seconds: retrySeconds }) : "");
     $("overnight-retry-help").hidden = !retrySeconds;
-    $("overnight-csv-switch").hidden = context.data_source === "csv" || status !== "unavailable" || !["data_unavailable", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context.reason);
+    $("overnight-csv-switch").hidden = !context || context.data_source === "csv" || status !== "unavailable" || !["data_unavailable", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"].includes(context.reason);
+    const scenario = context?.scenario_forecast;
+    const scenarioReady = status === "ready" && completeQuotes && Array.isArray(scenario) && scenario.length === analysis.forecast.length && scenario.every((point, index) => point?.date === analysis.forecast[index].date && Number.isFinite(point.close) && point.close > 0);
+    const combinedReason = !context ? t("comparison.notEnabled") : reason || t("comparison.scenarioMissing");
+    text("overnight-status", scenarioReady ? t("comparison.available") : `${t("comparison.none")} · ${combinedReason}`);
+    $("overnight-status").dataset.status = scenarioReady ? "ready" : "unavailable";
+    text("combined-empty-reason", combinedReason);
+    $("combined-empty").hidden = scenarioReady;
+    if (!scenarioReady) return;
     const estimate = context.forecast;
-    const originalEstimate = analysis.forecast?.[0]?.close;
-    const ready = status === "ready" && Number.isFinite(estimate?.close) && Number.isFinite(originalEstimate);
-    $("overnight-forecast").hidden = !ready;
-    if (ready) {
-      text("overnight-target", t("overnight.target", { date: estimate.date || context.target_date || "—" }));
+    const originalEstimate = analysis.forecast[0].close;
+    if (Number.isFinite(estimate?.close)) {
+      $("overnight-forecast").hidden = false;
+      text("overnight-target", t("overnight.target", { date: estimate.date || scenario[0].date }));
       text("overnight-factor-close", format(estimate.close));
       text("overnight-ar-close", format(originalEstimate));
       text("overnight-factor-change", t("overnight.change", { change: percent(estimate.change_pct, true) }));
       changeClass($("overnight-factor-change"), estimate.change_pct);
     }
-    const factors = usingFactors && Array.isArray(context.factors) ? context.factors : [];
-    cards.hidden = !usingFactors || !profile;
-    for (const [index, symbolName] of (usingFactors ? profile?.symbols || [] : []).entries()) {
-      const factor = factors.find((item) => item?.symbol === symbolName) || {};
+    $("combined-scenario").hidden = false;
+    text("combined-scenario-note", t(scenario.length > 1 ? "comparison.scenarioNote" : "comparison.scenarioNoteOne", { remaining: scenario.length - 1 }));
+    for (const [index, point] of scenario.entries()) {
+      const base = analysis.forecast[index];
+      const row = document.createElement("tr");
+      const difference = point.close - base.close;
+      const values = [point.date, format(base.close), format(point.close), `${difference > 0 ? "+" : ""}${format(difference)}`, percent(difference / base.close * 100, true)];
+      values.forEach((value, column) => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        if (column >= 3) changeClass(cell, difference);
+        row.append(cell);
+      });
+      comparisonRows.append(row);
+    }
+    const lastClose = analysis.summary.last_close;
+    const baseEnd = analysis.forecast.at(-1).close;
+    const combinedEnd = scenario.at(-1).close;
+    const direction = (value) => Math.sign(Math.round(value * 100) - Math.round(lastClose * 100));
+    const directionName = (value) => t(value > 0 ? "comparison.up" : value < 0 ? "comparison.down" : "comparison.flat");
+    text("combined-direction", t("comparison.directionSummary", { count: scenario.length, base: directionName(direction(baseEnd)), combined: directionName(direction(combinedEnd)), agreement: t(direction(baseEnd) === direction(combinedEnd) ? "comparison.sameDirection" : "comparison.differentDirection"), baseChange: percent((baseEnd / lastClose - 1) * 100, true), combinedChange: percent((combinedEnd / lastClose - 1) * 100, true) }));
+    const factors = Array.isArray(context.factors) ? context.factors : [];
+    for (const [index, code] of profile.symbols.entries()) {
+      const factor = factors.find((item) => item?.symbol === code);
+      if (!factor) continue;
       const card = document.createElement("article");
       card.className = "overnight-factor";
-      const heading = document.createElement("h4");
-      heading.textContent = names[index] || symbolName;
-      const sessions = document.createElement("p");
-      sessions.textContent = t("overnight.sessions", { first: factor.first_session || "—", last: factor.last_session || "—" });
-      const change = document.createElement("strong");
-      change.textContent = t("overnight.return", { value: percent(factor.return_pct, true) });
-      changeClass(change, factor.return_pct);
+      const title = document.createElement("h4");
+      title.textContent = names[index] || code;
       const correlation = document.createElement("p");
-      const coefficient = Number.isFinite(factor.correlation) && Math.abs(factor.correlation) <= 1 ? format(factor.correlation) : "—";
-      correlation.textContent = t("overnight.correlation", { value: coefficient, count: Number.isInteger(factor.samples) && factor.samples >= 0 ? factor.samples : "—" });
-      const available = document.createElement("small");
-      available.textContent = t("overnight.available", { time: formatInstant(factor.available_at) });
-      card.append(heading, sessions, change, correlation, available);
-      cards.append(card);
+      correlation.textContent = t("overnight.correlation", { value: Number.isFinite(factor.correlation) && Math.abs(factor.correlation) <= 1 ? format(factor.correlation) : t("comparison.none"), count: Number.isInteger(factor.samples) ? factor.samples : "—" });
+      const factorReturn = document.createElement("p");
+      factorReturn.textContent = t("overnight.return", { value: percent(factor.return_pct, true) });
+      card.append(title, correlation, factorReturn);
+      correlations.append(card);
     }
-    const correlationWindow = usingFactors ? context.correlations_window : null;
+    const correlationWindow = context.correlations_window;
     $("overnight-correlation-period").hidden = !correlationWindow;
-    text("overnight-correlation-period", correlationWindow ? t("overnight.correlationPeriod", {
-      start: correlationWindow.start || "—", end: correlationWindow.end || "—", count: Number.isInteger(correlationWindow.samples) ? correlationWindow.samples : "—",
-    }) : "");
-    const backtest = usingFactors ? context.backtest : null;
+    text("overnight-correlation-period", correlationWindow ? t("overnight.correlationPeriod", { start: correlationWindow.start || "—", end: correlationWindow.end || "—", count: Number.isInteger(correlationWindow.samples) ? correlationWindow.samples : "—" }) : "");
+    const backtest = context.backtest;
+    $("combined-diagnostics").hidden = !backtest && !factors.length;
     $("overnight-backtest").hidden = !backtest;
     if (!backtest) return;
-    text("overnight-backtest-period", t("overnight.backtestPeriod", {
-      start: backtest.start || "—", end: backtest.end || "—", count: Number.isInteger(backtest.observations) ? backtest.observations : "—",
-    }));
-    for (const [key, mae, direction] of [
-      ["overnight.factorModel", backtest.factor_mae, backtest.factor_direction_accuracy_pct],
-      ["overnight.arModel", backtest.ar_mae, backtest.ar_direction_accuracy_pct],
-      ["overnight.baselineModel", backtest.baseline_mae, backtest.baseline_direction_accuracy_pct],
-    ]) {
+    text("overnight-backtest-period", t("overnight.backtestPeriod", { start: backtest.start || "—", end: backtest.end || "—", count: Number.isInteger(backtest.observations) ? backtest.observations : "—" }));
+    for (const [key, mae, accuracy] of [["overnight.factorModel", backtest.factor_mae, backtest.factor_direction_accuracy_pct], ["overnight.arModel", backtest.ar_mae, backtest.ar_direction_accuracy_pct], ["overnight.baselineModel", backtest.baseline_mae, backtest.baseline_direction_accuracy_pct]]) {
       const row = document.createElement("tr");
       const label = document.createElement("th");
       label.scope = "row";
       label.textContent = t(key);
       const error = document.createElement("td");
       error.textContent = format(mae);
-      const accuracy = document.createElement("td");
-      accuracy.textContent = percent(direction);
-      row.append(label, error, accuracy);
+      const direction = document.createElement("td");
+      direction.textContent = percent(accuracy);
+      row.append(label, error, direction);
       rows.append(row);
     }
-    const improved = Number.isFinite(backtest.improvement_pct) && backtest.improvement_pct > 0;
-    text("overnight-backtest-verdict", improved ? t("overnight.improved", { value: percent(backtest.improvement_pct) }) : t("overnight.notImproved"));
+    text("overnight-backtest-verdict", Number.isFinite(backtest.improvement_pct) && backtest.improvement_pct > 0 ? t("overnight.improved", { value: percent(backtest.improvement_pct) }) : t("overnight.notImproved"));
   }
 
   function renderWarnings() {

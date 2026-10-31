@@ -41,7 +41,9 @@ def imported_factors(monkeypatch):
 
     monkeypatch.setattr(main, "twse_data", lambda symbol: provider(symbol, "twse"))
     monkeypatch.setattr(main, "yahoo_data", lambda symbol: provider(symbol, "yahoo"))
-    monkeypatch.setattr(main, "build_context", lambda p, f: builder(p, f, now=ready_now()))
+    monkeypatch.setattr(
+        main, "build_context", lambda p, f, **kwargs: builder(p, f, now=ready_now(), **kwargs)
+    )
     monkeypatch.setattr(
         main, "pending_context", lambda p: overnight.pending_context(p, now=ready_now())
     )

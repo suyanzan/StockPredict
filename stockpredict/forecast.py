@@ -62,6 +62,39 @@ def fit_predict(prices: np.ndarray) -> float:
     return _next_price(values, _fit(values))
 
 
+def conditional_forecast(points: list[dict], first_close: float, horizon: int = 5) -> list[dict]:
+    """Recurse from one supplied first-day estimate using original-history AR(5).
+
+    Only the initial estimate may incorporate an external market observation.
+    Later steps introduce no future external prices and do not refit on invented
+    observations. This conditional path has no independently calibrated bands.
+    """
+    if isinstance(horizon, bool) or not isinstance(horizon, int) or not 1 <= horizon <= 30:
+        raise ValueError("預測天數必須是 1 至 30 的整數。")
+    validate_points(points)
+    try:
+        first = float(first_close)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("第一日情境價格必須為有限正數。") from exc
+    if isinstance(first_close, bool) or not np.isfinite(first) or first <= 0:
+        raise ValueError("第一日情境價格必須為有限正數。")
+    prices = np.array([float(point["close"]) for point in points])
+    coefficients = _fit(prices)
+    future_prices = prices.copy()
+    last_day = date.fromisoformat(points[-1]["date"])
+    forecasts = []
+    for step in range(horizon):
+        last_day += timedelta(days=1)
+        while last_day.weekday() >= 5:
+            last_day += timedelta(days=1)
+        prediction = first if step == 0 else _next_price(future_prices, coefficients)
+        if not np.isfinite(prediction) or prediction <= 0:
+            raise ValueError("情境價格超出有效範圍。")
+        forecasts.append({"date": last_day.isoformat(), "close": prediction})
+        future_prices = np.append(future_prices, prediction)
+    return forecasts
+
+
 def _backtest(prices: np.ndarray) -> dict:
     count = min(30, len(prices) // 5)
     start = len(prices) - count

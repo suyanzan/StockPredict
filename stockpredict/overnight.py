@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 import numpy as np
 
-from stockpredict.forecast import LAGS, fit_predict, validate_points
+from stockpredict.forecast import LAGS, conditional_forecast, fit_predict, validate_points
 from stockpredict.reference_profiles import FACTOR_PAIRS
 
 FACTORS = ("UMC", "SOXX")
@@ -184,6 +184,8 @@ def _timing_context(points: list[dict], now: datetime | None) -> tuple[datetime,
         "decision_cutoff": cutoff.isoformat(),
         "assumed_availability": True,
         "forecast": None,
+        "scenario_forecast": [],
+        "quotes": [],
         "factors": [],
         "backtest": None,
         "correlations_window": None,
@@ -218,25 +220,55 @@ def build_context(
     *,
     now: datetime | None = None,
     factor_symbols: tuple[str, str] = FACTORS,
+    horizon: int = 5,
 ) -> dict:
     """Use the required completed US sessions; never substitute an earlier date."""
     if not isinstance(factor_symbols, tuple) or factor_symbols not in FACTOR_PAIRS:
         raise ValueError("Unsupported reference-factor pair.")
+    if isinstance(horizon, bool) or not isinstance(horizon, int) or not 1 <= horizon <= 30:
+        raise ValueError("預測天數必須是 1 至 30 的整數。")
     _, last_day, target, result = _timing_context(points, now)
     if result["reason"] is not None:
         return result
-    try:
-        mapped = {}
-        for symbol in factor_symbols:
+    if not isinstance(factors, dict):
+        return {**result, "reason": "invalid_factor_data"}
+    mapped = {}
+    data_reason = None
+    session = date.fromisoformat(result["required_us_session_date"])
+    for symbol in factor_symbols:
+        try:
             observations = factors[symbol]
             validate_points(observations)
             mapped[symbol] = {
                 date.fromisoformat(item["date"]): float(item["close"]) for item in observations
             }
-    except KeyError:
-        return {**result, "reason": "missing_factors"}
-    except (ValueError, TypeError):
-        return {**result, "reason": "invalid_factor_data"}
+        except KeyError:
+            data_reason = data_reason or "missing_factors"
+            continue
+        except (ValueError, TypeError):
+            data_reason = "invalid_factor_data"
+            continue
+        if session in mapped[symbol]:
+            close = mapped[symbol][session]
+            previous_days = [day for day in mapped[symbol] if day < session]
+            previous_day = max(previous_days) if previous_days else None
+            previous_close = mapped[symbol][previous_day] if previous_day else None
+            result["quotes"].append(
+                {
+                    "symbol": symbol,
+                    "currency": "USD",
+                    "session_date": session.isoformat(),
+                    "close": close,
+                    "previous_session_date": previous_day.isoformat() if previous_day else None,
+                    "previous_close": previous_close,
+                    "day_change": close - previous_close if previous_close is not None else None,
+                    "day_change_pct": (close / previous_close - 1) * 100
+                    if previous_close is not None
+                    else None,
+                }
+            )
+    if data_reason is not None:
+        return {**result, "reason": data_reason}
     baseline, sessions = _session_window(last_day, target)
     overnight = _window_returns(baseline, sessions, mapped, factor_symbols)
     if overnight is None:
@@ -280,6 +312,9 @@ def build_context(
         "base_close": previous_close,
         "change_pct": (exp(predicted_return) - 1) * 100,
     }
+    result["scenario_forecast"] = conditional_forecast(
+        points, result["forecast"]["close"], horizon=horizon
+    )
     for index, item in enumerate(result["factors"]):
         item.update(
             first_session=sessions[0].isoformat(),

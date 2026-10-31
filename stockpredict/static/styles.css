@@ -2118,6 +2118,94 @@ textarea:focus-visible {
   font-size:11px;
 }
 
+.analysis-section-heading {
+  margin:26px 0 18px;
+}
+
+.analysis-section-heading h2 {
+  margin:5px 0;
+  font-size:21px;
+  line-height:1.4;
+}
+
+.analysis-section-heading p {
+  margin:0;
+  color:#728496;
+  font-size:12px;
+}
+
+.raw-quote .raw-quote-close {
+  margin:8px 0 12px;
+  font-size:30px;
+  line-height:1.25;
+  color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+
+.raw-quote .raw-quote-change {
+  margin:9px 0;
+  font-size:12px;
+}
+
+.raw-us-panel .overnight-data-guidance {
+  margin-top:15px;
+}
+
+.combined-empty {
+  margin:0 23px 22px;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:#f8fafc;
+}
+
+.combined-empty strong {
+  display:block;
+  font-size:25px;
+  font-weight:650;
+}
+
+.combined-empty p {
+  margin:6px 0 0;
+  color:#63788b;
+  font-size:12px;
+}
+
+.combined-scenario {
+  margin:0 23px 24px;
+}
+
+.combined-scenario .table-scroll {
+  border:1px solid var(--border);
+  border-radius:6px;
+  margin:12px 0;
+}
+
+.combined-direction {
+  padding:12px 14px;
+  border-radius:6px;
+  background:#f4f7fb;
+  color:#63788b;
+  font-size:12px;
+}
+
+.combined-diagnostics {
+  margin:0 23px 20px;
+  color:#63788b;
+  font-size:12px;
+}
+
+.combined-diagnostics>summary {
+  cursor:pointer;
+  font-weight:600;
+  margin-bottom:13px;
+}
+
+.combined-diagnostics .overnight-factors,.combined-diagnostics .overnight-backtest,.combined-diagnostics #overnight-correlation-period {
+  margin-left:0;
+  margin-right:0;
+}
+
 .overnight-status {
   margin:18px 23px;
   padding:11px 13px;
@@ -2270,6 +2358,24 @@ textarea:focus-visible {
 }
 
 @media(max-width:600px) {
+  .analysis-section-heading h2 {
+    font-size:18px;
+  }
+  .combined-empty,.combined-scenario,.combined-diagnostics {
+    margin-left:16px;
+    margin-right:16px;
+  }
+  .combined-scenario table {
+    min-width:0;
+    width:100%;
+  }
+  .combined-scenario th,.combined-scenario td {
+    padding:10px 7px;
+    font-size:10px;
+  }
+  .combined-scenario th:nth-child(n+4),.combined-scenario td:nth-child(n+4) {
+    display:none;
+  }
   .us-factor-options {
     margin-left:0;
   }

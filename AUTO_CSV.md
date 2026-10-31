@@ -32,3 +32,5 @@ uv run --no-sync pytest -q tests/test_refresh_market_data.py tests/test_auto_csv
 ```
 
 讀取 API 時使用 `market_context=us_overnight&factor_source=auto_csv`。回應的 `market_context.data_source` 為 `auto_csv`；資料可用時另含 `snapshot_metadata` 的實際交易日與產生時間。舊 API 未指定 `factor_source` 時仍維持直接 Yahoo 行為，網頁則預設自動 CSV。
+
+網頁先揭露 CSV 中的美元收盤價格與交易日，再列出純台股預測，最後才顯示含已知美股影響的條件比較。原始報價不因綜合模型樣本不足而被隱藏；缺少當日價格的標的仍顯示「無」。多日比較只在第一日納入已知美股影響，後續沿用台股模型遞迴，不假造未來美股收盤價。
