@@ -4,7 +4,7 @@
   i18n.register({
     "zh-TW": {
       "score.title": "預測成績看板", "score.refresh": "更新成績",
-      "score.description": "聯電與台積電 · 盤前原始預測 · 第 1、5 個交易日。待公布不計分，純台股與 ADR 情境分開。",
+      "score.description": "聯電、台積電與台達電 · 盤前原始預測 · 第 1、5 個交易日。待公布不計分。聯電與台積電另列 ADR 情境；台達電追蹤純台股。",
       "score.records": "原始預測與逐筆成績", "score.calendar": "台美交易日曆與資料狀態",
       "score.method": "誤差＝預測減實際；MAPE＝絕對誤差／實際收盤；方向以預測前收盤為基準，持平為獨立方向。預測與收盤紀錄不可覆寫。",
       "score.calendarNote": "使用交易所日曆，含美股夏令時間及提早收盤。可用時間為保守門檻，仍需來源公布；缺資料不以舊價替代。",
@@ -30,7 +30,7 @@
     },
     en: {
       "score.title": "Prediction scoreboard", "score.refresh": "Refresh scores",
-      "score.description": "UMC and TSMC · Original pre-open predictions · Trading days 1 and 5. Pending results are excluded. Taiwan-only and ADR scenarios are scored separately.",
+      "score.description": "UMC, TSMC and Delta Electronics · Original pre-open predictions · Trading days 1 and 5. Pending results are excluded. UMC and TSMC also have separate ADR scores; Delta tracks Taiwan-only forecasts.",
       "score.records": "Original predictions and individual scores", "score.calendar": "Taiwan / US calendar and data status",
       "score.method": "Error = predicted − actual. MAPE = absolute error / actual close. Direction is measured from the base close; flat is a separate direction. Forecasts and closes are immutable.",
       "score.calendarNote": "Exchange calendars include US daylight saving and early closes. Availability is a conservative gate and still requires published source data. Missing dates never use an older price.",
@@ -65,7 +65,7 @@
   }
   const number = value => value == null ? "—" : value.toFixed(2);
   const percent = value => value == null ? "—" : `${number(value)}%`;
-  const stock = symbol => `${symbol === "2303.TW" ? i18n.t("security.umc") : i18n.t("security.tsmc")} ${symbol}`;
+  const stock = symbol => `${i18n.t({"2303.TW":"security.umc","2330.TW":"security.tsmc","2308.TW":"security.delta"}[symbol])} ${symbol}`;
   function row(parent, values, heading = false) {
     const tr = document.createElement("tr");
     values.forEach(value => {

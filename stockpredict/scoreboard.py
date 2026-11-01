@@ -17,9 +17,13 @@ from stockpredict.comparison import paired_comparison
 from stockpredict.provenance import model_manifest
 
 router = APIRouter()
-SYMBOLS = ("2303.TW", "2330.TW")
+SYMBOLS = ("2303.TW", "2330.TW", "2308.TW")
 SCENARIOS = ("taiwan", "adr")
 MODEL = "ar5_adr_directional_v1"
+
+
+def scenarios_for(symbol):
+    return ("taiwan",) if symbol == "2308.TW" else SCENARIOS
 
 
 def connect():
@@ -34,7 +38,7 @@ def initialize(connection):
     connection.execute("""
         CREATE TABLE IF NOT EXISTS sp_predictions (
             id BIGSERIAL PRIMARY KEY,
-            symbol TEXT NOT NULL CHECK (symbol IN ('2303.TW','2330.TW')),
+            symbol TEXT NOT NULL CHECK (symbol IN ('2303.TW','2330.TW','2308.TW')),
             scenario TEXT NOT NULL CHECK (scenario IN ('taiwan','adr')),
             target_date DATE NOT NULL, created_at TIMESTAMPTZ NOT NULL,
             base_date DATE NOT NULL, base_close DOUBLE PRECISION NOT NULL CHECK (base_close > 0),
@@ -67,6 +71,14 @@ def initialize(connection):
         CREATE TRIGGER sp_actual_closes_no_truncate BEFORE TRUNCATE ON sp_actual_closes
             FOR EACH STATEMENT EXECUTE FUNCTION sp_reject_archive_mutation();
     """)
+    connection.execute("""
+        ALTER TABLE sp_predictions DROP CONSTRAINT IF EXISTS sp_predictions_symbol_check;
+        ALTER TABLE sp_predictions ADD CONSTRAINT sp_predictions_symbol_check
+            CHECK (symbol IN ('2303.TW','2330.TW','2308.TW'));
+        ALTER TABLE sp_predictions DROP CONSTRAINT IF EXISTS sp_predictions_delta_scenario_check;
+        ALTER TABLE sp_predictions ADD CONSTRAINT sp_predictions_delta_scenario_check
+            CHECK (symbol <> '2308.TW' OR scenario = 'taiwan');
+    """)
     from stockpredict.backtest_runs import ensure_initialized
 
     ensure_initialized(connection)
@@ -86,7 +98,7 @@ def capture_reason(points, now):
 
 def save_prediction(connection, symbol, scenario, points, path, now, provenance):
     """First on-time snapshot wins. Late/stale/partial forecasts cannot enter the archive."""
-    if symbol not in SYMBOLS or scenario not in SCENARIOS or now.utcoffset() is None:
+    if symbol not in SYMBOLS or scenario not in scenarios_for(symbol) or now.utcoffset() is None:
         raise ValueError("Invalid prediction context")
     reason = capture_reason(points, now)
     if reason:
@@ -169,7 +181,7 @@ def evaluate(predictions, actuals):
                 }
             )
     for symbol in SYMBOLS:
-        for scenario in SCENARIOS:
+        for scenario in scenarios_for(symbol):
             for horizon in (1, 5):
                 group = [
                     r
@@ -192,7 +204,11 @@ def evaluate(predictions, actuals):
                         else None,
                     }
                 )
-    return {"summary": summary, "predictions": rows, "comparison": paired_comparison(rows)}
+    return {
+        "summary": summary,
+        "predictions": rows,
+        "comparison": paired_comparison([r for r in rows if "adr" in scenarios_for(r["symbol"])]),
+    }
 
 
 @router.get("/api/scoreboard")
@@ -346,9 +362,9 @@ def run_job():
             details = {"symbol": symbol, **status}
             reason = capture_reason(points, now)
             if reason:
-                details.update({scenario: reason for scenario in SCENARIOS})
+                details.update({scenario: reason for scenario in scenarios_for(symbol)})
             if status["status"] == "current" and reason is None:
-                for scenario in SCENARIOS:
+                for scenario in scenarios_for(symbol):
                     result = _market_analysis(
                         symbol,
                         "twse",

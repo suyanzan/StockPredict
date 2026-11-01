@@ -37,7 +37,9 @@ def cohort():
     path = date_path([{}] * 5, "2026-10-01", "XTAI")
     records = []
     for index, (symbol, scenario) in enumerate(
-        (s, c) for s in ("2303.TW", "2330.TW") for c in ("taiwan", "adr")
+        (s, c)
+        for s in ("2303.TW", "2330.TW", "2308.TW")
+        for c in (("taiwan",) if s == "2308.TW" else ("taiwan", "adr"))
     ):
         for h in (1, 5):
             records.append(

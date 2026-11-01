@@ -46,8 +46,14 @@ def health_alerts(rows, last_check, started_at, *, now=None):
         and _instant(started_at) <= opens_at(day)
         and now >= opens_at(day) + timedelta(minutes=15)
     ):
-        for symbol in ("2303.TW", "2330.TW"):
-            for scenario in ("taiwan", "adr"):
+        from stockpredict.scoreboard import SYMBOLS, scenarios_for
+
+        for symbol in SYMBOLS:
+            if symbol == "2308.TW" and not any(
+                c.get("symbol") == symbol for c in last_check.get("details", [])
+            ):
+                continue
+            for scenario in scenarios_for(symbol):
                 if not any(
                     r["symbol"] == symbol
                     and r["scenario"] == scenario

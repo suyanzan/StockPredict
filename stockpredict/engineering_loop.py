@@ -146,17 +146,17 @@ def live_acceptance(report, *, now=None):
             valid = False
         if valid and row.get("status") == "scored":
             cohorts.setdefault(origin, {})[(row["symbol"], row["scenario"], row["horizon"])] = row
-    required = {
-        (s, c, h) for s in ("2303.TW", "2330.TW") for c in ("taiwan", "adr") for h in (1, 5)
-    }
+    from stockpredict.scoreboard import SYMBOLS, scenarios_for
+
+    required = {(s, c, h) for s in SYMBOLS for c in scenarios_for(s) for h in (1, 5)}
     complete = []
     for origin, cohort in cohorts.items():
         if not required <= cohort.keys():
             continue
         if all(
             cohort[s, c, 1][field] == cohort[s, c, 5][field]
-            for s in ("2303.TW", "2330.TW")
-            for c in ("taiwan", "adr")
+            for s in SYMBOLS
+            for c in scenarios_for(s)
             for field in ("id", "created_at", "base_close")
         ):
             complete.append(origin)

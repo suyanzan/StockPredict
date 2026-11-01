@@ -748,8 +748,22 @@
     if(analysis===event.detail.analysis){analysis.corporate_actions=event.detail.actions;renderChart();}
   });
   form.addEventListener("submit", (event) => { event.preventDefault(); runAnalysis(); });
-  source.addEventListener("change", updateSourceUi);
-  symbol.addEventListener("input", updateSourceUi);
+  function formTargetChanged() {
+    if (request) { request.abort(); request = null; ++requestId; setLoading(false); }
+    if (analysis && (analysis.symbol !== resolveSymbol(symbol.value) || analysis.source !== source.value)) {
+      analysis = null;
+      $("results").hidden = true;
+      $("empty-state").hidden = false;
+      window.dispatchEvent(new CustomEvent("stockpredict-data-status", { detail: null }));
+      window.dispatchEvent(new CustomEvent("stockpredict-analysis", { detail: null }));
+    }
+    $("symbol-resolution").hidden = true;
+    $("error-message").hidden = true;
+    errorState = null;
+    updateSourceUi();
+  }
+  source.addEventListener("change", formTargetChanged);
+  symbol.addEventListener("input", formTargetChanged);
   overnightControl.addEventListener("change", updateFactorFilesUi);
   factorSource.addEventListener("change", updateFactorFilesUi);
   $("umc-csv-file").addEventListener("change", (event) => readFactorFile(0, event));

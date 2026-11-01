@@ -24,9 +24,10 @@ from stockpredict.market_data import overnight_factors
 from stockpredict.model_review import review_models
 from stockpredict.overnight import build_context
 from stockpredict.reference_profiles import profile_for
-from stockpredict.scoreboard import SYMBOLS, evaluate
+from stockpredict.scoreboard import evaluate
 from stockpredict.twse import twse_data
 
+SYMBOLS = ("2303.TW", "2330.TW")
 router = APIRouter()
 PERIOD_DAYS = {1: 30, 3: 90, 6: 180, 12: 365}
 

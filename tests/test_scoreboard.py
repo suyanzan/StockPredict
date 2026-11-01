@@ -259,8 +259,10 @@ def test_job_captures_both_scenarios_and_reports_provider_failure(database, monk
         },
     )
     first = score.run_job()
-    assert all(c["taiwan"] == c["adr"] == "saved" for c in first)
-    assert all(c["taiwan"] == c["adr"] == "already_saved" for c in score.run_job())
+    assert all(c[s] == "saved" for c in first for s in score.scenarios_for(c["symbol"]))
+    assert all(
+        c[s] == "already_saved" for c in score.run_job() for s in score.scenarios_for(c["symbol"])
+    )
 
     def unavailable(symbol):
         from stockpredict.data import DataSourceError
@@ -271,7 +273,7 @@ def test_job_captures_both_scenarios_and_reports_provider_failure(database, monk
     checks = score.run_job()
     assert all(c["status"] == "unavailable" and c["checked_at"] for c in checks)
     body = TestClient(app).get("/api/scoreboard").json()
-    assert len(body["predictions"]) == 8
+    assert len(body["predictions"]) == 10
     assert body["last_check"]["details"] == checks
 
 
@@ -288,10 +290,12 @@ def test_job_after_cutoff_collects_actuals_without_generating_forecasts(database
     monkeypatch.setattr(twse, "twse_data", lambda symbol: (POINTS, {"source": "twse"}))
     monkeypatch.setattr(main, "_market_analysis", lambda *a, **kw: pytest.fail("Late forecast"))
     checks = score.run_job()
-    assert all(c["taiwan"] == c["adr"] == "after_cutoff" for c in checks)
+    assert all(c[s] == "after_cutoff" for c in checks for s in score.scenarios_for(c["symbol"]))
     with database() as conn:
         assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 0
-        assert conn.execute("SELECT count(*) AS n FROM sp_actual_closes").fetchone()["n"] == 2
+        assert conn.execute("SELECT count(*) AS n FROM sp_actual_closes").fetchone()["n"] == len(
+            score.SYMBOLS
+        )
 
 
 def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(database, monkeypatch):
@@ -355,18 +359,20 @@ def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(dat
     client = TestClient(app)
 
     checks = score.run_job()
-    assert all(c["taiwan"] == c["adr"] == "saved" for c in checks)
+    assert all(c[s] == "saved" for c in checks for s in score.scenarios_for(c["symbol"]))
     with database() as conn:
         originals = conn.execute("SELECT id,snapshot FROM sp_predictions ORDER BY id").fetchall()
-    assert len(originals) == 4
+    assert len(originals) == 5
 
     clock.update(now=datetime.fromisoformat("2026-11-02T08:30:00+08:00"), correction=0.5)
-    assert all(c["taiwan"] == c["adr"] == "already_saved" for c in score.run_job())
+    assert all(
+        c[s] == "already_saved" for c in score.run_job() for s in score.scenarios_for(c["symbol"])
+    )
 
     clock["now"] = datetime.fromisoformat("2026-11-02T14:59:59+08:00")
     score.run_job()
     pending = client.get("/api/scoreboard").json()
-    assert len(pending["predictions"]) == 8
+    assert len(pending["predictions"]) == 10
     assert all(r["status"] == "pending" for r in pending["predictions"])
     assert all(c["paired_samples"] == 0 for c in pending["comparison"])
 
@@ -382,9 +388,11 @@ def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(dat
     )
 
     clock["now"] = datetime.fromisoformat("2026-11-03T09:00:00+08:00")
-    assert all(c["taiwan"] == c["adr"] == "after_cutoff" for c in score.run_job())
+    assert all(
+        c[s] == "after_cutoff" for c in score.run_job() for s in score.scenarios_for(c["symbol"])
+    )
     with database() as conn:
-        assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 4
+        assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 5
     late = client.get("/api/scoreboard").json()
     alerts = health_alerts(
         late["predictions"],
@@ -392,13 +400,13 @@ def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(dat
         datetime.fromisoformat("2026-11-02T08:10:00+08:00"),
         now=datetime.fromisoformat("2026-11-03T09:45:00+08:00"),
     )
-    assert len([a for a in alerts if a["code"] == "preopen_missing"]) == 4
+    assert len([a for a in alerts if a["code"] == "preopen_missing"]) == 5
 
     for d in future[1:]:
         clock["now"] = datetime.fromisoformat(f"{d}T15:30:00+08:00")
         score.run_job()
     completed = client.get("/api/scoreboard").json()
-    assert len(completed["predictions"]) == 8
+    assert len(completed["predictions"]) == 10
     assert all(r["status"] == "scored" for r in completed["predictions"])
     assert all(c["paired_samples"] == 1 and c["adr_coverage"] == 1 for c in completed["comparison"])
     for r in completed["predictions"]:
@@ -408,3 +416,24 @@ def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(dat
             conn.execute("SELECT id,snapshot FROM sp_predictions ORDER BY id").fetchall()
             == originals
         )
+
+
+def test_delta_archive_migrates_legacy_constraint_and_rejects_adr(database):
+    with database() as conn:
+        conn.execute("ALTER TABLE sp_predictions DROP CONSTRAINT sp_predictions_symbol_check")
+        conn.execute(
+            "ALTER TABLE sp_predictions ADD CONSTRAINT sp_predictions_symbol_check "
+            "CHECK (symbol IN ('2303.TW','2330.TW'))"
+        )
+        save(conn)
+    with database() as conn:
+        score.initialize(conn)
+        assert score.save_prediction(conn, "2308.TW", "taiwan", POINTS, PATH, NOW, {}) == "saved"
+        with pytest.raises(ValueError):
+            score.save_prediction(conn, "2308.TW", "adr", POINTS, PATH, NOW, {})
+        assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 2
+    body = TestClient(app).get("/api/scoreboard").json()
+    delta = [s for s in body["summary"] if s["symbol"] == "2308.TW"]
+    assert len(delta) == 2
+    assert {s["scenario"] for s in delta} == {"taiwan"}
+    assert all(s["samples"] == 0 and s["pending"] == 1 for s in delta)
