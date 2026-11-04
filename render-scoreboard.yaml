@@ -1,0 +1,15 @@
+# Import separately from render.yaml; creating this cron service incurs Render charges.
+services:
+  - type: cron
+    name: stockpredict-scoreboard-preopen
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # UTC: Taipei weekdays 08:10, 08:30, 08:50.
+    schedule: "10,30,50 0 * * 1-5"
+    dockerCommand: python -m stockpredict.scoreboard run --strict
+    autoDeploy: false
+    envVars:
+      - key: SCOREBOARD_DATABASE_URL
+        sync: false
