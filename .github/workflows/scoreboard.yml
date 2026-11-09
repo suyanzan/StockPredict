@@ -2,8 +2,7 @@ name: Capture and score predictions
 
 on:
   schedule:
-    # Taipei 08:10, 08:30, 08:50: retry missing data while still before 09:00.
-    - cron: "10,30,50 0 * * 1-5"
+    # Pre-open collection belongs to the existing Render cron (08:10/08:30/08:50 Taipei).
     # Taipei 15:30 / 17:30 / 21:30: collect newly published closes.
     - cron: "30 7,9,13 * * 1-5"
   workflow_dispatch:
@@ -23,12 +22,6 @@ concurrency:
 
 jobs:
   collect:
-    # Set the repository variable to render only after its cron is verified.
-    # Keep closing-price collection active regardless of the pre-open provider.
-    if: >-
-      github.event_name != 'schedule' ||
-      github.event.schedule != '10,30,50 0 * * 1-5' ||
-      vars.SCOREBOARD_PREOPEN_PROVIDER != 'render'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -45,15 +38,10 @@ jobs:
           set -euo pipefail
           task_phase="$MANUAL_PHASE"
           if [ "$EVENT_NAME" = schedule ]; then
-            if [ "$SCHEDULE" = '10,30,50 0 * * 1-5' ]; then
-              task_phase=preopen
-            else
-              task_phase=close
-            fi
+            task_phase=close
           fi
           uv run --no-sync python -m stockpredict.scoreboard run --strict --phase "$task_phase"
         env:
           EVENT_NAME: ${{ github.event_name }}
-          SCHEDULE: ${{ github.event.schedule }}
           MANUAL_PHASE: ${{ inputs.phase || 'all' }}
           SCOREBOARD_DATABASE_URL: ${{ secrets.SCOREBOARD_DATABASE_URL }}
