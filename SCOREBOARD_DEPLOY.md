@@ -207,3 +207,6 @@ commit 僅接受 Render／GitHub 提供的 40 位十六進位 SHA，未知時為
 驗收應交叉核對 Render cron run started／ended、看板 created_at／精確目標日實際值、
 以及獨立監控 artifact。工作成功、artifact 上傳成功與通知送達是不同證據；
 通知送達仍需既有通知管道證明，不能僅由工作失敗狀態推定。
+
+監控 workflow 本身合併到 main 時，也會自動執行一次唯讀檢查，驗證監控及 artifact 上傳。
+這不是收集器執行，不會回填資料；若既有缺漏告警仍存在，工作應失敗且成功保存證據。

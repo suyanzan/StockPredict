@@ -1,6 +1,10 @@
 name: Monitor prediction collection
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/scoreboard-monitor.yml"
   schedule:
     # Taipei 09:45 / 16:30; independent of the collection job.
     - cron: "45 1 * * 1-5"
