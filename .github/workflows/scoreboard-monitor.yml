@@ -1,6 +1,10 @@
 name: Monitor prediction collection
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/scoreboard-monitor.yml"
   schedule:
     # Taipei 09:45 / 16:30; independent of the collection job.
     - cron: "45 1 * * 1-5"
@@ -21,6 +25,21 @@ jobs:
           version: "0.12.23"
           python-version: "3.12"
       - run: uv sync --locked --no-dev
-      - run: uv run --no-sync python -m stockpredict.monitoring --url "$MONITOR_URL"
+      - name: Check collection health and retain timestamped evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          date -u '+observed_at=%Y-%m-%dT%H:%M:%SZ' > monitoring-output.txt
+          uv run --no-sync python -m stockpredict.monitoring --url "$MONITOR_URL" 2>&1 \
+            | tee -a monitoring-output.txt
         env:
           MONITOR_URL: ${{ vars.SCOREBOARD_MONITOR_URL || 'https://stockpredict-xwar.onrender.com/api/scoreboard/health' }}
+
+      - name: Upload collection health evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prediction-collection-health-${{ github.run_id }}-${{ github.run_attempt }}
+          path: monitoring-output.txt
+          if-no-files-found: error
+          retention-days: 30
