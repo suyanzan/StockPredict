@@ -290,12 +290,22 @@ def test_job_after_cutoff_collects_actuals_without_generating_forecasts(database
     monkeypatch.setattr(twse, "twse_data", lambda symbol: (POINTS, {"source": "twse"}))
     monkeypatch.setattr(main, "_market_analysis", lambda *a, **kw: pytest.fail("Late forecast"))
     checks = score.run_job()
+    from stockpredict.monitoring import collection_failures
+
+    assert set(collection_failures(checks)) == set(score.SYMBOLS)
+    assert all(c["preopen_missing"] for c in checks)
     assert all(c[s] == "after_cutoff" for c in checks for s in score.scenarios_for(c["symbol"]))
     with database() as conn:
         assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 0
         assert conn.execute("SELECT count(*) AS n FROM sp_actual_closes").fetchone()["n"] == len(
             score.SYMBOLS
         )
+
+    # A later retry must succeed if the on-time snapshots already exist.
+    with database() as conn:
+        for symbol in score.SYMBOLS:
+            assert score.save_prediction(conn, symbol, "taiwan", POINTS, PATH, NOW, {}) == "saved"
+    assert not collection_failures(score.run_job())
 
 
 def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(database, monkeypatch):
@@ -437,3 +447,61 @@ def test_delta_archive_migrates_legacy_constraint_and_rejects_adr(database):
     assert len(delta) == 2
     assert {s["scenario"] for s in delta} == {"taiwan"}
     assert all(s["samples"] == 0 and s["pending"] == 1 for s in delta)
+
+
+def test_health_matches_dashboard_alerts_without_loading_full_archive(database, monkeypatch):
+    with database() as conn:
+        save(conn)
+        score.save_actual(
+            conn,
+            "2303.TW",
+            {"date": "2026-10-30", "close": 101.0},
+            datetime.fromisoformat("2026-10-30T16:00:00+08:00"),
+        )
+        conn.execute(
+            "INSERT INTO sp_scoreboard_checks (checked_at,details) VALUES (%s,%s)", (NOW, "[]")
+        )
+    expected = score.scoreboard()["alerts"]
+    monkeypatch.setattr(score, "evaluate", lambda *a: pytest.fail("Health evaluated full archive"))
+    assert score.scoreboard_health()["alerts"] == expected
+
+
+@pytest.mark.parametrize("phase", ["preopen", "close"])
+def test_explicit_collection_phase_separates_forecasts_from_close_updates(
+    database, monkeypatch, phase
+):
+    import stockpredict.main as main
+    import stockpredict.twse as twse
+
+    class Clock:
+        @staticmethod
+        def now(tz):
+            return NOW.astimezone(tz)
+
+    monkeypatch.setattr(score, "datetime", Clock)
+    monkeypatch.setattr(twse, "twse_data", lambda _: (POINTS, {"source": "twse"}))
+    calls = []
+
+    def analysis(*args, **kwargs):
+        calls.append(args)
+        return {
+            "history": POINTS,
+            "forecast": PATH,
+            "market_context": {"status": "ready", "scenario_forecast": PATH},
+        }
+
+    monkeypatch.setattr(main, "_market_analysis", analysis)
+    checks = score.run_job(phase=phase)
+    assert all(c["phase"] == phase for c in checks)
+    assert all(len(c["release"]["source_hash"]) == 64 for c in checks)
+    with database() as conn:
+        count = conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"]
+        assert conn.execute("SELECT count(*) AS n FROM sp_actual_closes").fetchone()["n"] == 3
+    assert count == (5 if phase == "preopen" else 0)
+    assert bool(calls) == (phase == "preopen")
+
+
+def test_invalid_collection_phase_never_connects(monkeypatch):
+    monkeypatch.setattr(score, "connect", lambda: pytest.fail("Invalid phase connected"))
+    with pytest.raises(ValueError, match="phase"):
+        score.run_job(phase="invalid")

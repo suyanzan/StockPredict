@@ -13,6 +13,8 @@ import stockpredict.main as main
 import stockpredict.overnight as overnight
 from stockpredict.data import DataSourceError
 
+pytestmark = pytest.mark.usefixtures("published_history_clock")
+
 NOW = datetime.fromisoformat("2026-10-31T08:00:00+08:00")
 PROFILE_CASES = [
     ("2303", "umc", ("UMC", "SOXX")),

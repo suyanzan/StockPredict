@@ -6,6 +6,7 @@ def metrics(rows):
     return {
         "samples": n,
         "mae": sum(r["absolute_error"] for r in rows) / n if n else None,
+        "rmse": (sum(r["absolute_error"] ** 2 for r in rows) / n) ** 0.5 if n else None,
         "mape": sum(r["absolute_error_pct"] for r in rows) / n if n else None,
         "direction_accuracy": sum(r["direction_hit"] for r in rows) / n if n else None,
         "baseline_mae": sum(abs(r["base_close"] - r["actual_close"]) for r in rows) / n

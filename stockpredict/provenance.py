@@ -6,6 +6,7 @@ import os
 import platform
 import re
 import zoneinfo
+from functools import lru_cache
 from importlib.metadata import version
 from pathlib import Path
 
@@ -75,3 +76,28 @@ def model_manifest():
             "prices": "provider_daily_close_snapshot",
         },
     }
+
+
+def release_identity():
+    """Public code identity; environment values are returned only if valid commit SHAs."""
+    commit = next(
+        (
+            value.lower()
+            for name in ("RENDER_GIT_COMMIT", "GITHUB_SHA")
+            if re.fullmatch(r"[a-fA-F0-9]{40}", value := os.getenv(name, ""))
+        ),
+        None,
+    )
+    return {"commit": commit, "source_hash": _release_source_hash()}
+
+
+@lru_cache(maxsize=1)
+def _release_source_hash():
+    root = Path(__file__).parent
+    return digest(
+        {
+            path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(root.rglob("*"))
+            if path.is_file() and path.suffix in {".py", ".js", ".css", ".html"}
+        }
+    )

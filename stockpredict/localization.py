@@ -7,6 +7,9 @@ from typing import Literal
 Language = Literal["zh-TW", "en"]
 
 ERRORS_EN = {
+    "最新交易日行情尚未取得，請稍後重試。": (
+        "The latest session data is unavailable. Please retry later."
+    ),
     "美股參考僅支援台股的證交所或 Yahoo 真實行情。": (
         "US reference factors support Taiwan securities with real TWSE or Yahoo prices only."
     ),

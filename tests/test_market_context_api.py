@@ -12,6 +12,8 @@ import stockpredict.overnight as overnight
 from stockpredict.data import DataSourceError, demo_data
 from stockpredict.reference_profiles import profile_for, profile_payload
 
+pytestmark = pytest.mark.usefixtures("published_history_clock")
+
 
 @pytest.fixture
 def client():

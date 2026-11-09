@@ -14,7 +14,7 @@ from psycopg.types.json import Jsonb
 
 from stockpredict.calendar import available_at, date_path, next_session, opens_at, previous_session
 from stockpredict.comparison import paired_comparison
-from stockpredict.provenance import model_manifest
+from stockpredict.provenance import model_manifest, release_identity
 
 router = APIRouter()
 SYMBOLS = ("2303.TW", "2330.TW", "2308.TW")
@@ -198,6 +198,9 @@ def evaluate(predictions, actuals):
                         "samples": n,
                         "pending": len(group) - n,
                         "mae": sum(r["absolute_error"] for r in scored) / n if n else None,
+                        "rmse": (sum(r["absolute_error"] ** 2 for r in scored) / n) ** 0.5
+                        if n
+                        else None,
                         "mape": sum(r["absolute_error_pct"] for r in scored) / n if n else None,
                         "direction_accuracy": sum(r["direction_hit"] for r in scored) / n
                         if n
@@ -331,18 +334,41 @@ def prediction_detail(prediction_id: int):
 
 @router.get("/api/scoreboard/health")
 def scoreboard_health():
-    result = scoreboard()
-    if not isinstance(result, dict):
-        return result
-    return {
-        "status": result["status"],
-        "alerts": result["alerts"],
-        "last_checked_at": result["last_check"]["checked_at"] if result["last_check"] else None,
-    }
+    from stockpredict.monitoring import health_alerts
+
+    try:
+        with connect() as connection:
+            # Only dates and existence are needed; never transfer history snapshots.
+            rows = connection.execute("""
+                SELECT p.symbol, p.scenario, p.target_date::text AS origin_date,
+                    f.point->>'date' AS target_date,
+                    CASE WHEN a.session_date IS NULL THEN 'pending' ELSE 'scored' END AS status
+                FROM sp_predictions p
+                CROSS JOIN LATERAL jsonb_array_elements(p.snapshot->'forecast')
+                    WITH ORDINALITY AS f(point, horizon)
+                LEFT JOIN sp_actual_closes a ON a.symbol=p.symbol
+                    AND a.session_date=(f.point->>'date')::date
+                WHERE f.horizon IN (1,5)
+            """).fetchall()
+            check = connection.execute(
+                "SELECT checked_at,details FROM sp_scoreboard_checks ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+            first = connection.execute(
+                "SELECT min(checked_at) AS started_at FROM sp_scoreboard_checks"
+            ).fetchone()
+        return {
+            "status": "ready",
+            "alerts": health_alerts(rows, check, first["started_at"]),
+            "last_checked_at": check["checked_at"] if check else None,
+        }
+    except (psycopg.Error, RuntimeError):
+        return JSONResponse(status_code=503, content={"reason": "scoreboard_storage_unavailable"})
 
 
-def run_job():
+def run_job(*, phase="all"):
     """Run periodically; source failures are recorded without substituting older sessions."""
+    if phase not in {"all", "preopen", "close"}:
+        raise ValueError("Invalid collection phase")
     from stockpredict.calendar import data_status
     from stockpredict.main import _market_analysis
     from stockpredict.twse import twse_data
@@ -363,7 +389,7 @@ def run_job():
             reason = capture_reason(points, now)
             if reason:
                 details.update({scenario: reason for scenario in scenarios_for(symbol)})
-            if status["status"] == "current" and reason is None:
+            if phase != "close" and status["status"] == "current" and reason is None:
                 for scenario in scenarios_for(symbol):
                     result = _market_analysis(
                         symbol,
@@ -409,6 +435,22 @@ def run_job():
                     "reason": getattr(exc, "code", "source_unavailable"),
                 }
             )
+    for check in checks:
+        check.update(phase=phase, release=release_identity())
+    now = datetime.now(timezone.utc)
+    day = now.astimezone(ZoneInfo("Asia/Taipei")).date()
+    from stockpredict.calendar import is_session
+
+    if is_session(day) and now >= opens_at(day):
+        with connect() as connection:
+            saved = connection.execute(
+                "SELECT symbol FROM sp_predictions WHERE target_date=%s AND scenario='taiwan'",
+                (day,),
+            ).fetchall()
+        captured = {row["symbol"] for row in saved}
+        for check in checks:
+            if check["symbol"] not in captured:
+                check["preopen_missing"] = True
     with connect() as connection:
         connection.execute(
             "INSERT INTO sp_scoreboard_checks (checked_at,details) VALUES (%s,%s)",
@@ -423,13 +465,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=("init", "run"))
     parser.add_argument("--strict", action="store_true")
+    parser.add_argument("--phase", choices=("all", "preopen", "close"), default="all")
     args = parser.parse_args()
     if args.command == "init":
         with connect() as connection:
             initialize(connection)
         print("Scoreboard schema ready")
     else:
-        checks = run_job()
+        checks = run_job(phase=args.phase)
         print(json.dumps(checks, ensure_ascii=False))
         if args.strict:
             from stockpredict.monitoring import collection_failures

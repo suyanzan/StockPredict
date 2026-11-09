@@ -29,3 +29,21 @@ def database(monkeypatch):
     finally:
         with psycopg.connect(url, autocommit=True) as connection:
             connection.execute(f'DROP SCHEMA "{schema}" CASCADE')
+
+
+@pytest.fixture
+def published_history_clock(monkeypatch):
+    """Provider-wiring tests run just after their fixed history's publication.
+
+    Freshness rejection is tested separately with an explicit real calendar clock.
+    """
+    from datetime import date, timedelta
+
+    import stockpredict.main as main
+    from stockpredict.calendar import available_at, data_status
+
+    def status(points, market, **kwargs):
+        instant = available_at(date.fromisoformat(points[-1]["date"]), market)
+        return data_status(points, market, now=instant + timedelta(minutes=1), **kwargs)
+
+    monkeypatch.setattr(main, "data_status", status)
