@@ -64,13 +64,13 @@
    ```
 
    已提供 `.github/workflows/scoreboard.yml`；在 GitHub repository secrets 設定
-   `SCOREBOARD_DATABASE_URL`。排程於台北平日 08:10、08:30、08:50 保存／重試，
-   15:30、17:30、21:30 收集公布後收盤。程式會再次查日曆及盤前門檻。
-   GitHub 排程可能延遲，若要求準時執行，改由部署平台 cron 使用同一命令。
+   `SCOREBOARD_DATABASE_URL`。Render Cron 於台北平日 08:10、08:30、08:50 保存／重試，
+   GitHub 於 15:30、17:30、21:30 收集公布後收盤。程式會再次查日曆及盤前門檻。
+   GitHub 排程可能延遲，不作為正式自動盤前收集器。
    延誤超過 09:00 的工作會拒絕保存，不以盤後預測補成績。
    保留既有 `update-market-data.yml`，讓 ADR 自動收盤快照先行更新。
    Web 與排程須連到同一資料庫；資料庫必須允許排程執行環境連線。
-   正式環境可給 Web 專用唯讀角色，只授予這三張表 SELECT；初始化及排程使用寫入角色。
+   看板讀取可用唯讀角色；回測保存另需 INSERT。初始化及排程使用專用角色。
 
 5. 首次部署看板沒有歷史預測屬正常現象。第一個成功盤前保存日收盤公布後
    才有第 1 日成績，第 5 個交易日公布後才有第 5 日成績。
@@ -119,7 +119,7 @@ isolated local test schema and do not show real prediction performance.
 
 ## V1.1 reliability 修補與正式驗收
 
-本節描述待部署的程式變更，不代表正式環境已更新。
+本節描述 V1.1 修補；正式部署與排程交接證據見本文件末段。
 
 - 真實台股及紐約行情缺少應有交易日時，分析 API 回傳 503、來源日期及空預測。
   前端刷新失敗會隱藏先前結果；CSV／示範模式不套用即時行情門檻。
@@ -132,7 +132,7 @@ isolated local test schema and do not show real prediction performance.
 排程啟用前應核對 Web／收集器的部署 SHA 與資料庫目標。選定主要盤前排程：
 若使用 Render Cron，先確認服務已啟用且成功執行，再停用重複的盤前 Actions 時段；
 必須保留盤後收集與獨立監控。Repository 中存在 Blueprint 不代表 Render 已建立服務。
-本次沒有更改任何正式排程、部署或 Neon 設定。
+正式交接沿用既有 Render 服務；本次未更動 Neon 設定、祕密或資料。
 
 測試必須使用獨立 PostgreSQL。整合測試會建立並刪除隨機 schema，禁止對正式資料庫執行。
 Web 看板讀取可用 SELECT；回測保存另需對 sp_backtest_runs 的 SELECT、INSERT 權限，
@@ -152,10 +152,12 @@ CLI 現支援 `--phase preopen`（盤前）、`--phase close`（只收實際值�
 
 GitHub workflow 按排程來源選擇 phase；手動執行可明確選擇 phase。
 Render Blueprint 僅準備盤前工作，沒有在本次建立或啟用任何付費服務。
-確認 Render 正確執行後，才將 Repository variable `SCOREBOARD_PREOPEN_PROVIDER` 設為 `render`：
-此設定只略過 GitHub 的盤前自動工作，保留盤後與手動工作。
-變數未設定時維持 GitHub 原有行為；切換回 GitHub 時先停用 Render 盤前工作，再清除變數。
-跨平台唯一鍵保護仍在，但切換期間應檢查是否有重複執行。
+目前正式架構由既有 Render Cron 負責台北 08:10、08:30、08:50 的盤前工作；
+GitHub workflow 僅自動執行台北 15:30、17:30、21:30 的盤後收集，手動 phase 選項保留。
+已移除 GitHub 盤前 schedule 與 Repository variable 開關，避免變數權限影響切換結果。
+獨立監控 workflow 維持台北 09:45／16:30。
+如需回復 GitHub 盤前工作，先停用 Render Cron，再經版本控管恢復原盤前 schedule；
+不得同時啟用兩個自動盤前收集器。
 
 `GET /api/health` 新增 `release.commit` 與 `release.source_hash`。
 commit 僅接受 Render／GitHub 提供的 40 位十六進位 SHA，未知時為 null；source_hash
@@ -175,4 +177,20 @@ commit 僅接受 Render／GitHub 提供的 40 位十六進位 SHA，未知時為
 - Docker 映像建置通過；以非 root 啟動驗證健康 API、no-store、示範分析，
   以及儲存未設定時的健康 API 503；映像與工作目錄 source_hash 一致。
 - 前一輪 Chromium 驗證刷新失敗後隱藏舊預測，無 JavaScript 執行錯誤。
-- 尚未 Push、正式部署或切換排程；正式五交易日觀察尚未開始。
+- 上述為發布前驗證；正式發布與排程交接狀態見下節。
+
+
+### 2026-11-09 正式交接紀錄（台北時間）
+
+- Web 已部署 c31ef7f；正式健康 API 的 commit／source_hash 與驗收版本一致。
+- 既有 Render Cron 已更新到同版本，狀態 live；現有命令仍是 run --strict，
+  使用相容的預設 all 模式，三個盤前時段的行為與 preopen 相同。
+  本次未透過 Blueprint 同步修改服務、方案、祕密或建立新資源。
+- 盤前缺漏根因：11/09 Render 三次工作均準時啟動，但報 PostgreSQL is not configured；
+  11/09 晚間兩次舊版本執行成功且讀得當日行情，證明當時連線已可用，
+  並不證明盤前保存已成功。不得將晚間成功紀錄視為盤前驗收。
+- 本次未手動觸發正式收集工作，也未初始化或修補 Neon。
+- 由下一個交易日開始觀察五個交易日；正常日曆預期為 11/10、11/11、11/12、11/13、11/16。
+  每日檢查 09:00 前 created_at、來源日期、必要情境、唯一性、盤後精確日期收盤與告警。
+  休市、臨時停市或必要來源不可用須如實記錄；無證據不得標記通過。
+- 11/09 歷史盤前缺漏不回填；正式觀察完成前仍不能宣告 V1.1 可靠性驗收全部通過。
