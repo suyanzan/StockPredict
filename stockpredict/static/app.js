@@ -324,6 +324,10 @@
       renderResults();
     } catch (error) {
       if (currentRequest !== requestId) return;
+      analysis = null;
+      $("results").hidden = true;
+      window.dispatchEvent(new CustomEvent("stockpredict-data-status", { detail: null }));
+      window.dispatchEvent(new CustomEvent("stockpredict-analysis", { detail: null }));
       const retry = requestedSource === "yahoo" && /^\d{4,6}(?:\.TW)?$/.test(requestedSymbol) ? { symbol: requestedSymbol, horizon: requestedHorizon } : null;
       const key = error.name === "AbortError" ? "error.timeout" : error.translationKey
         || (error instanceof TypeError ? "error.connection" : null);

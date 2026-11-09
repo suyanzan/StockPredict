@@ -1,5 +1,6 @@
 """HTTP API and same-origin, dependency-free web dashboard."""
 
+import json
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -46,6 +47,7 @@ async def community_cache_policy(request: Request, call_next):
     if (
         request.url.path.startswith(
             (
+                "/api/health",
                 "/api/community",
                 "/api/analysis",
                 "/api/scoreboard",
@@ -115,7 +117,9 @@ def feedback_admin():
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    from stockpredict.provenance import release_identity
+
+    return {"status": "ok", "release": release_identity()}
 
 
 @app.get("/api/calendar")
@@ -195,6 +199,22 @@ def _market_analysis(
             result["data_status"] = data_status(
                 points, market, publication_delay=15 if source == "yahoo" else None
             )
+            if result["data_status"]["status"] != "current":
+                error = _analysis_error(
+                    503,
+                    "最新交易日行情尚未取得，請稍後重試。",
+                    lang,
+                )
+                content = json.loads(error.body)
+                return JSONResponse(
+                    status_code=503,
+                    content={
+                        **content,
+                        "reason": "missing_expected_session",
+                        "data_status": result["data_status"],
+                        "forecast": [],
+                    },
+                )
         if market_context == "us_overnight":
             factor_source = "csv" if factor_data is not None else factor_download_source
             snapshot_metadata = None

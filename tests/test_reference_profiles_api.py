@@ -17,6 +17,8 @@ from stockpredict.reference_profiles import (
     public_catalog,
 )
 
+pytestmark = pytest.mark.usefixtures("published_history_clock")
+
 ENDPOINT = "/api/analysis/overnight/csv"
 PROFILE_CASES = [
     ("台達電", "twse", "2308.TW", "taiwan_market", ("SPY", "QQQ")),

@@ -17,6 +17,8 @@ import stockpredict.main as main
 import stockpredict.twse as twse
 from stockpredict.data import DataSourceError
 
+pytestmark = pytest.mark.usefixtures("published_history_clock")
+
 TODAY = date(2026, 10, 30)
 TAIPEI = ZoneInfo("Asia/Taipei")
 

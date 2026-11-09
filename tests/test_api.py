@@ -8,6 +8,8 @@ import stockpredict.main as main
 from stockpredict.data import DataSourceError
 from stockpredict.main import app
 
+pytestmark = pytest.mark.usefixtures("published_history_clock")
+
 
 @pytest.fixture
 def client():
@@ -111,13 +113,14 @@ def test_homepage_and_static_assets_are_served(client):
 @pytest.mark.parametrize("symbol", ["台達電", "台达电", "Delta Electronics", "2308", "2308.TW"])
 @pytest.mark.parametrize("source", ["twse", "yahoo"])
 def test_delta_identity_reaches_provider_without_substitution(client, monkeypatch, symbol, source):
-    from stockpredict.data import parse_csv
+    from stockpredict.calendar import calendar
 
     calls = []
 
     def prices(code):
         calls.append(code)
-        return parse_csv(csv_text()), {
+        days = calendar("XTAI").sessions_in_range("2026-06-01", "2026-10-29")
+        return [{"date": str(d.date()), "close": 105.9} for d in days], {
             "name": "台達電",
             "currency": "TWD",
             "source": source,

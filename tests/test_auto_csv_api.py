@@ -11,6 +11,8 @@ import stockpredict.main as main
 import stockpredict.overnight as overnight
 from stockpredict.data import DataSourceError
 
+pytestmark = pytest.mark.usefixtures("published_history_clock")
+
 PROFILE_CASES = [
     ("2303", "twse", "2303.TW", "umc", ("UMC", "SOXX")),
     ("2330", "twse", "2330.TW", "tsmc", ("TSM", "SOXX")),

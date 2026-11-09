@@ -7,6 +7,12 @@ on:
     # Taipei 15:30 / 17:30 / 21:30: collect newly published closes.
     - cron: "30 7,9,13 * * 1-5"
   workflow_dispatch:
+    inputs:
+      phase:
+        description: Collection phase (manual runs default to all)
+        type: choice
+        options: [all, preopen, close]
+        default: all
 
 permissions:
   contents: read
@@ -17,6 +23,12 @@ concurrency:
 
 jobs:
   collect:
+    # Set the repository variable to render only after its cron is verified.
+    # Keep closing-price collection active regardless of the pre-open provider.
+    if: >-
+      github.event_name != 'schedule' ||
+      github.event.schedule != '10,30,50 0 * * 1-5' ||
+      vars.SCOREBOARD_PREOPEN_PROVIDER != 'render'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -27,6 +39,21 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       - run: uv sync --locked --no-dev
-      - run: uv run --no-sync python -m stockpredict.scoreboard run --strict
+      - name: Collect the requested session phase
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_phase="$MANUAL_PHASE"
+          if [ "$EVENT_NAME" = schedule ]; then
+            if [ "$SCHEDULE" = '10,30,50 0 * * 1-5' ]; then
+              task_phase=preopen
+            else
+              task_phase=close
+            fi
+          fi
+          uv run --no-sync python -m stockpredict.scoreboard run --strict --phase "$task_phase"
         env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_PHASE: ${{ inputs.phase || 'all' }}
           SCOREBOARD_DATABASE_URL: ${{ secrets.SCOREBOARD_DATABASE_URL }}

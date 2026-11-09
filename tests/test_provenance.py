@@ -24,3 +24,16 @@ def test_replay_checks_engine_environment_but_not_informational_build_commit():
     assert compatible(manifest)
     manifest["engine_hash"] = "changed"
     assert not compatible(manifest)
+
+
+def test_release_identity_exposes_only_valid_commit_identifiers(monkeypatch):
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "invalid-sensitive-value")
+    monkeypatch.delenv("GITHUB_SHA", raising=False)
+    release = provenance.release_identity()
+    assert release["commit"] is None
+    assert len(release["source_hash"]) == 64
+    monkeypatch.setenv("GITHUB_SHA", "A" * 40)
+    assert provenance.release_identity()["commit"] == "a" * 40
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "b" * 40)
+    assert provenance.release_identity()["commit"] == "b" * 40
+    assert provenance.release_identity()["source_hash"] == release["source_hash"]
