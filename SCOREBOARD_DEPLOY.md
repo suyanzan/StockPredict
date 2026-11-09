@@ -64,13 +64,13 @@
    ```
 
    已提供 `.github/workflows/scoreboard.yml`；在 GitHub repository secrets 設定
-   `SCOREBOARD_DATABASE_URL`。排程於台北平日 08:10、08:30、08:50 保存／重試，
-   15:30、17:30、21:30 收集公布後收盤。程式會再次查日曆及盤前門檻。
-   GitHub 排程可能延遲，若要求準時執行，改由部署平台 cron 使用同一命令。
+   `SCOREBOARD_DATABASE_URL`。Render Cron 於台北平日 08:10、08:30、08:50 保存／重試，
+   GitHub 於 15:30、17:30、21:30 收集公布後收盤。程式會再次查日曆及盤前門檻。
+   GitHub 排程可能延遲，不作為正式自動盤前收集器。
    延誤超過 09:00 的工作會拒絕保存，不以盤後預測補成績。
    保留既有 `update-market-data.yml`，讓 ADR 自動收盤快照先行更新。
    Web 與排程須連到同一資料庫；資料庫必須允許排程執行環境連線。
-   正式環境可給 Web 專用唯讀角色，只授予這三張表 SELECT；初始化及排程使用寫入角色。
+   看板讀取可用唯讀角色；回測保存另需 INSERT。初始化及排程使用專用角色。
 
 5. 首次部署看板沒有歷史預測屬正常現象。第一個成功盤前保存日收盤公布後
    才有第 1 日成績，第 5 個交易日公布後才有第 5 日成績。
@@ -119,7 +119,7 @@ isolated local test schema and do not show real prediction performance.
 
 ## V1.1 reliability 修補與正式驗收
 
-本節描述待部署的程式變更，不代表正式環境已更新。
+本節描述 V1.1 修補；正式部署與排程交接證據見本文件末段。
 
 - 真實台股及紐約行情缺少應有交易日時，分析 API 回傳 503、來源日期及空預測。
   前端刷新失敗會隱藏先前結果；CSV／示範模式不套用即時行情門檻。
@@ -132,7 +132,7 @@ isolated local test schema and do not show real prediction performance.
 排程啟用前應核對 Web／收集器的部署 SHA 與資料庫目標。選定主要盤前排程：
 若使用 Render Cron，先確認服務已啟用且成功執行，再停用重複的盤前 Actions 時段；
 必須保留盤後收集與獨立監控。Repository 中存在 Blueprint 不代表 Render 已建立服務。
-本次沒有更改任何正式排程、部署或 Neon 設定。
+正式交接沿用既有 Render 服務；本次未更動 Neon 設定、祕密或資料。
 
 測試必須使用獨立 PostgreSQL。整合測試會建立並刪除隨機 schema，禁止對正式資料庫執行。
 Web 看板讀取可用 SELECT；回測保存另需對 sp_backtest_runs 的 SELECT、INSERT 權限，
