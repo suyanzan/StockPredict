@@ -86,19 +86,22 @@ def health_alerts(rows, last_check, started_at, *, now=None):
             }
         )
     for check in last_check.get("details", []):
-        if check.get("status") in ("unavailable", "missing") or scenario_failure(check):
+        errors = scenario_failures(check)
+        if check.get("status") in ("unavailable", "missing") or errors:
             alerts.append(
                 {
                     "code": "source_unavailable",
                     "severity": "critical",
                     "symbol": check["symbol"],
-                    "reason": check.get("reason"),
+                    "reason": check.get("reason")
+                    or next(iter(errors.values()), "source_unavailable"),
+                    "scenario_errors": errors,
                 }
             )
     return alerts
 
 
-def scenario_failure(check):
+def scenario_failures(check):
     # Expected calendar/availability waits are not provider faults.
     failures = {
         "source_unavailable",
@@ -108,15 +111,20 @@ def scenario_failure(check):
         "stale_history",
         "missing_factors",
     }
-    return any(
-        isinstance(value, str)
+    return {
+        scenario: value
+        for scenario in ("taiwan", "adr")
+        if isinstance(value := check.get(scenario), str)
         and (
             value in failures
             or value.startswith(("us_", "auto_csv_"))
             and value != "us_session_not_closed"
         )
-        for value in (check.get("taiwan", ""), check.get("adr", ""))
-    )
+    }
+
+
+def scenario_failure(check):
+    return bool(scenario_failures(check))
 
 
 def collection_failures(checks):
