@@ -365,7 +365,15 @@ def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(dat
     monkeypatch.setattr(sessions, "datetime", Clock)
     monkeypatch.setattr(twse, "twse_data", feed)
     monkeypatch.setattr(main, "twse_data", feed)
-    monkeypatch.setattr(main, "auto_csv_factors", factors)
+
+    def direct_factors(symbols=("UMC", "SOXX")):
+        required = overnight.reference_timing(feed("2303.TW")[0])["required_us_session_date"]
+        return factors(symbols, required)[0]
+
+    monkeypatch.setattr(main, "overnight_factors", direct_factors)
+    monkeypatch.setattr(
+        main, "auto_csv_factors", lambda *a: pytest.fail("Capture must not wait for data branch")
+    )
     client = TestClient(app)
 
     checks = score.run_job()
@@ -373,6 +381,8 @@ def test_full_trading_week_lifecycle_uses_real_models_and_immutable_postgres(dat
     with database() as conn:
         originals = conn.execute("SELECT id,snapshot FROM sp_predictions ORDER BY id").fetchall()
     assert len(originals) == 5
+    contexts = [r["snapshot"]["provenance"]["market_context"] for r in originals]
+    assert sum(c.get("data_source") == "yahoo" for c in contexts) == 2
 
     clock.update(now=datetime.fromisoformat("2026-11-02T08:30:00+08:00"), correction=0.5)
     assert all(
@@ -505,3 +515,42 @@ def test_invalid_collection_phase_never_connects(monkeypatch):
     monkeypatch.setattr(score, "connect", lambda: pytest.fail("Invalid phase connected"))
     with pytest.raises(ValueError, match="phase"):
         score.run_job(phase="invalid")
+
+
+@pytest.mark.parametrize("reason", ["us_rate_limited", "us_connection_failed"])
+def test_direct_adr_failure_keeps_taiwan_archive_and_never_uses_csv(database, monkeypatch, reason):
+    import stockpredict.calendar as sessions
+    import stockpredict.main as main
+    import stockpredict.overnight as overnight
+    import stockpredict.twse as twse
+    from stockpredict.data import DataSourceError
+    from stockpredict.monitoring import collection_failures
+
+    days = sessions.calendar("XTAI").sessions_in_range("2026-03-01", "2026-10-29")
+    points = [{"date": str(d.date()), "close": 100.0} for d in days]
+
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return NOW.astimezone(tz)
+
+    def feed(symbol):
+        return points, {"source": "twse", "source_label": "TWSE", "name": symbol, "currency": "TWD"}
+
+    def unavailable(*args):
+        raise DataSourceError("Unavailable", code=reason)
+
+    monkeypatch.setattr(score, "datetime", Clock)
+    monkeypatch.setattr(sessions, "datetime", Clock)
+    monkeypatch.setattr(overnight, "datetime", Clock)
+    monkeypatch.setattr(twse, "twse_data", feed)
+    monkeypatch.setattr(main, "twse_data", feed)
+    monkeypatch.setattr(main, "overnight_factors", unavailable)
+    monkeypatch.setattr(main, "auto_csv_factors", lambda *a: pytest.fail("No CSV fallback"))
+    checks = score.run_job()
+    assert all(c["taiwan"] == "saved" for c in checks)
+    assert {c["symbol"] for c in checks if c.get("adr") == reason} == {"2303.TW", "2330.TW"}
+    assert set(collection_failures(checks)) == {"2303.TW", "2330.TW"}
+    with database() as conn:
+        rows = conn.execute("SELECT scenario FROM sp_predictions").fetchall()
+    assert len(rows) == 3 and all(r["scenario"] == "taiwan" for r in rows)

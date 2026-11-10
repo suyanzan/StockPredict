@@ -397,7 +397,9 @@ def run_job(*, phase="all"):
                         5,
                         "zh-TW",
                         "none" if scenario == "taiwan" else "us_overnight",
-                        factor_download_source="auto_csv",
+                        # Fetch completed US sessions in this scheduled process.
+                        # The web UI's optional CSV source is independent of capture.
+                        factor_download_source="yahoo",
                     )
                     if not isinstance(result, dict):
                         details[scenario] = "source_unavailable"
