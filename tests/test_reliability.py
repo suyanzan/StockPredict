@@ -46,6 +46,9 @@ def test_adr_fault_fails_writer_and_independent_monitor(reason):
     assert collection_failures([check]) == ["2303.TW"]
     alerts = health_alerts([], {"checked_at": now, "details": [check]}, now, now=now)
     assert any(a["severity"] == "critical" for a in alerts)
+    source = next(a for a in alerts if a["code"] == "source_unavailable")
+    assert source["reason"] == reason
+    assert source["scenario_errors"] == {"adr": reason}
 
 
 def test_missed_preopen_fails_even_after_successful_close_collection():

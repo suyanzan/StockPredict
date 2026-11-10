@@ -260,6 +260,9 @@ def test_job_captures_both_scenarios_and_reports_provider_failure(database, monk
     )
     first = score.run_job()
     assert all(c[s] == "saved" for c in first for s in score.scenarios_for(c["symbol"]))
+    monkeypatch.setattr(
+        main, "_market_analysis", lambda *a, **kw: pytest.fail("Saved origins must not refetch")
+    )
     assert all(
         c[s] == "already_saved" for c in score.run_job() for s in score.scenarios_for(c["symbol"])
     )
@@ -554,3 +557,29 @@ def test_direct_adr_failure_keeps_taiwan_archive_and_never_uses_csv(database, mo
     with database() as conn:
         rows = conn.execute("SELECT scenario FROM sp_predictions").fetchall()
     assert len(rows) == 3 and all(r["scenario"] == "taiwan" for r in rows)
+
+    # A later successful ADR retry must not download/recompute saved Taiwan paths.
+    retried = []
+
+    def recovered(symbol, source, horizon, lang, context, **kwargs):
+        assert context == "us_overnight"
+        assert kwargs["factor_download_source"] == "yahoo"
+        retried.append(symbol)
+        return {
+            "history": points,
+            "forecast": PATH,
+            "market_context": {
+                "status": "ready",
+                "scenario_forecast": PATH,
+                "data_source": "yahoo",
+            },
+        }
+
+    monkeypatch.setattr(main, "_market_analysis", recovered)
+    recovered_checks = score.run_job()
+    assert sorted(retried) == ["2303.TW", "2330.TW"]
+    assert all(c["taiwan"] == "already_saved" for c in recovered_checks)
+    assert all(c.get("adr", "saved") == "saved" for c in recovered_checks)
+    assert not collection_failures(recovered_checks)
+    with database() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM sp_predictions").fetchone()["n"] == 5

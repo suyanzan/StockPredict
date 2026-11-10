@@ -390,7 +390,16 @@ def run_job(*, phase="all"):
             if reason:
                 details.update({scenario: reason for scenario in scenarios_for(symbol)})
             if phase != "close" and status["status"] == "current" and reason is None:
+                with connect() as connection:
+                    saved = connection.execute(
+                        "SELECT scenario FROM sp_predictions WHERE symbol=%s AND target_date=%s",
+                        (symbol, next_session(date.fromisoformat(points[-1]["date"]))),
+                    ).fetchall()
+                saved_scenarios = {row["scenario"] for row in saved}
                 for scenario in scenarios_for(symbol):
+                    if scenario in saved_scenarios:
+                        details[scenario] = "already_saved"
+                        continue
                     result = _market_analysis(
                         symbol,
                         "twse",
