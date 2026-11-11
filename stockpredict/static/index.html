@@ -129,6 +129,12 @@
         <div class="panel-heading"><span class="section-kicker" data-i18n="overnight.rawKicker">先看原始行情</span><h3 id="overnight-title" data-i18n="overnight.rawTitle">原始美股收盤資料</h3><p id="overnight-intro"></p></div>
         <p id="overnight-raw-status" class="overnight-status" role="status"></p>
         <div id="overnight-factors" class="overnight-factors"></div>
+        <section id="latest-us-snapshot" hidden aria-labelledby="latest-us-title">
+          <h4 id="latest-us-title" data-i18n="overnight.latestTitle">最新已發布快照（僅供查看）</h4>
+          <p class="overnight-note" data-i18n="overnight.latestNote">以下資料可能早於本次所需交易日，不參與本次預測；日期為美國交易日。</p>
+          <div id="latest-us-quotes" class="overnight-factors"></div>
+          <p id="latest-us-status" class="overnight-note" role="status"></p>
+        </section>
         <div class="overnight-data-guidance"><p id="overnight-data-source" class="overnight-note"></p><p id="overnight-snapshot-session" class="overnight-note" hidden></p><p id="overnight-snapshot-generated" class="overnight-note" hidden></p><p id="overnight-required-session" class="overnight-note" hidden></p><p id="overnight-available-after" class="overnight-note" hidden></p><p id="overnight-retry-help" class="overnight-note" hidden></p><button id="overnight-csv-switch" type="button" class="button button-secondary" data-i18n="overnight.switchCsv" hidden>使用手動 CSV 備援</button></div>
       </section>
       <section id="base-forecast-section" aria-labelledby="base-forecast-heading">

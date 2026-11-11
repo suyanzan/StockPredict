@@ -216,6 +216,34 @@ def _prices(symbol: str, manifest: dict) -> list[dict]:
         raise _error("auto_csv_invalid_data") from None
 
 
+def latest_snapshot_quotes(factor_symbols: tuple[str, str]) -> dict:
+    """Display-only published snapshot; never supplied to a prediction context."""
+    if factor_symbols not in FACTOR_PAIRS:
+        raise ValueError("Unsupported reference-factor pair.")
+    if not _LOCK.acquire(timeout=2):
+        raise _error("auto_csv_unavailable", retry_after=2)
+    try:
+        session = _manifest()["session_date"]
+    finally:
+        _LOCK.release()
+    factors, metadata = auto_csv_factors(factor_symbols, session)
+    return {
+        "status": "ready",
+        "display_only": True,
+        "snapshot_metadata": metadata,
+        "quotes": [
+            {
+                "symbol": symbol,
+                "currency": "USD",
+                "close": factors[symbol][-1]["close"],
+                "session_date": session,
+                "data_source": "auto_csv",
+            }
+            for symbol in factor_symbols
+        ],
+    }
+
+
 def auto_csv_factors(
     factor_symbols: tuple[str, str], required_session_date: str
 ) -> tuple[dict[str, list[dict]], dict]:
