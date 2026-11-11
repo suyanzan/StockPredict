@@ -6,9 +6,10 @@ services:
     plan: starter
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    # UTC: Taipei weekdays 08:10, 08:30, 08:50.
-    schedule: "10,30,50 0 * * 1-5"
-    dockerCommand: python -m stockpredict.scoreboard run --strict --phase preopen
+    # UTC. Router skips :10/:50 afternoon intersections without network requests.
+    # Taipei: 08:10/08:30/08:50 preopen; 15:30/17:30/21:30 closes.
+    schedule: "10,30,50 0,7,9,13 * * 1-5"
+    dockerCommand: python -m stockpredict.scheduled_collection
     autoDeploy: false
     envVars:
       - key: SCOREBOARD_DATABASE_URL
