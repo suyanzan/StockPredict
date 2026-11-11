@@ -399,6 +399,50 @@
     return value === "auto_csv" ? "overnight.rawSourceAuto" : value === "csv" ? "overnight.rawSourceCsv" : value === "yahoo" ? "overnight.rawSourceYahoo" : "overnight.rawSourceUnknown";
   }
 
+  const latestSnapshots = new WeakMap();
+  async function loadLatestSnapshot(target) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12000);
+    try {
+      const response = await fetch(`/api/reference-quotes/latest?${new URLSearchParams({ symbol: target.symbol })}`, { signal: controller.signal });
+      const body = await response.json();
+      latestSnapshots.set(target, response.ok && body.display_only === true && body.status === "ready" ? body : { status: "unavailable" });
+    } catch {
+      latestSnapshots.set(target, { status: "unavailable" });
+    } finally {
+      window.clearTimeout(timeout);
+      if (analysis === target) renderOvernight();
+    }
+  }
+
+  function renderLatestSnapshot(context, profile, names) {
+    const visible = Boolean(context && profile && context.status === "waiting");
+    $("latest-us-snapshot").hidden = !visible;
+    const container = $("latest-us-quotes");
+    container.replaceChildren();
+    if (!visible) return;
+    if (!latestSnapshots.has(analysis)) {
+      latestSnapshots.set(analysis, { status: "loading" });
+      loadLatestSnapshot(analysis);
+    }
+    const snapshot = latestSnapshots.get(analysis);
+    text("latest-us-status", t(snapshot.status === "loading" ? "overnight.latestLoading" : snapshot.status === "ready" ? "overnight.rawSourceAuto" : "overnight.latestUnavailable"));
+    for (const [index, code] of profile.symbols.entries()) {
+      const quote = snapshot.quotes?.find(item => item.symbol === code && item.currency === "USD" && Number.isFinite(item.close) && item.close > 0 && /^\d{4}-\d{2}-\d{2}$/.test(item.session_date));
+      if (!quote) continue;
+      const card = document.createElement("article");
+      card.className = "overnight-factor";
+      const heading = document.createElement("h4");
+      heading.textContent = names[index] || code;
+      const value = document.createElement("strong");
+      value.textContent = `${format(quote.close)} USD`;
+      const date = document.createElement("p");
+      date.textContent = t("overnight.rawSession", { date: quote.session_date });
+      card.append(heading, value, date);
+      container.append(card);
+    }
+  }
+
   function renderOvernight() {
     const context = analysis.market_context;
     const profile = context ? returnedProfile(context) : profileForSymbol(analysis.symbol);
@@ -420,6 +464,7 @@
     panel.hidden = !context && !isTaiwan;
     combinedPanel.hidden = !context && !isTaiwan;
     $("combined-empty").hidden = false;
+    renderLatestSnapshot(context, profile, names);
     if (panel.hidden) return;
     text("overnight-title", t("overnight.rawTitle"));
     text("overnight-intro", t("overnight.rawIntro", { symbols: profile?.symbols.join(" + ") || "—" }));
@@ -427,6 +472,7 @@
     const reasonKeys = ["data_unavailable", "waiting_for_us_close", "missing_sessions", "insufficient_history", "stale_history", "us_session_not_closed", "missing_us_sessions", "insufficient_aligned_history", "missing_factors", "invalid_factor_data", "incomplete_history", "us_rate_limited", "us_access_denied", "us_connection_failed", "us_invalid_data", "us_unavailable", "us_busy", "auto_csv_unavailable", "auto_csv_missing_session", "auto_csv_invalid_data"];
     const reason = context && reasonKeys.includes(context.reason) ? t(`overnight.reason.${context.reason}`) : "";
     const requiredSession = typeof context?.required_us_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(context.required_us_session_date) ? context.required_us_session_date : null;
+    const waitingForClose = status === "waiting" && context?.reason === "us_session_not_closed";
     const allowQuotes = context && status !== "waiting" && !["us_session_not_closed", "incomplete_history", "stale_history"].includes(context.reason);
     const quoted = allowQuotes && Array.isArray(context.quotes) ? context.quotes : [];
     const validQuotes = new Map();
@@ -436,9 +482,9 @@
     }
     const hasQuotes = validQuotes.size > 0;
     const completeQuotes = Boolean(profile && validQuotes.size === profile.symbols.length);
-    const rawStatus = !context ? t("overnight.rawNotEnabled") : completeQuotes ? t("overnight.rawAvailable") : hasQuotes ? t("overnight.rawPartial") : `${t("overnight.rawNone")} ${reason}`;
+    const rawStatus = !context ? t("overnight.rawNotEnabled") : waitingForClose ? t("overnight.waitingClose") : completeQuotes ? t("overnight.rawAvailable") : hasQuotes ? t("overnight.rawPartial") : `${t("overnight.rawNone")} ${reason}`;
     text("overnight-raw-status", rawStatus);
-    $("overnight-raw-status").dataset.status = completeQuotes ? "ready" : "unavailable";
+    $("overnight-raw-status").dataset.status = waitingForClose ? "waiting" : completeQuotes ? "ready" : "unavailable";
     for (const [index, code] of (profile?.symbols || []).entries()) {
       const quote = validQuotes.get(code);
       const card = document.createElement("article");
@@ -448,7 +494,7 @@
       heading.textContent = names[index] || code;
       const close = document.createElement("strong");
       close.className = "raw-quote-close";
-      close.textContent = quote ? `${format(quote.close)} USD` : t("comparison.none");
+      close.textContent = quote ? `${format(quote.close)} USD` : t(waitingForClose ? "overnight.waitingClose" : "comparison.none");
       card.append(heading, close);
       if (quote) {
         const session = document.createElement("p");
@@ -469,12 +515,12 @@
         card.append(session, previous, change, source);
       } else {
         const unavailable = document.createElement("p");
-        unavailable.textContent = t(context ? "overnight.rawQuoteMissing" : "overnight.rawNotEnabled");
+        unavailable.textContent = t(waitingForClose ? "overnight.waitingDetail" : context ? "overnight.rawQuoteMissing" : "overnight.rawNotEnabled");
         card.append(unavailable);
       }
       cards.append(card);
     }
-    text("overnight-data-source", hasQuotes ? t("overnight.rawDataRetrieved") : t("overnight.rawNone"));
+    text("overnight-data-source", hasQuotes ? t("overnight.rawDataRetrieved") : t(waitingForClose ? "overnight.waitingDetail" : "overnight.rawNone"));
     const snapshot = hasQuotes && context?.data_source === "auto_csv" ? context.snapshot_metadata : null;
     const snapshotSession = typeof snapshot?.snapshot_session_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(snapshot.snapshot_session_date) ? snapshot.snapshot_session_date : null;
     text("overnight-snapshot-session", snapshotSession ? t("overnight.snapshotSession", { date: snapshotSession }) : "");
@@ -502,7 +548,7 @@
     text("combined-scenario-column", t(expectsAdr ? "comparison.adrColumn" : "comparison.scenarioColumn"));
     const scenarioReady = status === "ready" && completeQuotes && (!expectsAdr || directional) && Array.isArray(scenario) && scenario.length === analysis.forecast.length && scenario.every((point, index) => point?.date === analysis.forecast[index].date && Number.isFinite(point.close) && point.close > 0);
     const combinedReason = !context ? t("comparison.notEnabled") : reason || t("comparison.scenarioMissing");
-    text("overnight-status", scenarioReady ? t(directional ? "comparison.adrAvailable" : "comparison.available") : `${t("comparison.none")} · ${combinedReason}`);
+    text("overnight-status", scenarioReady ? t(directional ? "comparison.adrAvailable" : "comparison.available") : `${t(waitingForClose ? "overnight.waitingClose" : "comparison.none")} · ${combinedReason}`);
     $("overnight-status").dataset.status = scenarioReady ? "ready" : "unavailable";
     text("combined-empty-reason", combinedReason);
     $("combined-empty").hidden = scenarioReady;

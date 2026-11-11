@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from stockpredict.auto_csv import auto_csv_factors
+from stockpredict.auto_csv import auto_csv_factors, latest_snapshot_quotes
 from stockpredict.backtest_runs import router as backtest_runs_router
 from stockpredict.calendar import data_status, date_path
 from stockpredict.community import router as community_router
@@ -41,6 +41,20 @@ app.include_router(backtest_runs_router)
 app.include_router(corporate_actions_router)
 
 
+@app.get("/api/reference-quotes/latest")
+def latest_reference_quotes(symbol: str = Query(max_length=20)):
+    """Informational snapshot, independent of required-session model inputs."""
+    try:
+        profile = profile_for(canonical_reference_symbol(symbol))
+        if profile is None:
+            raise ValueError("Not a Taiwan reference symbol")
+        return latest_snapshot_quotes(profile.symbols)
+    except ValueError:
+        return JSONResponse(status_code=422, content={"reason": "invalid_symbol"})
+    except DataSourceError as exc:
+        return JSONResponse(status_code=503, content={"reason": exc.code})
+
+
 @app.middleware("http")
 async def community_cache_policy(request: Request, call_next):
     response = await call_next(request)
@@ -56,6 +70,7 @@ async def community_cache_policy(request: Request, call_next):
                 "/api/predictions",
                 "/api/backtest-runs",
                 "/api/corporate-actions",
+                "/api/reference-quotes",
             )
         )
         or request.url.path == "/admin"

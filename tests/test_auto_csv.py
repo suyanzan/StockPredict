@@ -19,6 +19,27 @@ PAIR = ("UMC", "SOXX")
 SESSION = "2026-10-30"
 
 
+def test_latest_snapshot_is_display_only_and_does_not_relax_required_session(monkeypatch):
+    server(monkeypatch)
+    result = auto_csv.latest_snapshot_quotes(PAIR)
+    assert result["display_only"] is True
+    assert {q["symbol"] for q in result["quotes"]} == set(PAIR)
+    assert all(q["session_date"] == SESSION for q in result["quotes"])
+    assert "forecast" not in result
+    with pytest.raises(DataSourceError) as error:
+        auto_csv.auto_csv_factors(PAIR, "2026-11-02")
+    assert error.value.code == "auto_csv_missing_session"
+
+
+def test_latest_snapshot_rejects_corrupt_prices(monkeypatch):
+    manifest, files = published_snapshot()
+    files[manifest["files"]["UMC"]["path"]] = b"corrupt"
+    server(monkeypatch, manifest, files)
+    with pytest.raises(DataSourceError) as error:
+        auto_csv.latest_snapshot_quotes(PAIR)
+    assert error.value.code == "auto_csv_invalid_data"
+
+
 def published_snapshot(session=SESSION, suffix="a" * 16):
     end = date.fromisoformat(session)
     days = []
