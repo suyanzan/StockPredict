@@ -237,6 +237,11 @@ def latest_snapshot_quotes(factor_symbols: tuple[str, str]) -> dict:
                 "currency": "USD",
                 "close": factors[symbol][-1]["close"],
                 "session_date": session,
+                "previous_close": factors[symbol][-2]["close"],
+                "previous_session_date": factors[symbol][-2]["date"],
+                "day_change": factors[symbol][-1]["close"] - factors[symbol][-2]["close"],
+                "day_change_pct": (factors[symbol][-1]["close"] / factors[symbol][-2]["close"] - 1)
+                * 100,
                 "data_source": "auto_csv",
             }
             for symbol in factor_symbols

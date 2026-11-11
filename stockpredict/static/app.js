@@ -439,6 +439,15 @@
       const date = document.createElement("p");
       date.textContent = t("overnight.rawSession", { date: quote.session_date });
       card.append(heading, value, date);
+      const previous = document.createElement("p");
+      const hasPrevious = Number.isFinite(quote.previous_close) && quote.previous_close > 0 && /^\d{4}-\d{2}-\d{2}$/.test(quote.previous_session_date) && quote.previous_session_date < quote.session_date;
+      previous.textContent = hasPrevious ? t("overnight.rawPrevious", { close: format(quote.previous_close), date: quote.previous_session_date }) : t("overnight.rawPreviousNone");
+      const change = document.createElement("p");
+      const validChange = hasPrevious && Number.isFinite(quote.day_change) && Number.isFinite(quote.day_change_pct);
+      change.textContent = t("overnight.rawChange", { absolute: validChange ? `${quote.day_change > 0 ? "+" : ""}${format(quote.day_change)} USD` : t("comparison.none"), percent: validChange ? percent(quote.day_change_pct, true) : t("comparison.none") });
+      if (validChange) change.textContent = `${t(quote.day_change > 0 ? "comparison.up" : quote.day_change < 0 ? "comparison.down" : "comparison.flat")} · ${change.textContent}`;
+      changeClass(change, validChange ? quote.day_change : null);
+      card.append(previous, change);
       container.append(card);
     }
   }
