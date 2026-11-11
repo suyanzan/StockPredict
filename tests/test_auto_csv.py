@@ -25,6 +25,10 @@ def test_latest_snapshot_is_display_only_and_does_not_relax_required_session(mon
     assert result["display_only"] is True
     assert {q["symbol"] for q in result["quotes"]} == set(PAIR)
     assert all(q["session_date"] == SESSION for q in result["quotes"])
+    for quote in result["quotes"]:
+        assert quote["previous_session_date"] < quote["session_date"]
+        assert quote["day_change"] == pytest.approx(0.1)
+        assert quote["day_change_pct"] == pytest.approx(0.1 / quote["previous_close"] * 100)
     assert "forecast" not in result
     with pytest.raises(DataSourceError) as error:
         auto_csv.auto_csv_factors(PAIR, "2026-11-02")
