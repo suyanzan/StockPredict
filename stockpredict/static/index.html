@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f7fb">
+  <meta name="theme-color" content="#f2f4f1">
   <title>StockPredict · 股價分析與趨勢預測</title>
   <link rel="stylesheet" href="/static/styles.css">
   <script src="/static/i18n.js" defer></script>
@@ -75,49 +75,7 @@
       <div class="csv-area" id="csv-area" hidden><label for="csv-file" class="csv-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></svg><span><span data-i18n="csv.choose">選擇歷史股價 CSV</span><small data-i18n="csv.requirements">包含 Date、Close 欄位，至少 60 筆 · 最大 2 MB</small></span></label><input type="file" id="csv-file" accept=".csv,text/csv"><a href="#csv-help" data-i18n="csv.formatHelp">格式說明</a></div>
     </section>
 
-    <section id="scoreboard" class="panel scoreboard-panel" aria-labelledby="score-title">
-      <div class="panel-heading"><h2 id="score-title" data-i18n="score.title">預測成績看板</h2><button id="score-refresh" class="button button-secondary" type="button" data-i18n="score.refresh">更新成績</button></div>
-      <p data-i18n="score.description">聯電與台積電 · 盤前原始預測 · 第 1、5 個交易日。待公布不計分，純台股與 ADR 情境分開。</p>
-      <p id="score-status" role="status" aria-live="polite"></p>
-      <h3 data-i18n="evaluation.health">排程狀態與提醒</h3>
-      <div id="score-alerts" role="status" aria-live="polite"></div>
-      <h3 data-i18n="evaluation.paired">同日期公平比較</h3>
-      <p class="small-note" data-i18n="evaluation.pairedNote">僅比較預測起日、目標日、期間與實際收盤相同的純台股及 ADR；覆蓋率分母為已計分的純台股筆數。</p>
-      <div id="score-comparison"></div>
-      <h3 data-i18n="evaluation.all">各自可用資料的成績（樣本可能不同）</h3>
-      <div class="table-scroll"><table><caption class="sr-only" data-i18n="score.title">預測成績看板</caption><thead id="score-head"></thead><tbody id="score-summary"></tbody></table></div>
-      <details><summary data-i18n="score.records">原始預測與逐筆成績</summary><div class="table-scroll"><table><thead id="score-record-head"></thead><tbody id="score-records"></tbody></table></div></details>
-      <p class="small-note" data-i18n="score.method">誤差＝預測減實際；MAPE＝絕對誤差／實際收盤；方向以預測前收盤為基準，持平為獨立方向。預測與收盤紀錄不可覆寫。</p>
-      <h3 data-i18n="score.calendar">台美交易日曆與資料狀態</h3>
-      <div id="score-calendar" aria-live="polite"></div>
-      <p class="small-note" data-i18n="score.calendarNote">使用交易所日曆，含美股夏令時間及提早收盤。可用時間為保守門檻，仍需來源公布；缺資料不以舊價替代。</p>
-    </section>
-    <section id="historical-backtest" class="panel scoreboard-panel" aria-labelledby="historical-title">
-      <h2 id="historical-title" data-i18n="history.title">最近 30 日歷史回測</h2>
-      <p data-i18n="history.description">逐日使用當時以前至少 60 筆歷史收盤訓練，測試第 1、5 個交易日；純台股與 ADR 情境分開。</p>
-      <label for="historical-symbol" data-i18n="controls.symbol">股票代碼</label>
-      <select id="historical-symbol"><option value="2303.TW" data-i18n="security.umc">聯電</option><option value="2330.TW" data-i18n="security.tsmc">台積電</option></select>
-      <label for="historical-months" data-i18n="evaluation.period">測試期間</label>
-      <select id="historical-months"><option value="1" data-i18n="evaluation.month1">1 個月（30 日）</option><option value="3" data-i18n="evaluation.month3">3 個月（90 日）</option><option value="6" data-i18n="evaluation.month6">6 個月（180 日）</option><option value="12" data-i18n="evaluation.month12">12 個月（365 日）</option></select>
-      <button id="historical-run" class="button button-secondary" type="button" data-i18n="history.run">執行歷史回測</button>
-      <p id="historical-status" role="status" aria-live="polite" data-i18n="history.idle">按下按鈕取得真實歷史行情並回測。</p>
-      <p class="small-note" data-i18n="history.note">這是事後逐日模擬，歷史行情可能經過修訂，公布時間採日曆假設。結果不寫入盤前成績看板；未到期或缺資料不計分。</p>
-      <p id="historical-coverage" aria-live="polite"></p>
-      <p class="small-note" data-i18n="audit.publicNote">保存的是公開行情分析，所有訪客可查閱；報告不可覆寫，最多保存 200 份。資料庫不可用時仍可匯出當次 CSV。</p>
-      <div class="report-actions"><button id="report-save" class="button button-secondary" type="button" disabled data-i18n="audit.save">保存本次報告</button><button id="report-csv" class="button button-secondary" type="button" disabled data-i18n="audit.csv">匯出逐筆 CSV</button><button id="report-json" class="button button-secondary" type="button" disabled data-i18n="audit.json">下載完整快照</button><button id="report-replay" class="button button-secondary" type="button" disabled data-i18n="audit.replay">從快照重播核對</button></div>
-      <p id="report-archive-status" role="status" aria-live="polite"></p>
-      <label for="report-saved" data-i18n="audit.savedReports">最近已保存報告</label><select id="report-saved"><option value="">—</option></select><button id="report-load" class="button button-secondary" type="button" data-i18n="audit.load">載入報告</button><button id="report-refresh" class="button button-secondary" type="button" data-i18n="audit.refresh">更新清單</button>
-      <details><summary data-i18n="audit.events">除息與分割事件</summary><div id="historical-actions"></div></details>
-      <h3 data-i18n="evaluation.paired">同日期公平比較</h3>
-      <p class="small-note" data-i18n="evaluation.pairedNote">僅比較預測起日、目標日、期間與實際收盤相同的純台股及 ADR；覆蓋率分母為已計分的純台股筆數。</p>
-      <div id="historical-comparison"></div>
-      <h3 data-i18n="evaluation.all">各自可用資料的成績（樣本可能不同）</h3>
-      <div class="table-scroll"><table><caption class="sr-only" data-i18n="history.title">最近 30 日歷史回測</caption><thead id="historical-head"></thead><tbody id="historical-summary"></tbody></table></div>
-      <h3 data-i18n="evaluation.review">模型評估：先驗證選擇，再獨立測試</h3>
-      <p class="small-note" data-i18n="evaluation.reviewNote">固定比較前收盤、現行 AR(5)、60／120 筆訓練窗；至少 20 筆驗證與 20 筆獨立測試，排除跨入測試期的驗證答案。不自動更改正式模型。</p>
-      <div id="historical-review"></div>
-      <details><summary data-i18n="history.details">逐日結果與缺資料原因</summary><div id="historical-skipped"></div><div class="table-scroll"><table><thead id="historical-record-head"></thead><tbody id="historical-records"></tbody></table></div></details>
-    </section>
+
     <div id="error-message" class="notice notice-error" role="alert" hidden><span id="error-text"></span><button id="twse-retry" class="button button-secondary error-retry" type="button" data-i18n="error.retryTwse" hidden>改用證交所資料</button></div>
     <div id="loading-message" class="loading-message" role="status" hidden><span class="spinner"></span><span id="loading-text" data-i18n="loading.analysis">正在讀取資料並執行歷史回測…</span></div>
     <div id="empty-state" class="panel empty-state" hidden><h2 data-i18n="empty.title">準備好開始分析</h2><p data-i18n="empty.copy">選擇股票與資料來源，點擊「開始分析」。示範模式無需連網即可使用。</p></div>
@@ -180,6 +138,50 @@
         <details class="overnight-limitations"><summary data-i18n="overnight.limitsTitle">資料與比較方式</summary><ul><li data-i18n="overnight.limitTiming">歷史美股收盤以交易所收盤加 15 分鐘（含提早收盤）作為保守可用時間；這是對齊假設，不是實際公布時間，歷史行情也可能經後續修訂。</li><li data-i18n="overnight.limitMissing">美國休市或所需資料缺列時會跳過該日，缺價不當成零漲跌。因子只使用台北 09:00 前且查詢當下已可用的資料。</li><li data-i18n="overnight.limitFuture">ADR 方向情境以明示權重與衰減修正純台股路徑；非 ADR 的廣泛市場情境僅第一日納入已知美股後遞推。兩者均不使用未來美股報酬，上方圖表仍是純個股預測，台美真實行情日期排除休市日。</li><li data-i18n="overnight.limitCorrelation">相關係數比較對齊後的報酬率，不代表領先因果或保證預測改善；除權息與分割可能影響未還原行情。</li><li data-i18n="overnight.limitModels">跨市場模型與原 AR(5) 的訓練樣本、標準化及正則化設定不同，MAE 差異不能單獨歸因於美股因子。</li></ul></details>
       </section>
     </div>
+
+    <section id="scoreboard" class="panel scoreboard-panel" aria-labelledby="score-title">
+      <div class="panel-heading"><h2 id="score-title" data-i18n="score.title">預測成績看板</h2><button id="score-refresh" class="button button-secondary" type="button" data-i18n="score.refresh">更新成績</button></div>
+      <p data-i18n="score.description">聯電與台積電 · 盤前原始預測 · 第 1、5 個交易日。待公布不計分，純台股與 ADR 情境分開。</p>
+      <p id="score-status" role="status" aria-live="polite"></p>
+      <h3 data-i18n="evaluation.health">排程狀態與提醒</h3>
+      <div id="score-alerts" role="status" aria-live="polite"></div>
+      <h3 data-i18n="evaluation.paired">同日期公平比較</h3>
+      <p class="small-note" data-i18n="evaluation.pairedNote">僅比較預測起日、目標日、期間與實際收盤相同的純台股及 ADR；覆蓋率分母為已計分的純台股筆數。</p>
+      <div id="score-comparison"></div>
+      <h3 data-i18n="evaluation.all">各自可用資料的成績（樣本可能不同）</h3>
+      <div class="table-scroll"><table><caption class="sr-only" data-i18n="score.title">預測成績看板</caption><thead id="score-head"></thead><tbody id="score-summary"></tbody></table></div>
+      <details><summary data-i18n="score.records">原始預測與逐筆成績</summary><div class="table-scroll"><table><thead id="score-record-head"></thead><tbody id="score-records"></tbody></table></div></details>
+      <p class="small-note" data-i18n="score.method">誤差＝預測減實際；MAPE＝絕對誤差／實際收盤；方向以預測前收盤為基準，持平為獨立方向。預測與收盤紀錄不可覆寫。</p>
+      <h3 data-i18n="score.calendar">台美交易日曆與資料狀態</h3>
+      <div id="score-calendar" aria-live="polite"></div>
+      <p class="small-note" data-i18n="score.calendarNote">使用交易所日曆，含美股夏令時間及提早收盤。可用時間為保守門檻，仍需來源公布；缺資料不以舊價替代。</p>
+    </section>
+    <section id="historical-backtest" class="panel scoreboard-panel" aria-labelledby="historical-title">
+      <h2 id="historical-title" data-i18n="history.title">最近 30 日歷史回測</h2>
+      <p data-i18n="history.description">逐日使用當時以前至少 60 筆歷史收盤訓練，測試第 1、5 個交易日；純台股與 ADR 情境分開。</p>
+      <label for="historical-symbol" data-i18n="controls.symbol">股票代碼</label>
+      <select id="historical-symbol"><option value="2303.TW" data-i18n="security.umc">聯電</option><option value="2330.TW" data-i18n="security.tsmc">台積電</option></select>
+      <label for="historical-months" data-i18n="evaluation.period">測試期間</label>
+      <select id="historical-months"><option value="1" data-i18n="evaluation.month1">1 個月（30 日）</option><option value="3" data-i18n="evaluation.month3">3 個月（90 日）</option><option value="6" data-i18n="evaluation.month6">6 個月（180 日）</option><option value="12" data-i18n="evaluation.month12">12 個月（365 日）</option></select>
+      <button id="historical-run" class="button button-secondary" type="button" data-i18n="history.run">執行歷史回測</button>
+      <p id="historical-status" role="status" aria-live="polite" data-i18n="history.idle">按下按鈕取得真實歷史行情並回測。</p>
+      <p class="small-note" data-i18n="history.note">這是事後逐日模擬，歷史行情可能經過修訂，公布時間採日曆假設。結果不寫入盤前成績看板；未到期或缺資料不計分。</p>
+      <p id="historical-coverage" aria-live="polite"></p>
+      <p class="small-note" data-i18n="audit.publicNote">保存的是公開行情分析，所有訪客可查閱；報告不可覆寫，最多保存 200 份。資料庫不可用時仍可匯出當次 CSV。</p>
+      <div class="report-actions"><button id="report-save" class="button button-secondary" type="button" disabled data-i18n="audit.save">保存本次報告</button><button id="report-csv" class="button button-secondary" type="button" disabled data-i18n="audit.csv">匯出逐筆 CSV</button><button id="report-json" class="button button-secondary" type="button" disabled data-i18n="audit.json">下載完整快照</button><button id="report-replay" class="button button-secondary" type="button" disabled data-i18n="audit.replay">從快照重播核對</button></div>
+      <p id="report-archive-status" role="status" aria-live="polite"></p>
+      <label for="report-saved" data-i18n="audit.savedReports">最近已保存報告</label><select id="report-saved"><option value="">—</option></select><button id="report-load" class="button button-secondary" type="button" data-i18n="audit.load">載入報告</button><button id="report-refresh" class="button button-secondary" type="button" data-i18n="audit.refresh">更新清單</button>
+      <details><summary data-i18n="audit.events">除息與分割事件</summary><div id="historical-actions"></div></details>
+      <h3 data-i18n="evaluation.paired">同日期公平比較</h3>
+      <p class="small-note" data-i18n="evaluation.pairedNote">僅比較預測起日、目標日、期間與實際收盤相同的純台股及 ADR；覆蓋率分母為已計分的純台股筆數。</p>
+      <div id="historical-comparison"></div>
+      <h3 data-i18n="evaluation.all">各自可用資料的成績（樣本可能不同）</h3>
+      <div class="table-scroll"><table><caption class="sr-only" data-i18n="history.title">最近 30 日歷史回測</caption><thead id="historical-head"></thead><tbody id="historical-summary"></tbody></table></div>
+      <h3 data-i18n="evaluation.review">模型評估：先驗證選擇，再獨立測試</h3>
+      <p class="small-note" data-i18n="evaluation.reviewNote">固定比較前收盤、現行 AR(5)、60／120 筆訓練窗；至少 20 筆驗證與 20 筆獨立測試，排除跨入測試期的驗證答案。不自動更改正式模型。</p>
+      <div id="historical-review"></div>
+      <details><summary data-i18n="history.details">逐日結果與缺資料原因</summary><div id="historical-skipped"></div><div class="table-scroll"><table><thead id="historical-record-head"></thead><tbody id="historical-records"></tbody></table></div></details>
+    </section>
 
     <section class="method-grid" id="method" aria-labelledby="method-title">
       <div class="method-copy"><span class="section-kicker" data-i18n="method.kicker">理解模型</span><h2 id="method-title" data-i18n="method.title">模型透明，判斷留給你。</h2><p id="model-description" data-i18n="method.defaultDescription">使用歷史每日報酬建立迴歸模型，估計接下來的價格路徑。先從示範資料開始，也能匯入自己的歷史收盤價。</p><div class="method-tags"><span data-i18n="method.tagBacktest">時間序列回測</span><span data-i18n="method.tagBaseline">與簡單基準比較</span><span data-i18n="method.tagNoKey">無需 API 金鑰</span></div></div>
