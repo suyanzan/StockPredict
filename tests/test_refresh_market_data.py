@@ -340,3 +340,82 @@ def test_workflow_new_and_existing_data_branch_never_touch_main(monkeypatch, tmp
         assert _git(source, "status", "--porcelain") == status
         assert (source / "main-only.txt").is_file()
     assert calls == list(refresh_job.SYMBOLS)
+
+
+def test_delayed_close_recovers_without_refetching_successful_symbols(
+    monkeypatch, tmp_path, capsys
+):
+    calls, sleeps = [], []
+
+    def fetch(symbol):
+        calls.append(symbol)
+        end = date(2026, 10, 29) if calls == ["UMC"] else date(2026, 10, 30)
+        return observations(end), {"currency": "USD", "exchange_timezone": "America/New_York"}
+
+    monkeypatch.setattr(refresh_job, "yahoo_data", fetch)
+    monkeypatch.setattr(refresh_job, "_sleep", sleeps.append)
+    assert refresh_job.refresh(tmp_path, now=NOW, attempts=3)["status"] == "updated"
+    assert calls == ["UMC", *refresh_job.SYMBOLS]
+    assert sleeps == [60, 3, 3, 3, 3]
+    diagnostic = json.loads(capsys.readouterr().err)
+    assert diagnostic["symbol"] == "UMC"
+    assert diagnostic["expected_session"] == "2026-10-30"
+    assert diagnostic["actual_session"] == "2026-10-29"
+    assert diagnostic["status"] == "retrying"
+
+
+def test_exhausted_retries_preserve_previous_snapshot(monkeypatch, tmp_path, capsys):
+    fake_provider(monkeypatch, end=date(2026, 10, 29))
+    refresh_job.refresh(tmp_path, now=NOW - timedelta(days=1))
+    before = tree_bytes(tmp_path)
+    calls, sleeps = fake_provider(monkeypatch, end=date(2026, 10, 29))
+    with pytest.raises(DataSourceError):
+        refresh_job.refresh(tmp_path, now=NOW, attempts=3)
+    assert calls == ["UMC"] * 3 and sleeps == [60, 60]
+    assert tree_bytes(tmp_path) == before
+    logs = [json.loads(line) for line in capsys.readouterr().err.splitlines()]
+    assert [log["status"] for log in logs] == ["retrying", "retrying", "unavailable"]
+
+
+@pytest.mark.parametrize(
+    ("code", "status", "cooldown", "expected_calls", "expected_sleeps"),
+    [
+        ("us_connection_failed", None, None, 3, [60, 60]),
+        ("us_unavailable", 503, 90, 3, [90, 90]),
+        ("us_rate_limited", 429, 120, 3, [120, 120]),
+        ("us_rate_limited", 429, 900, 1, []),
+        ("us_unavailable", 404, None, 1, []),
+        ("us_access_denied", 403, None, 1, []),
+        ("us_invalid_data", None, None, 1, []),
+    ],
+)
+def test_retry_policy_honors_cooldown_and_stops_permanent_errors(
+    monkeypatch, tmp_path, capsys, code, status, cooldown, expected_calls, expected_sleeps
+):
+    calls, sleeps = [], []
+
+    def fetch(symbol):
+        calls.append(symbol)
+        raise DataSourceError(
+            "private-provider-body", code=code, http_status=status, retry_after=cooldown
+        )
+
+    monkeypatch.setattr(refresh_job, "yahoo_data", fetch)
+    monkeypatch.setattr(refresh_job, "_sleep", sleeps.append)
+    with pytest.raises(DataSourceError):
+        refresh_job.refresh(tmp_path, now=NOW, attempts=3)
+    assert calls == ["UMC"] * expected_calls
+    assert sleeps == expected_sleeps
+    assert not (tmp_path / "manifest.json").exists()
+    assert "private-provider-body" not in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    "options",
+    [{"end": date(2026, 11, 2)}, {"metadata": {"currency": "TWD"}}],
+)
+def test_invalid_snapshot_is_not_retried(monkeypatch, tmp_path, options):
+    calls, sleeps = fake_provider(monkeypatch, **options)
+    with pytest.raises(DataSourceError):
+        refresh_job.refresh(tmp_path, now=NOW, attempts=3)
+    assert calls == ["UMC"] and sleeps == []

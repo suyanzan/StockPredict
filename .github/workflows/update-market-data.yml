@@ -4,7 +4,8 @@ on:
   schedule:
     # New York 16:30 during DST, or 15:30 then 16:30 in standard time.
     # The generator exits before downloading if the session is not complete.
-    - cron: "30 20,21 * * 1-5"
+    # Later runs recover delayed provider closes; intact snapshots skip downloads.
+    - cron: "30 20,21,22,23 * * 1-5"
   workflow_dispatch:
   push:
     branches: [main]
@@ -25,7 +26,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     permissions:
       contents: write
     steps:
