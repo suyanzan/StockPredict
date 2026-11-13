@@ -20,7 +20,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from stockpredict.calendar import available_at, is_session
+from stockpredict.calendar import available_at, is_session, latest_published
 from stockpredict.data import DataSourceError, parse_csv, yahoo_data
 from stockpredict.forecast import validate_points
 
@@ -186,7 +186,13 @@ def _prune_snapshots(root: Path, current_id: str) -> None:
         shutil.rmtree(path)
 
 
-def refresh(output_dir: Path | str, *, now: datetime | None = None, attempts: int = 1) -> dict:
+def refresh(
+    output_dir: Path | str,
+    *,
+    now: datetime | None = None,
+    attempts: int = 1,
+    latest_completed: bool = False,
+) -> dict:
     """Generate all five CSVs, then atomically publish their immutable manifest.
 
     A successful return has status updated/already_current. Waiting or weekends
@@ -199,7 +205,7 @@ def refresh(output_dir: Path | str, *, now: datetime | None = None, attempts: in
     if now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("now must include a timezone.")
     local_now = now.astimezone(NEW_YORK)
-    session = local_now.date()
+    session = latest_published(now, "XNYS") if latest_completed else local_now.date()
     session_date = session.isoformat()
     if not is_session(session, "XNYS"):
         return {"status": "no_session", "session_date": session_date}
@@ -288,9 +294,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Refresh completed US reference-price CSVs.")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--attempts", type=int, choices=range(1, 4), default=3)
+    parser.add_argument(
+        "--latest-completed",
+        action="store_true",
+        help="Recover the most recent published exchange session, including before open/weekends.",
+    )
     args = parser.parse_args()
     try:
-        result = refresh(args.output_dir, attempts=args.attempts)
+        result = refresh(
+            args.output_dir, attempts=args.attempts, latest_completed=args.latest_completed
+        )
     except DataSourceError as exc:
         print(
             json.dumps(
