@@ -1,7 +1,7 @@
 """Publish one bounded, complete daily CSV snapshot for the five reference symbols.
 
-This command is intended for a scheduled job, not a web request. It makes at
-most one paced request per symbol, stops on any failure, and publishes nothing
+This command is intended for a scheduled job, not a web request. It makes
+bounded, paced requests per symbol and publishes nothing
 unless every symbol includes the required completed New York trading date.
 """
 
@@ -13,6 +13,7 @@ import json
 import os
 import re
 import shutil
+import sys
 import tempfile
 import time
 from datetime import date, datetime, timedelta, timezone
@@ -37,6 +38,52 @@ MAX_CSV_BYTES = 2_000_000
 PRIOR_SNAPSHOTS = 5
 REQUEST_INTERVAL = 3.0
 _sleep = time.sleep
+
+
+def _download(symbol: str, session_date: str, attempts: int):
+    for attempt in range(1, attempts + 1):
+        details = {"symbol": symbol, "expected_session": session_date, "attempt": attempt}
+        try:
+            points, metadata = yahoo_data(symbol)
+            validate_points(points)
+            details.update(
+                actual_session=points[-1]["date"],
+                currency=metadata.get("currency"),
+                exchange_timezone=metadata.get("exchange_timezone"),
+            )
+            if (
+                metadata.get("currency") != "USD"
+                or metadata.get("exchange_timezone") != NEW_YORK.key
+            ):
+                raise DataSourceError("Unexpected market metadata", code="us_invalid_data")
+            if points[-1]["date"] != session_date:
+                raise DataSourceError("Completed close is unavailable", code="us_unavailable")
+            return points
+        except DataSourceError as exc:
+            delay = max(60, exc.retry_after or 0)
+            retryable = (
+                exc.code in {"us_unavailable", "us_connection_failed", "us_rate_limited"}
+                and (exc.http_status is None or exc.http_status == 429 or exc.http_status >= 500)
+                and delay <= 120
+                and details.get("actual_session", session_date) <= session_date
+            )
+            retry = retryable and attempt < attempts
+            print(
+                json.dumps(
+                    {
+                        **details,
+                        "status": "retrying" if retry else "unavailable",
+                        "reason": exc.code,
+                        "http_status": exc.http_status,
+                        "retry_after_seconds": exc.retry_after,
+                        "next_attempt_seconds": delay if retry else None,
+                    }
+                ),
+                file=sys.stderr,
+            )
+            if not retry:
+                raise
+            _sleep(delay)
 
 
 def _csv_bytes(points: list[dict]) -> bytes:
@@ -139,13 +186,15 @@ def _prune_snapshots(root: Path, current_id: str) -> None:
         shutil.rmtree(path)
 
 
-def refresh(output_dir: Path | str, *, now: datetime | None = None) -> dict:
+def refresh(output_dir: Path | str, *, now: datetime | None = None, attempts: int = 1) -> dict:
     """Generate all five CSVs, then atomically publish their immutable manifest.
 
     A successful return has status updated/already_current. Waiting or weekends
-    return without touching files or contacting Yahoo. Expected upstream errors
+    return without touching files or contacting Yahoo. Exhausted upstream errors
     propagate so the caller can avoid committing or publishing any changes.
     """
+    if not 1 <= attempts <= 3:
+        raise ValueError("attempts must be between 1 and 3.")
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("now must include a timezone.")
@@ -172,17 +221,7 @@ def refresh(output_dir: Path | str, *, now: datetime | None = None) -> dict:
     for index, symbol in enumerate(SYMBOLS):
         if index:
             _sleep(REQUEST_INTERVAL)
-        points, metadata = yahoo_data(symbol)
-        validate_points(points)
-        if (
-            metadata.get("currency") != "USD"
-            or metadata.get("exchange_timezone") != NEW_YORK.key
-            or points[-1]["date"] != session_date
-        ):
-            raise DataSourceError(
-                "The required completed US closing data is not available.",
-                code="us_unavailable",
-            )
+        points = _download(symbol, session_date, attempts)
         contents[symbol] = _csv_bytes(points)
         rows[symbol] = points
 
@@ -248,9 +287,10 @@ def refresh(output_dir: Path | str, *, now: datetime | None = None) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Refresh completed US reference-price CSVs.")
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--attempts", type=int, choices=range(1, 4), default=3)
     args = parser.parse_args()
     try:
-        result = refresh(args.output_dir)
+        result = refresh(args.output_dir, attempts=args.attempts)
     except DataSourceError as exc:
         print(
             json.dumps(
