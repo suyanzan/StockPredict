@@ -419,3 +419,38 @@ def test_invalid_snapshot_is_not_retried(monkeypatch, tmp_path, options):
     with pytest.raises(DataSourceError):
         refresh_job.refresh(tmp_path, now=NOW, attempts=3)
     assert calls == ["UMC"] and sleeps == []
+
+
+@pytest.mark.parametrize(
+    ("checked_at", "expected"),
+    [
+        ("2026-11-13T12:15:00+00:00", "2026-11-12"),  # Before open.
+        ("2026-11-14T12:15:00+00:00", "2026-11-13"),  # Weekend.
+        ("2026-11-27T18:14:59+00:00", "2026-11-25"),  # Early close not ready yet.
+        ("2026-11-27T18:15:00+00:00", "2026-11-27"),  # Early close + 15 minutes.
+        ("2026-11-26T23:00:00+00:00", "2026-11-25"),  # Thanksgiving.
+        ("2026-11-13T00:30:00+00:00", "2026-11-12"),  # After close, UTC next date.
+    ],
+)
+def test_recovery_uses_latest_completed_exchange_session(
+    monkeypatch, tmp_path, checked_at, expected
+):
+    fake_provider(monkeypatch, end=date.fromisoformat(expected))
+    now = datetime.fromisoformat(checked_at)
+    result = refresh_job.refresh(tmp_path, now=now, latest_completed=True)
+    assert result["status"] == "updated" and result["session_date"] == expected
+    manifest = json.loads((tmp_path / "manifest.json").read_text())
+    assert datetime.fromisoformat(manifest["generated_at"]) == now
+    monkeypatch.setattr(refresh_job, "yahoo_data", lambda _: pytest.fail("Duplicate request"))
+    assert (
+        refresh_job.refresh(tmp_path, now=now, latest_completed=True)["status"] == "already_current"
+    )
+
+
+def test_recovery_still_refuses_stale_data(monkeypatch, tmp_path):
+    fake_provider(monkeypatch, end=date(2026, 11, 10))
+    with pytest.raises(DataSourceError):
+        refresh_job.refresh(
+            tmp_path, now=datetime.fromisoformat("2026-11-13T12:15:00+00:00"), latest_completed=True
+        )
+    assert not (tmp_path / "manifest.json").exists()

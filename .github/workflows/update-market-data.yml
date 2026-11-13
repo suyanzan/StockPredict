@@ -64,7 +64,7 @@ jobs:
         run: |
           set -euo pipefail
           PYTHONPATH="$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/.venv/bin/python" \
-            -m stockpredict.refresh_market_data --output-dir "$CSV_DATA_DIR"
+            -m stockpredict.refresh_market_data --output-dir "$CSV_DATA_DIR" --latest-completed
       - name: Publish only validated CSV data
         env:
           CSV_DATA_DIR: ${{ steps.data.outputs.data_dir }}
