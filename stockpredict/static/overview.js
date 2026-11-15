@@ -57,6 +57,7 @@
       "overview.watchHelp": "支援台灣上市股票／ETF，最多 8 檔。清單只保存在此瀏覽器；新增追蹤不會加入正式盤前收集。",
       "overview.remove": "移除 {symbol}", "overview.invalid": "請輸入 4–6 位上市代碼，例如 2317 或 0050；不支援上櫃與美股。",
       "overview.duplicate": "這檔股票已在清單中。", "overview.limit": "最多追蹤 8 檔，請先移除一檔。",
+      "overview.added": "已加入 {symbol}，可在下方卡片查看。",
       "overview.addFailed": "無法驗證上市行情，尚未加入。請確認代碼，或稍後重試；新上市或長期停牌也可能資料不足。",
       "overview.storageFailed": "瀏覽器無法保存清單，本次變更僅保留到頁面關閉。",
       "overview.watchEmpty": "尚未追蹤股票。請輸入代碼加入，或恢復預設清單。",
@@ -85,6 +86,7 @@
       "overview.watchHelp": "Taiwan listed stocks / ETFs, up to 8. Saved in this browser only; adding a stock does not enroll it in pre-open collection.",
       "overview.remove": "Remove {symbol}", "overview.invalid": "Enter a 4–6 digit listed symbol, such as 2317 or 0050. OTC and US stocks are not supported.",
       "overview.duplicate": "This stock is already on your list.", "overview.limit": "You can follow up to 8 stocks. Remove one first.",
+      "overview.added": "Added {symbol}. Its card appears below.",
       "overview.addFailed": "Daily quote could not be verified; stock was not added. Check the code or retry later. Newly listed or suspended stocks may lack history.",
       "overview.storageFailed": "Browser storage unavailable. Changes last only until this page closes.",
       "overview.watchEmpty": "Your list is empty. Add a symbol or restore the default stocks.",
@@ -110,7 +112,7 @@
   try { symbols = parseWatchlist(window.localStorage.getItem(storageKey)); }
   catch { symbols = [...defaults]; }
   let quotes = {}, quoteGeneration = 0, quoteController, adding = false, revision = 0;
-  let messageKey = "", storageAvailable = true;
+  let messageKey = "", messageValues = {}, storageAvailable = true;
   const names = { "2303.TW": "security.umc", "2330.TW": "security.tsmc", "2308.TW": "security.delta" };
   let state = {}, market = null, loading = true, loaded = null, generation = 0, controller, watchdog;
   const t = (key, values) => i18n.t(`overview.${key}`, values);
@@ -128,7 +130,7 @@
     root.setAttribute("aria-busy", String(loading));
     document.getElementById("watchlist-add").disabled = adding;
     document.getElementById("watchlist-add").textContent = t(adding ? "adding" : "add");
-    document.getElementById("watchlist-message").textContent = messageKey ? t(messageKey) : "";
+    document.getElementById("watchlist-message").textContent = messageKey ? t(messageKey, messageValues) : "";
     if (!symbols.length) grid.append(node("p", "watchlist-empty", t("watchEmpty")));
     for (const symbol of symbols) {
       const enrolled = defaults.includes(symbol);
@@ -235,6 +237,7 @@
       const quote = defaults.includes(symbol) ? null : await fetchQuote(symbol, request.signal);
       if (current !== revision) return;
       symbols.push(symbol); if (quote) quotes[symbol] = { quote }; saveList();
+      if (storageAvailable) { messageKey = "added"; messageValues = { symbol }; }
       document.getElementById("watchlist-symbol").value = "";
       if (defaults.includes(symbol)) window.StockPredictScoreboard?.refresh();
     } catch { if (current === revision) messageKey = "addFailed"; }
