@@ -5,6 +5,16 @@ const fs = require('node:fs');
 const context = {window: {}, document: {getElementById: () => null}};
 vm.runInNewContext(fs.readFileSync('stockpredict/static/overview.js', 'utf8'), context);
 const summarize = context.window.StockPredictOverview.summarize;
+const {normalizeWatchSymbol,parseWatchlist} = context.window.StockPredictOverview;
+test('watchlist validates symbols, preserves ETF leading zeros, deduplicates and bounds storage',()=>{
+ assert.equal(normalizeWatchSymbol(' 0050.tw '),'0050.TW');
+ for(const value of ['AAPL','2330.TWO','<script>',null,2330])assert.equal(normalizeWatchSymbol(value),null);
+ assert.equal(JSON.stringify(parseWatchlist('["2330","2330.TW","0050","AAPL"]')), '["2330.TW","0050.TW"]');
+ assert.equal(JSON.stringify(parseWatchlist('[]')),'[]');
+ assert.equal(parseWatchlist('{broken').length,3);
+ assert.equal(parseWatchlist('{"symbol":"2330"}').length,3);
+ assert.equal(parseWatchlist(JSON.stringify(Array.from({length:20},(_,i)=>String(2000+i)))).length,8);
+});
 const market = {latest_publishable_session:'2026-11-13',next_session:'2026-11-16'};
 const detail = {
  base_date:'2026-11-12',base_close:100,origin_date:'2026-11-13',
