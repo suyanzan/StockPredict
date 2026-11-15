@@ -1,0 +1,597 @@
+{
+  "status": "pending",
+  "observed_at": "2026-11-15T06:46:21.462418+00:00",
+  "days": [
+    {
+      "origin_date": "2026-11-10",
+      "is_session": true,
+      "capture_status": "issues",
+      "expected_scenarios": 5,
+      "captured_scenarios": 3,
+      "missing_scenarios": [
+        {
+          "symbol": "2303.TW",
+          "scenario": "adr"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "adr"
+        }
+      ],
+      "duplicates": [],
+      "issues": [],
+      "captures": [
+        {
+          "symbol": "2303.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-10T00:10:51.253177+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-10T00:11:08.913694+00:00"
+        },
+        {
+          "symbol": "2308.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-10T00:11:26.951147+00:00"
+        }
+      ],
+      "build_commits": [
+        "c31ef7fbc6e6be3945a954f4889271f882acc29e"
+      ],
+      "day1_scored": 3,
+      "day1_close_timely": false,
+      "day5_target": "2026-11-16",
+      "day5_available_after": "2026-11-16T07:00:00+00:00",
+      "day5_status": "pending",
+      "day5_scored": 0
+    },
+    {
+      "origin_date": "2026-11-11",
+      "is_session": true,
+      "capture_status": "verified",
+      "expected_scenarios": 5,
+      "captured_scenarios": 5,
+      "missing_scenarios": [],
+      "duplicates": [],
+      "issues": [],
+      "captures": [
+        {
+          "symbol": "2303.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-11T00:11:13.365917+00:00"
+        },
+        {
+          "symbol": "2303.TW",
+          "scenario": "adr",
+          "created_at": "2026-11-11T00:11:13.849824+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-11T00:11:31.244607+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "adr",
+          "created_at": "2026-11-11T00:11:31.393920+00:00"
+        },
+        {
+          "symbol": "2308.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-11T00:11:48.993285+00:00"
+        }
+      ],
+      "build_commits": [
+        "4bfc1b5cb947ff2d8b2bc4e4b896cbf3a35a8789"
+      ],
+      "day1_scored": 5,
+      "day1_close_timely": false,
+      "day5_target": "2026-11-17",
+      "day5_available_after": "2026-11-17T07:00:00+00:00",
+      "day5_status": "pending",
+      "day5_scored": 0
+    },
+    {
+      "origin_date": "2026-11-12",
+      "is_session": true,
+      "capture_status": "verified",
+      "expected_scenarios": 5,
+      "captured_scenarios": 5,
+      "missing_scenarios": [],
+      "duplicates": [],
+      "issues": [],
+      "captures": [
+        {
+          "symbol": "2303.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-12T00:11:02.200314+00:00"
+        },
+        {
+          "symbol": "2303.TW",
+          "scenario": "adr",
+          "created_at": "2026-11-12T00:11:02.695112+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-12T00:11:20.340351+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "adr",
+          "created_at": "2026-11-12T00:11:20.500355+00:00"
+        },
+        {
+          "symbol": "2308.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-12T00:11:38.067765+00:00"
+        }
+      ],
+      "build_commits": [
+        "d77c4c7d7c4b51c91f82e0df836529c3d867c96d"
+      ],
+      "day1_scored": 5,
+      "day1_close_timely": true,
+      "day5_target": "2026-11-18",
+      "day5_available_after": "2026-11-18T07:00:00+00:00",
+      "day5_status": "pending",
+      "day5_scored": 0
+    },
+    {
+      "origin_date": "2026-11-13",
+      "is_session": true,
+      "capture_status": "verified",
+      "expected_scenarios": 5,
+      "captured_scenarios": 5,
+      "missing_scenarios": [],
+      "duplicates": [],
+      "issues": [],
+      "captures": [
+        {
+          "symbol": "2303.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-13T00:10:58.053930+00:00"
+        },
+        {
+          "symbol": "2303.TW",
+          "scenario": "adr",
+          "created_at": "2026-11-13T00:10:58.500386+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-13T00:11:16.281631+00:00"
+        },
+        {
+          "symbol": "2330.TW",
+          "scenario": "adr",
+          "created_at": "2026-11-13T00:11:16.440015+00:00"
+        },
+        {
+          "symbol": "2308.TW",
+          "scenario": "taiwan",
+          "created_at": "2026-11-13T00:11:33.942760+00:00"
+        }
+      ],
+      "build_commits": [
+        "d77c4c7d7c4b51c91f82e0df836529c3d867c96d"
+      ],
+      "day1_scored": 5,
+      "day1_close_timely": true,
+      "day5_target": "2026-11-19",
+      "day5_available_after": "2026-11-19T07:00:00+00:00",
+      "day5_status": "pending",
+      "day5_scored": 0
+    },
+    {
+      "origin_date": "2026-11-16",
+      "is_session": true,
+      "capture_status": "pending",
+      "expected_scenarios": 5,
+      "captured_scenarios": 0,
+      "missing_scenarios": [],
+      "duplicates": [],
+      "issues": [],
+      "captures": [],
+      "build_commits": [],
+      "day1_scored": 0,
+      "day1_close_timely": null,
+      "day5_target": "2026-11-20",
+      "day5_available_after": "2026-11-20T07:00:00+00:00",
+      "day5_status": "pending",
+      "day5_scored": 0
+    }
+  ],
+  "same_version_five_day_pass": false,
+  "notification_delivery": "not_verified",
+  "scope": "Public API records; database constraints and external notification delivery need independent evidence. Version acceptance is never inferred from commit IDs.",
+  "api_snapshot_at": "2026-11-15T06:30:59.580891+00:00",
+  "external_evidence": {
+    "render_preopen_events": [
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29908850",
+          "status": "successful"
+        },
+        "id": "evt-dbr5u4ajnfac73ediqjg",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-13T00:51:29.597143Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29908850"
+        },
+        "id": "evt-dbr5th2jnfac73edi3m0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-13T00:50:12Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29908830",
+          "status": "successful"
+        },
+        "id": "evt-dbr5krajnfac73ed958g",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-13T00:31:41.199444Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29908830"
+        },
+        "id": "evt-dbr5k72jnfac73ed83qg",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-13T00:30:20Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29908810",
+          "status": "successful"
+        },
+        "id": "evt-dbr5beajnfac73ecvsj0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-13T00:11:37.005158Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29908810"
+        },
+        "id": "evt-dbr5aq2jnfac73ecv2v0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-13T00:10:16Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29907410",
+          "status": "successful"
+        },
+        "id": "evt-dbqgr4ajnfac73dnhkug",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-12T00:51:29.441956Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29907410"
+        },
+        "id": "evt-dbqgqhijnfac73dngrn0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-12T00:50:12Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29907390",
+          "status": "successful"
+        },
+        "id": "evt-dbqgi3qjnfac73dn85eg",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-12T00:32:15.752242Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29907390"
+        },
+        "id": "evt-dbqghbajnfac73dn79r0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-12T00:30:37Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29907370",
+          "status": "successful"
+        },
+        "id": "evt-dbqg8fajnfac73dmudkg",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-12T00:11:41.680313Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29907370"
+        },
+        "id": "evt-dbqg7qajnfac73dmtji0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-12T00:10:16Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29905970",
+          "status": "successful"
+        },
+        "id": "evt-dbpro468bjmc73ehc040",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-11T00:51:28.100628Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29905970"
+        },
+        "id": "evt-dbprnhe8bjmc73ehan7g",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-11T00:50:13Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29905950",
+          "status": "successful"
+        },
+        "id": "evt-dbprf7m8bjmc73eh3010",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-11T00:32:30.009659Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29905950"
+        },
+        "id": "evt-dbprecm8bjmc73eh21t0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-11T00:30:42Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29905930",
+          "status": "successful"
+        },
+        "id": "evt-dbpr5hu8bjmc73egpc4g",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-11T00:11:51.529785Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29905930"
+        },
+        "id": "evt-dbpr4s68bjmc73egoj70",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-11T00:10:24Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29904530",
+          "reason": {
+            "evicted": false,
+            "nonZeroExit": 1
+          },
+          "status": "unsuccessful"
+        },
+        "id": "evt-dbp6l668bjmc73dqvv9g",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-10T00:51:36.564801Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29904530"
+        },
+        "id": "evt-dbp6ki68bjmc73dqv4og",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-10T00:50:16Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29904510",
+          "reason": {
+            "evicted": false,
+            "nonZeroExit": 1
+          },
+          "status": "unsuccessful"
+        },
+        "id": "evt-dbp6bq68bjmc73dqln30",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-10T00:31:36.695917Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29904510"
+        },
+        "id": "evt-dbp6b6m8bjmc73dqkjn0",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-10T00:30:18Z",
+        "type": "cron_job_run_started"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29904490",
+          "reason": {
+            "evicted": false,
+            "nonZeroExit": 1
+          },
+          "status": "unsuccessful"
+        },
+        "id": "evt-dbp62cm8bjmc73dqbqag",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-10T00:11:30.091815Z",
+        "type": "cron_job_run_ended"
+      },
+      {
+        "details": {
+          "cronJobRunId": "crn-dbliht6c6qcc73bh8cdg-29904490"
+        },
+        "id": "evt-dbp61om8bjmc73dqatrg",
+        "serviceId": "crn-dbliht6c6qcc73bh8cdg",
+        "timestamp": "2026-11-10T00:10:10Z",
+        "type": "cron_job_run_started"
+      }
+    ],
+    "monitor": [
+      {
+        "run_id": 43464900120,
+        "created_at": "2026-11-13T16:39:24Z",
+        "conclusion": "success",
+        "commit": "6e12d488d1d7ccf922ac3f98a0d87c04d9132421",
+        "artifact_id": 14058985346,
+        "artifact_name": "prediction-collection-health-43464900120-1",
+        "digest": "sha256:82814a3a44ae770f6168392f6f9a80d36221baf1c536c67122d75f84a181f6f5",
+        "log_evidence": [
+          "2026-11-13T16:40:16.2158160Z []"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 43395965712,
+        "created_at": "2026-11-13T08:47:17Z",
+        "conclusion": "success",
+        "commit": "f675bcb92e42fc60f122e8924971a517f0638e9b",
+        "artifact_id": 14022478304,
+        "artifact_name": "prediction-collection-health-43395965712-1",
+        "digest": "sha256:18be9b1152adce973cd571938fd6021aeb436e9e239666d87044a475108c7b35",
+        "log_evidence": [
+          "2026-11-13T08:48:03.4065590Z []"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 43264350701,
+        "created_at": "2026-11-12T16:57:56Z",
+        "conclusion": "success",
+        "commit": "f675bcb92e42fc60f122e8924971a517f0638e9b",
+        "artifact_id": 13965227044,
+        "artifact_name": "prediction-collection-health-43264350701-1",
+        "digest": "sha256:702703d449e20ee6e23bb3faadce0b20b6d36b09d67896f567dd87ce08be2ae5",
+        "log_evidence": [
+          "2026-11-12T16:58:41.5565106Z []"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 43186462191,
+        "created_at": "2026-11-12T08:51:59Z",
+        "conclusion": "success",
+        "commit": "f675bcb92e42fc60f122e8924971a517f0638e9b",
+        "artifact_id": 13929131220,
+        "artifact_name": "prediction-collection-health-43186462191-1",
+        "digest": "sha256:685c53f40d7403bf218d37039db0d1ce86c749b0b3aa1fa37bcdd11dae15be7e",
+        "log_evidence": [
+          "2026-11-12T08:52:52.9383085Z []"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 43058422554,
+        "created_at": "2026-11-11T16:26:54Z",
+        "conclusion": "success",
+        "commit": "ce03ce6be8dea59ec08441da55215098aeb093fd",
+        "artifact_id": 13872157062,
+        "artifact_name": "prediction-collection-health-43058422554-1",
+        "digest": "sha256:7ecebc40866b9940cc56a2bc2573de45bfc9dff2e9ea3dc6c17d39913a3a025c",
+        "log_evidence": [
+          "2026-11-11T16:27:38.3495481Z []"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 42986863565,
+        "created_at": "2026-11-11T08:25:04Z",
+        "conclusion": "failure",
+        "commit": "4bfc1b5cb947ff2d8b2bc4e4b896cbf3a35a8789",
+        "artifact_id": 13839823432,
+        "artifact_name": "prediction-collection-health-42986863565-1",
+        "digest": "sha256:971841801320c930572164e493c4558cec6c0718a829ff8262bf412fac462195",
+        "log_evidence": [
+          "2026-11-11T08:25:58.0346269Z [{\"code\": \"schedule_stale\", \"severity\": \"critical\", \"expected_run\": \"2026-11-11T15:30:00+08:00\"}, {\"code\": \"actual_close_missing\", \"severity\": \"warning\", \"count\": 5, \"oldest_target\": \"2026-11-11\"}]",
+          "2026-11-11T08:25:58.0369442Z ##[error]Scoreboard collection or closing-price deadline missed; inspect dashboard"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 42855442890,
+        "created_at": "2026-11-10T16:31:52Z",
+        "conclusion": "success",
+        "commit": "4bfc1b5cb947ff2d8b2bc4e4b896cbf3a35a8789",
+        "artifact_id": 13782587032,
+        "artifact_name": "prediction-collection-health-42855442890-1",
+        "digest": "sha256:ec899d61fa23b18a0860adfd0200c1e0817703d7bb4e7fdbddc409652bad1f53",
+        "log_evidence": [
+          "2026-11-10T16:32:46.5458680Z [{\"code\": \"preopen_missing\", \"symbol\": \"2303.TW\", \"scenario\": \"adr\", \"session_date\": \"2026-11-10\", \"severity\": \"warning\"}, {\"code\": \"preopen_missing\", \"symbol\": \"2330.TW\", \"scenario\": \"adr\", \"session_date\": \"2026-11-10\", \"severity\": \"warning\"}]"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      },
+      {
+        "run_id": 42785817610,
+        "created_at": "2026-11-10T08:50:44Z",
+        "conclusion": "failure",
+        "commit": "ea8ad5c803516fb764c61679ed5c50db4b9f00e9",
+        "artifact_id": 13749596939,
+        "artifact_name": "prediction-collection-health-42785817610-1",
+        "digest": "sha256:dfd25dd7be149894aaf3bd48784b8852fb9515ffdcf5aceee36540c77b3a5efb",
+        "log_evidence": [
+          "2026-11-10T08:51:30.3235270Z [{\"code\": \"schedule_stale\", \"severity\": \"critical\", \"expected_run\": \"2026-11-10T15:30:00+08:00\"}, {\"code\": \"preopen_missing\", \"symbol\": \"2303.TW\", \"scenario\": \"adr\", \"session_date\": \"2026-11-10\", \"severity\": \"warning\"}, {\"code\": \"preopen_missing\", \"symbol\": \"2330.TW\", \"scenario\": \"adr\", \"session_date\": \"2026-11-10\", \"severity\": \"warning\"}, {\"code\": \"actual_close_missing\", \"severity\": \"warning\", \"count\": 3, \"oldest_target\": \"2026-11-10\"}, {\"code\": \"source_unavailable\", \"severity\": \"critical\", \"symbol\": \"2303.TW\", \"reason\": null}, {\"code\": \"source_unavailable\", \"severity\": \"critical\", \"symbol\": \"2330.TW\", \"reason\": null}]",
+          "2026-11-10T08:51:30.3266061Z ##[error]Scoreboard collection or closing-price deadline missed; inspect dashboard"
+        ],
+        "artifact_content_read": false,
+        "artifact_content_reason": "download_reference_blocked_by_environment_403"
+      }
+    ]
+  },
+  "source_hashes": {
+    "4bfc1b5cb947ff2d8b2bc4e4b896cbf3a35a8789": "bd6710f8417ab78cbaf9f6bfb892e1c6ff8ef33b76b0a517f5312f7b715f7ab7",
+    "c31ef7fbc6e6be3945a954f4889271f882acc29e": "4bb9351399baf9dee9e87dd2515d1d29cb72e7a11b1faf9020bbb0cbcfc04420",
+    "d77c4c7d7c4b51c91f82e0df836529c3d867c96d": "7dcdaf0c3e58f93bca158ee583b9206475501d03aaed73e7ba30f423d94fbd3a"
+  },
+  "web_release_observed": {
+    "commit": "be5f47d768c803485e9aeb1ae03b23a075a7f1d3",
+    "source_hash": "24548d52fcbf0c8ab7e5b40dd12c5dbe709c3318c5e58993c47c5845c297570b"
+  },
+  "latest_writer_release_observed": {
+    "commit": "6e12d488d1d7ccf922ac3f98a0d87c04d9132421",
+    "source_hash": "d262234c9192dbf41ac6f303ec058188579e7a22735b4332c87d041a9a7684cf"
+  },
+  "collection_health_observed": {
+    "status": "ready",
+    "alerts": [],
+    "last_checked_at": "2026-11-13T15:35:29.886695+00:00"
+  },
+  "archive_details_checked": 18,
+  "notes": [
+    "11/09 excluded from this observation window; no backfill performed.",
+    "11/10 missing ADR remains a historical failure.",
+    "Artifact metadata and job-log alert contents were inspected; downloaded file references were blocked by environment HTTP 403, so ZIP contents were not independently read.",
+    "Current web and latest writer releases may differ intentionally; compare runtime source hashes and relevant source files, not workflow commit IDs alone.",
+    "Current snapshots were read after one initial web health timeout; subsequent API requests succeeded. Cause of initial timeout is not established."
+  ]
+}

@@ -44,7 +44,12 @@
       return values.length && !result.length ? [...defaults] : result;
     } catch { return [...defaults]; }
   }
-  window.StockPredictOverview = { summarize, normalizeWatchSymbol, parseWatchlist };
+  function parseWatchlistImport(raw) {
+    const payload = JSON.parse(raw);
+    if (!payload || payload.format !== "stockpredict.watchlist" || payload.version !== 1 || !Array.isArray(payload.symbols) || payload.symbols.length > maxStocks || payload.symbols.some(x => !normalizeWatchSymbol(x))) throw new Error("invalid import");
+    return [...new Set(payload.symbols.map(normalizeWatchSymbol))];
+  }
+  window.StockPredictOverview = { summarize, normalizeWatchSymbol, parseWatchlist, parseWatchlistImport };
   const root = document.getElementById("stock-overview");
   if (!root) return;
   const i18n = window.StockPredictI18n;
@@ -52,7 +57,20 @@
     "zh-TW": {
       "overview.nav": "個股總覽", "overview.kicker": "YOUR MARKET AT A GLANCE",
       "overview.title": "追蹤個股，一眼掌握。", "overview.copy": "自選每日行情；已納入收集的股票另顯示封存預測。非即時報價，非投資建議。",
-      "overview.addLabel": "新增追蹤代碼", "overview.addPlaceholder": "例如 2317 或 0050",
+      "overview.export": "匯出清單", "overview.import": "匯入清單", "overview.importApply": "套用並取代清單", "overview.importCancel": "取消",
+      "overview.importPreview": "將以 {symbols} 取代目前清單。只驗證檔案格式，行情將逐檔讀取；不會啟用正式預測。",
+      "overview.importInvalid": "匯入失敗。請使用本網站匯出的 JSON，最多 8 檔且檔案不超過 4 KB。原清單未變更。",
+      "overview.imported": "已匯入 {count} 檔，清單已取代。", "overview.exported": "已匯出股票代碼清單，不包含行情或預測紀錄。",
+      "overview.importEmpty": "空清單", "overview.retry": "重試此檔", "overview.queued": "排隊讀取 · 第 {position}/{total} 檔",
+      "overview.reloadQuote": "重新讀取此檔行情",
+      "overview.fetching": "讀取行情中 · 已 {seconds} 秒／上限 30 秒", "overview.validating": "驗證 {symbol} 行情中 · 已 {seconds} 秒／上限 30 秒",
+      "overview.admission": "檢查正式追蹤條件", "overview.admissionLoading": "檢查條件中…", "overview.admissionFailed": "檢查暫時無法完成，請稍後重試。",
+      "overview.admissionReview": "行情與五交易日試算符合前置條件；尚未啟用正式收集。",
+      "overview.admissionBlocked": "前置條件尚未符合，仍維持行情追蹤。",
+      "overview.admissionNote": "仍需審核、保存流程驗證與正式啟用，再從未來盤前開始累積成績；本次檢查不寫入預測。",
+      "overview.admissionAsOf": "檢查時間 {time} · 資料日期 {date}", "overview.check_valid_history": "有效歷史資料", "overview.check_exchange_sessions": "交易日有效性",
+      "overview.check_latest_session": "最新應有收盤", "overview.check_previous_close": "精確前一交易日", "overview.check_five_session_path": "五交易日試算",
+      "overview.pass": "符合", "overview.fail": "未符合", "overview.addLabel": "新增追蹤代碼", "overview.addPlaceholder": "例如 2317 或 0050",
       "overview.add": "加入追蹤", "overview.adding": "驗證行情中…", "overview.restore": "恢復預設",
       "overview.watchHelp": "支援台灣上市股票／ETF，最多 8 檔。清單只保存在此瀏覽器；新增追蹤不會加入正式盤前收集。",
       "overview.remove": "移除 {symbol}", "overview.invalid": "請輸入 4–6 位上市代碼，例如 2317 或 0050；不支援上櫃與美股。",
@@ -81,7 +99,20 @@
     en: {
       "overview.nav": "Stock overview", "overview.kicker": "YOUR MARKET AT A GLANCE",
       "overview.title": "Your stocks. At a glance.", "overview.copy": "Your daily watchlist, with archived forecasts for enrolled stocks. Not live quotes or investment advice.",
-      "overview.addLabel": "Add a listed symbol", "overview.addPlaceholder": "e.g. 2317 or 0050",
+      "overview.export": "Export list", "overview.import": "Import list", "overview.importApply": "Apply and replace list", "overview.importCancel": "Cancel",
+      "overview.importPreview": "Replace your list with {symbols}. Only file format is checked; quotes load individually. Formal forecasts stay unchanged.",
+      "overview.importInvalid": "Import failed. Use a StockPredict export JSON with up to 8 symbols, at most 4 KB. Your list was not changed.",
+      "overview.imported": "Imported {count} stocks and replaced the list.", "overview.exported": "Exported symbols only; no quotes or forecast history.",
+      "overview.importEmpty": "an empty list", "overview.retry": "Retry this stock", "overview.queued": "Queued · stock {position}/{total}",
+      "overview.reloadQuote": "Reload this stock quote",
+      "overview.fetching": "Loading quote · {seconds}s elapsed / 30s limit", "overview.validating": "Checking {symbol} · {seconds}s elapsed / 30s limit",
+      "overview.admission": "Check forecast prerequisites", "overview.admissionLoading": "Checking prerequisites…", "overview.admissionFailed": "Prerequisite check unavailable. Please retry later.",
+      "overview.admissionReview": "Quote and five-session dry run meet prerequisites. Formal collection is not enabled.",
+      "overview.admissionBlocked": "Prerequisites are not met. This remains quote tracking only.",
+      "overview.admissionNote": "Review, archive validation and activation are still required before collecting future pre-open forecasts. This check saves no predictions.",
+      "overview.admissionAsOf": "Checked {time} · data date {date}", "overview.check_valid_history": "Valid history", "overview.check_exchange_sessions": "Exchange sessions",
+      "overview.check_latest_session": "Latest required close", "overview.check_previous_close": "Exact previous session", "overview.check_five_session_path": "Five-session dry run",
+      "overview.pass": "Met", "overview.fail": "Not met", "overview.addLabel": "Add a listed symbol", "overview.addPlaceholder": "e.g. 2317 or 0050",
       "overview.add": "Add stock", "overview.adding": "Checking daily quote…", "overview.restore": "Restore defaults",
       "overview.watchHelp": "Taiwan listed stocks / ETFs, up to 8. Saved in this browser only; adding a stock does not enroll it in pre-open collection.",
       "overview.remove": "Remove {symbol}", "overview.invalid": "Enter a 4–6 digit listed symbol, such as 2317 or 0050. OTC and US stocks are not supported.",
@@ -113,6 +144,8 @@
   catch { symbols = [...defaults]; }
   let quotes = {}, quoteGeneration = 0, quoteController, adding = false, revision = 0;
   let messageKey = "", messageValues = {}, storageAvailable = true;
+  let quoteQueue = [], quoteRunning = null, progressTimer, addingStarted = null, addingSymbol = "";
+  let importSymbols = null, importGeneration = 0, admissions = {};
   const names = { "2303.TW": "security.umc", "2330.TW": "security.tsmc", "2308.TW": "security.delta" };
   let state = {}, market = null, loading = true, loaded = null, generation = 0, controller, watchdog;
   const t = (key, values) => i18n.t(`overview.${key}`, values);
@@ -131,6 +164,7 @@
     document.getElementById("watchlist-add").disabled = adding;
     document.getElementById("watchlist-add").textContent = t(adding ? "adding" : "add");
     document.getElementById("watchlist-message").textContent = messageKey ? t(messageKey, messageValues) : "";
+    updateProgress();
     if (!symbols.length) grid.append(node("p", "watchlist-empty", t("watchEmpty")));
     for (const symbol of symbols) {
       const enrolled = defaults.includes(symbol);
@@ -151,6 +185,12 @@
       } : null;
       if ((enrolled && loading) || !view) {
         card.append(node("p", "overview-empty", (enrolled && loading) ? t("loading") : !enrolled ? t(entry?.loading ? "quoteLoading" : "quoteFailed") : t(entry?.empty ? "empty" : !market && entry?.detail ? "calendarMissing" : "unavailable")));
+        if (!enrolled) {
+          const progress = card.lastElementChild; progress.classList.add("quote-progress"); progress.setAttribute("data-quote-symbol", symbol);
+          progress.textContent = quoteProgress(symbol);
+          const retry = node("button", "button button-secondary overview-detail", t("retry")); retry.type = "button"; retry.disabled = !!entry?.loading;
+          retry.addEventListener("click", () => retryQuote(symbol));card.append(retry);
+        }
         grid.append(card); continue;
       }
       const badge = node("span", `overview-badge ${view.fresh ? "" : "overview-warning"}`, t(view.fresh ? "current" : "stale")); head.append(badge);
@@ -163,6 +203,7 @@
         const note = node("div", "overview-estimate");
         note.append(node("span", "overview-badge", t("quoteOnly")), node("h4", "", t("noCollection")), node("p", "overview-date", t("noCollectionNote")));
         card.append(note, node("p", "overview-date", t("source", { source: quote.source })));
+        const reload = node("button", "button button-secondary overview-detail", t("reloadQuote")); reload.type = "button";reload.addEventListener("click",()=>retryQuote(symbol));card.append(reload);
         const analyze = node("button", "button button-secondary overview-detail", t("analyze")); analyze.type = "button";
         analyze.addEventListener("click", () => {
           document.getElementById("symbol").value = symbol;
@@ -170,7 +211,17 @@
           document.getElementById("source").dispatchEvent(new Event("change", { bubbles: true }));
           document.getElementById("analysis").scrollIntoView({ behavior: "smooth", block: "start" });
           document.getElementById("symbol").focus({ preventScroll: true });
-        }); card.append(analyze); grid.append(card); continue;
+        }); card.append(analyze);
+        const check = node("button", "button button-secondary overview-detail", t(admissions[symbol]?.loading ? "admissionLoading" : "admission")); check.type = "button";check.disabled = !!admissions[symbol]?.loading;
+        check.addEventListener("click", () => checkAdmission(symbol));card.append(check);
+        if (admissions[symbol]?.error) card.append(node("p", "overview-pending", t("admissionFailed")));
+        const report = admissions[symbol]?.report;
+        if (report) {
+          const box = node("div", "admission-report");box.append(node("p", "", t(report.status === "review_required" ? "admissionReview" : "admissionBlocked")));
+          for (const key of ["valid_history","exchange_sessions","latest_session","previous_close","five_session_path"]) box.append(node("p", "overview-date", `${t(`check_${key}`)}：${t(report.checks[key] ? "pass" : "fail")}`));
+          box.append(node("p", "overview-date", t("admissionAsOf", {time:report.checked_at,date:report.session_date || "—"})),node("p", "overview-date", t("admissionNote")));card.append(box);
+        }
+        grid.append(card); continue;
       }
       const estimate = node("div", "overview-estimate");
       estimate.append(node("p", "overview-label", t("target", { date: view.target })), node("strong", "overview-estimate-price", number(view.forecast)));
@@ -185,6 +236,30 @@
       button.addEventListener("click", () => window.StockPredictAudit.showPrediction(entry.detail.id));card.append(button);grid.append(card);
     }
   }
+  function clearImport() {
+    importGeneration++;importSymbols=null;
+    document.getElementById("watchlist-import-review").hidden=true;
+    document.getElementById("watchlist-import").value="";
+  }
+  document.getElementById("watchlist-export").addEventListener("click",()=>{
+    const blob=new Blob([JSON.stringify({format:"stockpredict.watchlist",version:1,symbols},null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download="stockpredict-watchlist.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),0);
+    messageKey="exported";render();
+  });
+  document.getElementById("watchlist-import").addEventListener("change",async event=>{
+    const file=event.target.files?.[0];if(!file)return;const current=++importGeneration;
+    importSymbols=null;document.getElementById("watchlist-import-review").hidden=true;
+    try {
+      if(file.size>4096)throw new Error("large file");const list=parseWatchlistImport(await file.text());if(current!==importGeneration)return;
+      importSymbols=list;document.getElementById("watchlist-import-preview").textContent=t("importPreview",{symbols:list.join(", ")||t("importEmpty")});
+      document.getElementById("watchlist-import-review").hidden=false;messageKey="";render();
+    } catch {if(current===importGeneration){messageKey="importInvalid";render()}}
+  });
+  document.getElementById("watchlist-import-cancel").addEventListener("click",clearImport);
+  document.getElementById("watchlist-import-apply").addEventListener("click",()=>{
+    if(!importSymbols)return;revision++;symbols=[...importSymbols];saveList();if(storageAvailable){messageKey="imported";messageValues={count:symbols.length};}clearImport();
+    if(window.StockPredictScoreboard?.refresh)window.StockPredictScoreboard.refresh();else loadQuotes(true);render();
+  });
   function reset() {
     generation++; controller?.abort(); clearTimeout(watchdog);
     state = {}; market = null; loaded = null; loading = true; render();
@@ -206,24 +281,57 @@
     if (quote.status !== "ready" || quote.symbol !== symbol || !validPrice(quote.close) || typeof quote.session_date !== "string" || typeof quote.fresh !== "boolean") throw new Error("invalid quote");
     return quote;
   }
-  async function loadQuotes(refresh = false) {
-    const current = ++quoteGeneration; quoteController?.abort();
-    const selected = symbols.filter(x => !defaults.includes(x));
-    quotes = Object.fromEntries(selected.map(symbol => [symbol, !refresh && quotes[symbol]?.quote ? quotes[symbol] : { loading: true }])); render();
-    // Serialize cold requests to respect the existing source pacing/lock.
-    for (const symbol of selected) {
-      if (quotes[symbol]?.quote) continue;
-      const request = new AbortController(); quoteController = request;
-      const timer = setTimeout(() => request.abort(), 30000);
-      try {
-        const quote = await fetchQuote(symbol, request.signal);
-        if (current !== quoteGeneration) return;
-        quotes[symbol] = { quote };
-      } catch { if (current === quoteGeneration) quotes[symbol] = {}; }
-      finally { clearTimeout(timer); }
-      if (current !== quoteGeneration) return;
-      render();
-    }
+  function quoteProgress(symbol) {
+    const entry = quotes[symbol];
+    if (!entry?.loading) return t("quoteFailed");
+    if (entry.started != null) return t("fetching", {seconds:Math.max(0,Math.floor((Date.now()-entry.started)/1000))});
+    return t("queued", {position:Math.max(1,quoteQueue.indexOf(symbol)+1),total:Math.max(1,quoteQueue.length)});
+  }
+  function updateProgress() {
+    document.querySelectorAll?.(".quote-progress").forEach(e=>{e.textContent=quoteProgress(e.getAttribute("data-quote-symbol"))});
+    if (adding && addingStarted != null) document.getElementById("watchlist-message").textContent = t("validating", {symbol:addingSymbol,seconds:Math.max(0,Math.floor((Date.now()-addingStarted)/1000))});
+    const active=adding || Object.values(quotes).some(q=>q.loading);
+    if (active && !progressTimer) progressTimer=setInterval(updateProgress,1000);
+    if (!active && progressTimer) {clearInterval(progressTimer);progressTimer=null;}
+  }
+  async function drainQuotes(current) {
+    if (quoteRunning === current) return;
+    quoteRunning=current;
+    try {
+      while (quoteQueue.length && current === quoteGeneration) {
+        const symbol=quoteQueue.shift();if(!symbols.includes(symbol))continue;
+        const request=new AbortController();quoteController=request;quotes[symbol]={loading:true,started:Date.now()};render();
+        const timer=setTimeout(()=>request.abort(),30000);
+        try {
+          const quote=await fetchQuote(symbol,request.signal);
+          if(current===quoteGeneration && symbols.includes(symbol))quotes[symbol]={quote};
+        } catch {if(current===quoteGeneration && symbols.includes(symbol))quotes[symbol]={};}
+        finally {clearTimeout(timer)}
+        if(current===quoteGeneration)render();
+      }
+    } finally {if(current===quoteGeneration){quoteRunning=null;render()}}
+  }
+  function loadQuotes(refresh = false) {
+    const current=++quoteGeneration;quoteController?.abort();quoteRunning=null;
+    const selected=symbols.filter(x=>!defaults.includes(x));
+    if(refresh)admissions={};
+    quotes=Object.fromEntries(selected.map(symbol=>[symbol,!refresh&&quotes[symbol]?.quote?quotes[symbol]:{loading:true}]));
+    quoteQueue=selected.filter(symbol=>!quotes[symbol]?.quote);render();drainQuotes(current);
+  }
+  function retryQuote(symbol) {
+    if(!symbols.includes(symbol)||quotes[symbol]?.loading)return;
+    quotes[symbol]={loading:true};quoteQueue.push(symbol);render();drainQuotes(quoteGeneration);
+  }
+  async function checkAdmission(symbol) {
+    const current=quoteGeneration,request=new AbortController(),timer=setTimeout(()=>request.abort(),30000);
+    admissions[symbol]={loading:true};render();
+    try {
+      const response=await fetch(`/api/collection/readiness?symbol=${encodeURIComponent(symbol)}`,{cache:"no-store",signal:request.signal});
+      if(!response.ok)throw new Error("unavailable");const report=await response.json();
+      if(report.symbol!==symbol||report.read_only!==true||!["review_required","blocked"].includes(report.status)||!report.checks)throw new Error("invalid check");
+      if(current===quoteGeneration&&symbols.includes(symbol))admissions[symbol]={report};
+    } catch {if(current===quoteGeneration&&symbols.includes(symbol))admissions[symbol]={error:true};}
+    finally {clearTimeout(timer);if(current===quoteGeneration)render()}
   }
   document.getElementById("watchlist-form").addEventListener("submit", async event => {
     event.preventDefault(); if (adding) return;
@@ -232,7 +340,7 @@
     if (messageKey) { render(); return; }
     const current = revision;
     const request = new AbortController(); const timer = setTimeout(() => request.abort(), 30000);
-    adding = true; render();
+    adding = true; addingStarted=Date.now();addingSymbol=symbol; render();
     try {
       const quote = defaults.includes(symbol) ? null : await fetchQuote(symbol, request.signal);
       if (current !== revision) return;
@@ -241,7 +349,7 @@
       document.getElementById("watchlist-symbol").value = "";
       if (defaults.includes(symbol)) window.StockPredictScoreboard?.refresh();
     } catch { if (current === revision) messageKey = "addFailed"; }
-    finally { clearTimeout(timer); adding = false; render(); }
+    finally { clearTimeout(timer); adding = false; addingStarted=null; render(); }
   });
   document.getElementById("watchlist-restore").addEventListener("click", () => {
     revision++; symbols = [...defaults]; saveList(); loadQuotes(); render();
@@ -282,5 +390,5 @@
     if (window.StockPredictScoreboard?.refresh) window.StockPredictScoreboard.refresh();
     else window.location.reload();
   });
-  i18n.subscribe(render);reset();
+  i18n.subscribe(()=>{render();if(importSymbols)document.getElementById("watchlist-import-preview").textContent=t("importPreview",{symbols:importSymbols.join(", ")||t("importEmpty")});});reset();
 })();

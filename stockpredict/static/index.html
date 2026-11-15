@@ -12,6 +12,7 @@
   <script src="/static/app.js" defer></script>
   <script src="/static/community.js" defer></script>
   <script src="/static/overview.js" defer></script>
+  <script src="/static/reliability.js" defer></script>
   <script src="/static/scoreboard.js" defer></script>
   <script src="/static/historical.js" defer></script>
   <script src="/static/report_archive.js" defer></script>
@@ -43,15 +44,20 @@
   <main class="page">
     <section id="stock-overview" class="stock-overview" aria-labelledby="overview-title" aria-busy="true">
       <div class="overview-heading"><div><p class="eyebrow" data-i18n="overview.kicker">YOUR MARKET AT A GLANCE</p><h2 id="overview-title" data-i18n="overview.title">追蹤個股，一眼掌握。</h2><p data-i18n="overview.copy">每日收盤與純台股封存預測。非即時報價，非投資建議。</p></div><button id="overview-refresh" class="button button-secondary" type="button" data-i18n="overview.refresh" disabled>更新總覽</button></div>
+      <section id="reliability-status" class="reliability-strip" aria-live="polite" aria-label="資料更新狀態"></section>
       <p id="overview-status" class="overview-read-time" role="status" aria-live="polite">讀取封存資料中…</p>
       <form id="watchlist-form" class="watchlist-form" novalidate>
         <label for="watchlist-symbol" data-i18n="overview.addLabel">新增追蹤代碼</label>
         <input id="watchlist-symbol" maxlength="20" autocomplete="off" spellcheck="false" placeholder="例如 2317 或 0050" data-i18n-placeholder="overview.addPlaceholder" aria-describedby="watchlist-help watchlist-message">
         <button id="watchlist-add" class="button button-primary" type="submit" data-i18n="overview.add">加入追蹤</button>
         <button id="watchlist-restore" class="button button-secondary" type="button" data-i18n="overview.restore">恢復預設</button>
+        <button id="watchlist-export" class="button button-secondary" type="button" data-i18n="overview.export">匯出清單</button>
+        <label class="button button-secondary watchlist-import-label" for="watchlist-import" data-i18n="overview.import">匯入清單</label>
+        <input id="watchlist-import" type="file" accept="application/json,.json" class="sr-only">
       </form>
       <p id="watchlist-help" class="overview-date" data-i18n="overview.watchHelp">支援台灣上市股票／ETF，最多 8 檔。清單只保存在此瀏覽器；新增追蹤不會加入正式盤前收集。</p>
       <p id="watchlist-message" class="watchlist-message" role="status" aria-live="polite"></p>
+      <div id="watchlist-import-review" class="watchlist-import-review" hidden><p id="watchlist-import-preview"></p><button id="watchlist-import-apply" class="button button-primary" type="button" data-i18n="overview.importApply">套用並取代清單</button> <button id="watchlist-import-cancel" class="button button-secondary" type="button" data-i18n="overview.importCancel">取消</button></div>
       <div id="overview-cards" class="overview-grid"></div>
       <div class="overview-footer"><p data-i18n="overview.note">估計取自最近一次純台股封存；較早起日的路徑不等於新的當日預測。</p><a href="#scoreboard" data-i18n="overview.compare">查看完整成績與 ADR 比較 →</a></div>
     </section>
