@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "status": "ready",
+  "brief_date": "2026-11-15",
+  "generated_at": "2026-11-15T07:58:20.206635+00:00",
+  "articles": [
+    {
+      "id": "nvidia-transition",
+      "category": "ai",
+      "published_date": "2026-11-12",
+      "published_at": null,
+      "title": {
+        "zh-TW": "輝達啟動執行長交接，市場等待財報釐清展望",
+        "en": "NVIDIA starts a CEO transition as investors await its outlook"
+      },
+      "summary": {
+        "zh-TW": "輝達公告由財務長 Colette Kress 暫代執行長，並尋找正式接任人。公司表示產品與客戶承諾持續執行，既定 11/17 美西時間財報尚未公布。",
+        "en": "NVIDIA named CFO Colette Kress interim CEO and began a permanent successor search. The company said operations and customer commitments would continue. Its scheduled November 17 Pacific-time earnings release is still ahead."
+      },
+      "impact": {
+        "zh-TW": "領導交接可能改變市場風險評價；應觀察財報與產品交付指引，而非直接推定台灣供應鏈訂單取消。",
+        "en": "Leadership uncertainty may affect risk pricing. Watch earnings and delivery guidance rather than assuming Taiwanese supplier orders have been cancelled."
+      },
+      "sources": [
+        {
+          "publisher": "NVIDIA Newsroom",
+          "url": "https://nvidianews.nvidia.com/news/nvidia-announces-ceo-transition"
+        }
+      ]
+    },
+    {
+      "id": "dram-supply",
+      "category": "ai",
+      "published_date": "2026-11-15",
+      "published_at": "2026-11-15T13:19:00+08:00",
+      "title": {
+        "zh-TW": "AI 排擠效應延續，業者憂明年上半年 DRAM 供給",
+        "en": "Industry participants warn of tighter DRAM supply in early 2027"
+      },
+      "summary": {
+        "zh-TW": "中央通訊社報導，記憶體業者認為 AI 應用吸收產能，2027 上半年 DRAM 供應可能更緊；模組廠同時面臨原料上漲與部分消費需求轉弱。這是業者展望，並非已發生的供需結果。",
+        "en": "CNA reports industry expectations that AI capacity demand could tighten DRAM supply in the first half of 2027. Module makers also face rising input costs and softer consumer demand. These are forecasts, not observed future outcomes."
+      },
+      "impact": {
+        "zh-TW": "原廠與模組廠受影響方向未必相同；應分開看報價、庫存成本與終端需求。",
+        "en": "Chipmakers and module vendors may face different effects. Monitor pricing, inventory costs and end demand separately."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/afe/202611150073.aspx"
+        }
+      ]
+    },
+    {
+      "id": "packaging-capacity",
+      "category": "ai",
+      "published_date": "2026-11-13",
+      "published_at": "2026-11-13T22:39:00+08:00",
+      "title": {
+        "zh-TW": "台積電與精材簽長約，先進封裝後段產能規劃受關注",
+        "en": "TSMC and Xintec plan long-term advanced-packaging capacity"
+      },
+      "summary": {
+        "zh-TW": "據中央通訊社，精材宣布與台積電合作先進封裝後段製程，合約延續至 2033 年底，首期產線規劃 2029 年量產。這是未來建置計畫，不是當期已實現營收。",
+        "en": "CNA reports that Xintec agreed to cooperate with TSMC on back-end advanced-packaging production through the end of 2033, with first-phase production planned for 2029. This is a capacity plan, not revenue already realized."
+      },
+      "impact": {
+        "zh-TW": "可追蹤產線建置、資本支出與良率；不能把長期合約金額或產能直接當成短期獲利。",
+        "en": "Track construction, capital spending and yields. Long-term capacity plans do not establish near-term profit gains."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/afe/202611130329.aspx"
+        }
+      ]
+    },
+    {
+      "id": "anthropic-financing",
+      "category": "ai",
+      "published_date": "2026-11-13",
+      "published_at": null,
+      "title": {
+        "zh-TW": "Anthropic IPO 傳出認購熱度，資金與算力承諾仍待檢驗",
+        "en": "Reported Anthropic IPO demand puts financing expectations in focus"
+      },
+      "summary": {
+        "zh-TW": "路透透過 MarketScreener 刊載的報導引述彭博，稱 Anthropic IPO 訂單約為供給六倍，並提醒細節仍可改變、公司當時未回應。認購消息不等於上市或募資已完成。",
+        "en": "A Reuters report carried by MarketScreener cites Bloomberg saying Anthropic IPO orders were about six times available shares. Details could change and the company had not commented. Reported demand is not a completed listing or financing."
+      },
+      "impact": {
+        "zh-TW": "AI 融資熱度可影響機房投資預期；仍需確認正式文件、資金到位及支出執行。",
+        "en": "AI funding sentiment can affect infrastructure expectations. Verify formal filings, financing completion and spending execution."
+      },
+      "sources": [
+        {
+          "publisher": "Reuters via MarketScreener",
+          "url": "https://in.marketscreener.com/news/anthropic-s-ipo-is-about-six-times-oversubscribed-bloomberg-news-reports-ce785ed9d98af323"
+        }
+      ]
+    },
+    {
+      "id": "apec-policy",
+      "category": "economy",
+      "published_date": "2026-11-15",
+      "published_at": "2026-11-15T08:56:00+08:00",
+      "title": {
+        "zh-TW": "APEC 領袖會議將登場，經貿政策訊號成觀察重點",
+        "en": "APEC meetings approach with trade-policy signals still ahead"
+      },
+      "summary": {
+        "zh-TW": "中央通訊社整理，APEC 領導人非正式會議預定 11/18–19 在深圳舉行。會議與場邊會晤仍未發生，相關政策或協議結果不能預先當作定案。",
+        "en": "CNA reports that APEC leaders are scheduled to meet in Shenzhen on November 18–19. The meetings and sidelines discussions are still ahead; potential policy agreements must not be treated as settled outcomes."
+      },
+      "impact": {
+        "zh-TW": "出口供應鏈可觀察關稅、技術管制與貿易合作訊號；此處只是風險觀察，不預測會議結果。",
+        "en": "Export supply chains can watch tariff, technology-control and trade-cooperation signals. This is risk monitoring, not a forecast of meeting outcomes."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/acn/202611150017.aspx"
+        }
+      ]
+    }
+  ],
+  "watchlist": [
+    {
+      "symbol": "2330.TW",
+      "name": {
+        "zh-TW": "台積電",
+        "en": "TSMC"
+      },
+      "sector": {
+        "zh-TW": "晶圓代工",
+        "en": "Foundry"
+      },
+      "article_ids": [
+        "packaging-capacity",
+        "nvidia-transition",
+        "apec-policy"
+      ],
+      "relationship": "direct",
+      "reason": {
+        "zh-TW": "先進封裝合作有直接新聞依據；同步觀察 AI 客戶展望與經貿政策對供應鏈的影響。",
+        "en": "The packaging cooperation is directly reported. Also watch AI customer guidance and trade-policy exposure."
+      },
+      "risk": {
+        "zh-TW": "2029 年規劃不等於近期獲利；需留意建置、良率與政策不確定性。",
+        "en": "A 2029 capacity plan does not establish near-term earnings. Watch execution, yields and policy uncertainty."
+      }
+    },
+    {
+      "symbol": "2382.TW",
+      "name": {
+        "zh-TW": "廣達",
+        "en": "Quanta Computer"
+      },
+      "sector": {
+        "zh-TW": "AI 伺服器",
+        "en": "AI servers"
+      },
+      "article_ids": [
+        "nvidia-transition",
+        "anthropic-financing"
+      ],
+      "relationship": "industry_inference",
+      "reason": {
+        "zh-TW": "作為伺服器供應鏈觀察對象，追蹤 AI 平台交付與機房投資能否落實；不是報導聲稱新增廣達訂單。",
+        "en": "Use Quanta to monitor server delivery and infrastructure spending execution. The cited stories do not announce new Quanta orders."
+      },
+      "risk": {
+        "zh-TW": "客戶投資可能延後，股價亦可能已反映成長預期。",
+        "en": "Customer spending can be delayed and growth expectations may already be priced in."
+      }
+    },
+    {
+      "symbol": "2308.TW",
+      "name": {
+        "zh-TW": "台達電",
+        "en": "Delta Electronics"
+      },
+      "sector": {
+        "zh-TW": "電源與散熱",
+        "en": "Power and cooling"
+      },
+      "article_ids": [
+        "nvidia-transition",
+        "anthropic-financing"
+      ],
+      "relationship": "industry_inference",
+      "reason": {
+        "zh-TW": "AI 機房的供電與散熱屬關聯觀察主題；關注建置需求，而非把融資傳聞直接換算成公司營收。",
+        "en": "AI data-center power and cooling are related themes. Monitor deployment demand without translating funding reports into Delta revenue."
+      },
+      "risk": {
+        "zh-TW": "專案時程、競爭與客戶資本支出變化均可能影響表現。",
+        "en": "Project timing, competition and customer capital spending can affect results."
+      }
+    },
+    {
+      "symbol": "2408.TW",
+      "name": {
+        "zh-TW": "南亞科",
+        "en": "Nanya Technology"
+      },
+      "sector": {
+        "zh-TW": "DRAM 記憶體",
+        "en": "DRAM"
+      },
+      "article_ids": [
+        "dram-supply"
+      ],
+      "relationship": "direct",
+      "reason": {
+        "zh-TW": "新聞直接提及南亞科；可觀察 DRAM 報價、原廠供給與終端需求是否支持產業展望。",
+        "en": "The DRAM report names Nanya. Track pricing, producer supply and end demand against industry expectations."
+      },
+      "risk": {
+        "zh-TW": "供需循環可能反轉，缺貨預期也可能已反映於估值。",
+        "en": "Supply-demand cycles can reverse and shortage expectations may already be reflected in valuation."
+      }
+    },
+    {
+      "symbol": "3711.TW",
+      "name": {
+        "zh-TW": "日月光投控",
+        "en": "ASE Technology Holding"
+      },
+      "sector": {
+        "zh-TW": "先進封裝與測試",
+        "en": "Advanced packaging and test"
+      },
+      "article_ids": [
+        "packaging-capacity"
+      ],
+      "relationship": "industry_inference",
+      "reason": {
+        "zh-TW": "先進封裝擴產讓封測產業供需與競合值得追蹤；日月光並非該則合作公告的受託方。",
+        "en": "Packaging expansion makes industry capacity and competition worth watching. ASE is not the contractor announced in that cooperation."
+      },
+      "risk": {
+        "zh-TW": "產能增加不保證個別廠商受益，仍需檢查客戶組合與利用率。",
+        "en": "More industry capacity does not guarantee gains for each supplier. Monitor customer mix and utilization."
+      }
+    }
+  ]
+}

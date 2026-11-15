@@ -13,6 +13,7 @@
   <script src="/static/community.js" defer></script>
   <script src="/static/overview.js" defer></script>
   <script src="/static/reliability.js" defer></script>
+  <script src="/static/daily_news.js" defer></script>
   <script src="/static/scoreboard.js" defer></script>
   <script src="/static/historical.js" defer></script>
   <script src="/static/report_archive.js" defer></script>
@@ -26,6 +27,7 @@
       </a>
       <nav data-i18n-aria-label="nav.label" aria-label="主導覽">
         <a href="#stock-overview" class="nav-current" data-i18n="overview.nav">個股總覽</a>
+        <a href="#daily-news" data-i18n="news.nav">每日消息</a>
         <a href="#analysis" data-i18n="nav.analysis">分析工作台</a>
         <a href="#method" data-i18n="nav.method">模型說明</a>
         <a href="#scoreboard" data-i18n="score.title">預測成績看板</a>
@@ -60,6 +62,15 @@
       <div id="watchlist-import-review" class="watchlist-import-review" hidden><p id="watchlist-import-preview"></p><button id="watchlist-import-apply" class="button button-primary" type="button" data-i18n="overview.importApply">套用並取代清單</button> <button id="watchlist-import-cancel" class="button button-secondary" type="button" data-i18n="overview.importCancel">取消</button></div>
       <div id="overview-cards" class="overview-grid"></div>
       <div class="overview-footer"><p data-i18n="overview.note">原三檔顯示封存估計；其它股票顯示本次研究預測，未盤前封存且不列入成績。</p><a href="#scoreboard" data-i18n="overview.compare">查看完整成績與 ADR 比較 →</a></div>
+    </section>
+    <section id="daily-news" class="daily-news" aria-labelledby="news-title" aria-busy="true">
+      <div class="overview-heading"><div><p class="eyebrow" data-i18n="news.kicker">DAILY NEWS WATCH</p><h2 id="news-title" data-i18n="news.title">五則焦點，五檔觀察。</h2><p data-i18n="news.copy">AI 與經濟公開報導整理。觀察名單依新聞關聯選取，非買賣訊號，也不加入股價模型或正式成績。</p></div><button id="news-refresh" class="button button-secondary" type="button" data-i18n="news.refresh">更新消息</button></div>
+      <p class="overview-date" data-i18n="news.schedule">每日早上約 08:00（台北）開始整理，完成後更新；非即時新聞串流。</p>
+      <p id="news-status" class="overview-read-time" role="status" aria-live="polite">讀取每日整理中…</p>
+      <div id="news-articles" class="news-grid"></div>
+      <h3 class="news-watch-title" data-i18n="news.watch">五檔新聞觀察名單</h3>
+      <p class="overview-date" data-i18n="news.note">這是新聞關聯清單，不是分散投資組合。列入名單不代表必然受益、股價將上漲，亦不會自動啟用正式盤前收集。</p>
+      <div id="news-stocks" class="news-stock-grid"></div>
     </section>
     <section id="analysis" class="page-intro" aria-labelledby="page-title">
       <div>
