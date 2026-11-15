@@ -410,6 +410,11 @@
     } catch { if (current === revision) messageKey = "addFailed"; }
     finally { clearTimeout(timer); adding = false; addingStarted=null; render(); }
   });
+  window.addEventListener("stockpredict-watch-symbol",event=>{
+    const symbol=normalizeWatchSymbol(event.detail?.symbol);if(!symbol)return;
+    document.getElementById("watchlist-symbol").value=symbol;
+    document.getElementById("watchlist-form").requestSubmit();
+  });
   document.getElementById("watchlist-restore").addEventListener("click", () => {
     revision++; symbols = [...defaults]; saveList(); loadQuotes(); render();
     window.StockPredictScoreboard?.refresh();

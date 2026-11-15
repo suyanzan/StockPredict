@@ -17,6 +17,7 @@ from stockpredict.backtest_runs import router as backtest_runs_router
 from stockpredict.calendar import data_status, date_path
 from stockpredict.community import router as community_router
 from stockpredict.corporate_actions import router as corporate_actions_router
+from stockpredict.daily_news import router as daily_news_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
 from stockpredict.historical import router as historical_router
@@ -46,6 +47,7 @@ app.include_router(corporate_actions_router)
 app.include_router(quotes_router)
 app.include_router(reliability_router)
 app.include_router(onboarding_router)
+app.include_router(daily_news_router)
 
 
 @app.get("/api/reference-quotes/latest")
@@ -81,6 +83,7 @@ async def community_cache_policy(request: Request, call_next):
                 "/api/quotes",
                 "/api/reliability",
                 "/api/collection/readiness",
+                "/api/news",
             )
         )
         or request.url.path == "/admin"
