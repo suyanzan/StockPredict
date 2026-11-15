@@ -120,11 +120,21 @@
     }
   }
   async function load() {
+    window.dispatchEvent(new Event("stockpredict-scoreboard-loading"));
     $("score-refresh").disabled = true;
     $("score-status").textContent = t("loading");
-    const results = await Promise.allSettled([fetch("/api/scoreboard", { cache: "no-store" }).then(r => r.json()), fetch("/api/calendar", { cache: "no-store" }).then(r => r.json())]);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    const read = async path => {
+      const response = await fetch(path, { cache: "no-store", signal: controller.signal });
+      if (!response.ok) throw new Error("Unavailable");
+      return response.json();
+    };
+    const results = await Promise.allSettled([read("/api/scoreboard"), read("/api/calendar")]);
+    clearTimeout(timeout);
     scores = results[0].status === "fulfilled" ? results[0].value : null;
     calendar = results[1].status === "fulfilled" ? results[1].value : null;
+    window.dispatchEvent(new CustomEvent("stockpredict-scoreboard", { detail: { scores, calendar } }));
     render(); $("score-refresh").disabled = false;
   }
   $("score-refresh").addEventListener("click", load);
