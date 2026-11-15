@@ -138,6 +138,7 @@
     render(); $("score-refresh").disabled = false;
   }
   $("score-refresh").addEventListener("click", load);
+  window.StockPredictScoreboard = { refresh: load };
   window.addEventListener("stockpredict-data-status", event => { status = event.detail; render(); });
   i18n.subscribe(render);
   load();

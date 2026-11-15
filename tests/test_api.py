@@ -110,6 +110,23 @@ def test_homepage_and_static_assets_are_served(client):
         assert len(asset.content) > 100
 
 
+def test_homepage_versions_assets_and_requires_cache_revalidation(client):
+    import re
+
+    from stockpredict.provenance import release_identity
+
+    response = client.get("/")
+    assert response.headers["cache-control"] == "no-cache"
+    assets = re.findall(r'(?:src|href)="(/static/[^\"]+)"', response.text)
+    assert len(assets) >= 10
+    version = release_identity()["source_hash"]
+    for path in assets:
+        assert path.endswith(f"?v={version}")
+        asset = client.get(path)
+        assert asset.status_code == 200
+        assert asset.headers["cache-control"] == "no-cache"
+
+
 @pytest.mark.parametrize("symbol", ["台達電", "台达电", "Delta Electronics", "2308", "2308.TW"])
 @pytest.mark.parametrize("source", ["twse", "yahoo"])
 def test_delta_identity_reaches_provider_without_substitution(client, monkeypatch, symbol, source):

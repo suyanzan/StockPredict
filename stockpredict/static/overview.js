@@ -68,7 +68,7 @@
   });
   const symbols = ["2303.TW", "2330.TW", "2308.TW"];
   const names = { "2303.TW": "security.umc", "2330.TW": "security.tsmc", "2308.TW": "security.delta" };
-  let state = {}, market = null, loading = true, loaded = null, generation = 0, controller;
+  let state = {}, market = null, loading = true, loaded = null, generation = 0, controller, watchdog;
   const t = (key, values) => i18n.t(`overview.${key}`, values);
   const node = (tag, className, text) => {
     const e = document.createElement(tag); e.className = className || "";
@@ -112,18 +112,24 @@
     }
   }
   function reset() {
-    generation++; controller?.abort(); state = {}; market = null; loaded = null; loading = true; render();
+    generation++; controller?.abort(); clearTimeout(watchdog);
+    state = {}; market = null; loaded = null; loading = true; render();
+    // Covers a missing producer script/event as well as a stalled request chain.
+    watchdog = setTimeout(() => {
+      generation++; controller?.abort(); state = {}; market = null;
+      loaded = null; loading = false; render();
+    }, 40000);
   }
   window.addEventListener("stockpredict-scoreboard-loading", reset);
   window.addEventListener("stockpredict-scoreboard", async event => {
-    reset(); const current = generation;
-    market = event.detail.calendar?.markets?.find(x => x.exchange === "XTAI") || null;
-    const scores = event.detail.scores;
-    if (scores?.status !== "ready") { loading = false; render(); return; }
-    const requestController = new AbortController(); controller = requestController;
-    const timer = setTimeout(() => requestController.abort(), 15000);
-    const signal = requestController.signal;
+    reset(); const current = generation; let timer;
     try {
+      market = event.detail.calendar?.markets?.find(x => x.exchange === "XTAI") || null;
+      const scores = event.detail.scores;
+      if (scores?.status !== "ready") return;
+      const requestController = new AbortController(); controller = requestController;
+      timer = setTimeout(() => requestController.abort(), 15000);
+      const signal = requestController.signal;
       const entries = await Promise.all(symbols.map(async symbol => {
         const latest = (scores.predictions || []).filter(x => x.symbol === symbol && x.scenario === "taiwan" && x.horizon === 1 && typeof x.origin_date === "string" && Number.isInteger(x.id))
           .sort((a, b) => b.origin_date.localeCompare(a.origin_date) || b.id - a.id)[0];
@@ -137,9 +143,17 @@
         } catch { return [symbol, {}]; }
       }));
       if (current !== generation) return;
-      state = Object.fromEntries(entries); loaded = new Date(); loading = false; render();
-    } finally { clearTimeout(timer); }
+      state = Object.fromEntries(entries); loaded = new Date();
+    } catch {
+      if (current === generation) { state = {}; market = null; loaded = null; }
+    } finally {
+      clearTimeout(timer);
+      if (current === generation) { clearTimeout(watchdog); loading = false; render(); }
+    }
   });
-  document.getElementById("overview-refresh").addEventListener("click", () => document.getElementById("score-refresh").click());
-  i18n.subscribe(render);render();
+  document.getElementById("overview-refresh").addEventListener("click", () => {
+    if (window.StockPredictScoreboard?.refresh) window.StockPredictScoreboard.refresh();
+    else window.location.reload();
+  });
+  i18n.subscribe(render);reset();
 })();
