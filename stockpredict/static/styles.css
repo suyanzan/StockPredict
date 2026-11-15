@@ -2536,6 +2536,11 @@ dialog#prediction-detail::backdrop { background: #17293d80; }
 .watchlist-import-review p { font-size:13px; overflow-wrap:anywhere; }
 .watchlist-import-review[hidden] { display:none; }
 .admission-report { margin-top:12px; padding:12px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
+.research-badge { background:#e8f0ff; color:#315c99; margin-bottom:10px; }
+.research-estimate-price { display:block; font-size:28px; line-height:1.4; font-weight:750; font-variant-numeric:tabular-nums; }
+.research-disclosure { color:#315c99; font-size:12px; font-weight:650; line-height:1.6; margin:12px 0 6px; }
+.research-path { font-size:12px; margin:10px 0; }
+.research-path summary { cursor:pointer; color:#315c99; }
 @media(max-width:800px) { .reliability-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:1000px) { .overview-grid { gap:12px; } .overview-card { padding:17px; } .overview-card-head { align-items:flex-start; flex-wrap:wrap; } }
 @media(max-width:700px) { .overview-grid { grid-template-columns:1fr; } .overview-heading { flex-wrap:wrap; gap:14px; } .overview-card { padding:22px; } .overview-footer { flex-direction:column; gap:10px; } .overview-footer p { max-width:none; } .overview-empty { min-height:130px; } .header-inner nav { justify-content:flex-start; gap:22px; overflow-x:auto; } .header-inner nav a { flex-shrink:0; white-space:nowrap; } }
