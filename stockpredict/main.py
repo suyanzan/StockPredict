@@ -22,6 +22,7 @@ from stockpredict.forecast import analyze
 from stockpredict.historical import router as historical_router
 from stockpredict.localization import Language, add_localizations, localize_error
 from stockpredict.market_data import overnight_factors
+from stockpredict.onboarding import router as onboarding_router
 from stockpredict.overnight import build_context, pending_context, reference_timing
 from stockpredict.quotes import router as quotes_router
 from stockpredict.reference_profiles import (
@@ -30,6 +31,7 @@ from stockpredict.reference_profiles import (
     profile_payload,
     public_catalog,
 )
+from stockpredict.reliability import router as reliability_router
 from stockpredict.scoreboard import router as scoreboard_router
 from stockpredict.twse import normalize_twse_symbol, twse_data
 
@@ -42,6 +44,8 @@ app.include_router(historical_router)
 app.include_router(backtest_runs_router)
 app.include_router(corporate_actions_router)
 app.include_router(quotes_router)
+app.include_router(reliability_router)
+app.include_router(onboarding_router)
 
 
 @app.get("/api/reference-quotes/latest")
@@ -75,6 +79,8 @@ async def community_cache_policy(request: Request, call_next):
                 "/api/corporate-actions",
                 "/api/reference-quotes",
                 "/api/quotes",
+                "/api/reliability",
+                "/api/collection/readiness",
             )
         )
         or request.url.path == "/admin"

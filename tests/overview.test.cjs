@@ -6,6 +6,22 @@ const context = {window: {}, document: {getElementById: () => null}};
 vm.runInNewContext(fs.readFileSync('stockpredict/static/overview.js', 'utf8'), context);
 const summarize = context.window.StockPredictOverview.summarize;
 const {normalizeWatchSymbol,parseWatchlist} = context.window.StockPredictOverview;
+const {parseWatchlistImport} = context.window.StockPredictOverview;
+test('import schema rejects malformed or oversized lists without silently dropping invalid codes',()=>{
+ const wrap=symbols=>JSON.stringify({format:'stockpredict.watchlist',version:1,symbols});
+ assert.equal(JSON.stringify(parseWatchlistImport(wrap(['0050','2330.tw','0050.TW']))),'["0050.TW","2330.TW"]');
+ assert.equal(JSON.stringify(parseWatchlistImport(wrap([]))),'[]');
+ for(const raw of ['[]','{broken',wrap(['2330','AAPL']),wrap(Array(9).fill('2330')),JSON.stringify({format:'stockpredict.watchlist',version:2,symbols:[]})])assert.throws(()=>parseWatchlistImport(raw));
+});
+test('reliability summary detects late and duplicate captures instead of treating API success as acceptance',()=>{
+ vm.runInNewContext(fs.readFileSync('stockpredict/static/reliability.js','utf8'),context);
+ const capture=context.window.StockPredictReliability.capture;
+ const row={symbol:'2303.TW',scenario:'taiwan',origin_date:'2026-11-13',horizon:1,created_at:'2026-11-13T00:11:00+00:00'};
+ assert.equal(capture([row],row.origin_date).count,1);
+ assert.equal(capture([row,row],row.origin_date).invalid,true);
+ assert.equal(capture([{...row,created_at:'2026-11-13T01:01:00+00:00'}],row.origin_date).invalid,true);
+ assert.equal(capture({},row.origin_date).count,0);
+});
 test('watchlist validates symbols, preserves ETF leading zeros, deduplicates and bounds storage',()=>{
  assert.equal(normalizeWatchSymbol(' 0050.tw '),'0050.TW');
  for(const value of ['AAPL','2330.TWO','<script>',null,2330])assert.equal(normalizeWatchSymbol(value),null);

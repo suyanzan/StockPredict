@@ -2519,5 +2519,23 @@ dialog#prediction-detail::backdrop { background: #17293d80; }
 .watchlist-remove:hover { background:#fff3de; color:#925b0b; }
 .watchlist-empty { grid-column:1/-1; padding:35px 15px; border:1px dashed var(--border); border-radius:12px; text-align:center; color:var(--muted); }
 .overview-estimate h4 { margin:12px 0; font-size:15px; }
+.reliability-strip { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin:20px 0 12px; }
+.reliability-strip h3 { margin:0 0 12px; font-size:14px; }
+.reliability-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; }
+.reliability-cell { min-width:0; }
+.reliability-cell span { display:block; font-size:11px; color:var(--muted); margin-bottom:5px; }
+.reliability-cell strong { display:block; font-size:12px; overflow-wrap:anywhere; }
+.reliability-warning { color:#925b0b; font-size:12px; margin:8px 0; overflow-wrap:anywhere; }
+.reliability-strip details { font-size:12px; margin-top:10px; }
+.reliability-strip summary { cursor:pointer; color:var(--green); font-weight:650; }
+.reliability-strip li { margin:7px 0; }
+.reliability-strip a { color:var(--green); }
+.watchlist-import-label { cursor:pointer; }
+.watchlist-form input[type=file] { width:1px; min-width:0; padding:0; }
+.watchlist-import-review { padding:15px; border:1px solid var(--border); border-radius:10px; margin-bottom:15px; background:var(--surface); }
+.watchlist-import-review p { font-size:13px; overflow-wrap:anywhere; }
+.watchlist-import-review[hidden] { display:none; }
+.admission-report { margin-top:12px; padding:12px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
+@media(max-width:800px) { .reliability-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:1000px) { .overview-grid { gap:12px; } .overview-card { padding:17px; } .overview-card-head { align-items:flex-start; flex-wrap:wrap; } }
 @media(max-width:700px) { .overview-grid { grid-template-columns:1fr; } .overview-heading { flex-wrap:wrap; gap:14px; } .overview-card { padding:22px; } .overview-footer { flex-direction:column; gap:10px; } .overview-footer p { max-width:none; } .overview-empty { min-height:130px; } .header-inner nav { justify-content:flex-start; gap:22px; overflow-x:auto; } .header-inner nav a { flex-shrink:0; white-space:nowrap; } }
