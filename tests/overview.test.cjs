@@ -7,6 +7,19 @@ vm.runInNewContext(fs.readFileSync('stockpredict/static/overview.js', 'utf8'), c
 const summarize = context.window.StockPredictOverview.summarize;
 const {normalizeWatchSymbol,parseWatchlist} = context.window.StockPredictOverview;
 const {parseWatchlistImport} = context.window.StockPredictOverview;
+const {validateResearch} = context.window.StockPredictOverview;
+const researchQuote={source:'twse',symbol:'0050.TW',session_date:'2026-11-13',expected_session_date:'2026-11-13',close:102.5,fresh:true};
+const researchResult={symbol:'0050.TW',source:'twse',as_of:'2026-11-13',summary:{last_close:102.5},model:{name:'Ridge AR(5)'},history:[{date:'2026-11-13',close:102.5}],data_status:{status:'current',session_date:'2026-11-13',expected_session_date:'2026-11-13',checked_at:'2026-11-15T07:30:00+00:00'},forecast:['16','17','18','19','20'].map((day,i)=>({date:`2026-11-${day}`,close:103+i})),backtest:{model_beats_baseline:false}};
+test('research forecast requires the same current symbol, source, basis date and close as its quote',()=>{
+ const result=validateResearch(researchResult,researchQuote);
+ assert.equal(result.points.length,5);assert.equal(result.points[0].close,103);assert.equal(result.beatsBaseline,false);
+ for(const change of [{symbol:'2317.TW'},{source:'demo'},{as_of:'2026-11-12'},{summary:{last_close:100}},{data_status:{...researchResult.data_status,status:'missing'}},{data_status:{...researchResult.data_status,expected_session_date:'2026-11-16'}}])assert.equal(validateResearch({...researchResult,...change},researchQuote),null);
+ assert.equal(validateResearch(researchResult,{...researchQuote,fresh:false}),null);
+ assert.equal(validateResearch({...researchResult,history:[...researchResult.history,{date:'2026-11-16',close:999}]},researchQuote),null);
+});
+test('research path rejects partial, nonfinite, duplicate, past, weekend and invalid dates',()=>{
+ for(const path of [researchResult.forecast.slice(0,4),researchResult.forecast.map((p,i)=>i===0?{...p,close:NaN}:p),researchResult.forecast.map(p=>({...p,date:'2026-11-16'})),researchResult.forecast.map((p,i)=>i===0?{...p,date:'2026-11-13'}:p),researchResult.forecast.map((p,i)=>i===4?{...p,date:'2026-11-21'}:p),researchResult.forecast.map((p,i)=>i===4?{...p,date:'2026-11-31'}:p)])assert.equal(validateResearch({...researchResult,forecast:path},researchQuote),null);
+});
 test('import schema rejects malformed or oversized lists without silently dropping invalid codes',()=>{
  const wrap=symbols=>JSON.stringify({format:'stockpredict.watchlist',version:1,symbols});
  assert.equal(JSON.stringify(parseWatchlistImport(wrap(['0050','2330.tw','0050.TW']))),'["0050.TW","2330.TW"]');

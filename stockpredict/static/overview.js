@@ -49,20 +49,41 @@
     if (!payload || payload.format !== "stockpredict.watchlist" || payload.version !== 1 || !Array.isArray(payload.symbols) || payload.symbols.length > maxStocks || payload.symbols.some(x => !normalizeWatchSymbol(x))) throw new Error("invalid import");
     return [...new Set(payload.symbols.map(normalizeWatchSymbol))];
   }
-  window.StockPredictOverview = { summarize, normalizeWatchSymbol, parseWatchlist, parseWatchlistImport };
+  function validateResearch(result, quote) {
+    if (!quote?.fresh || !validPrice(quote.close) || quote.source !== "twse" || typeof result?.backtest?.model_beats_baseline !== "boolean" || typeof quote.expected_session_date !== "string" || quote.expected_session_date !== quote.session_date || !result || result.symbol !== quote.symbol || result.source !== "twse" || result.as_of !== quote.session_date || result.summary?.last_close !== quote.close || result.data_status?.status !== "current" || result.data_status.session_date !== quote.session_date || result.data_status.expected_session_date !== quote.expected_session_date || result.model?.name !== "Ridge AR(5)" || !Number.isFinite(Date.parse(result.data_status.checked_at))) return null;
+    if (!Array.isArray(result.history) || !result.history.length || result.history.at(-1).date !== quote.session_date || result.history.at(-1).close !== quote.close || result.history.some(p=>typeof p.date!=="string" || p.date>result.as_of)) return null;
+    const points = result.forecast;
+    if (!Array.isArray(points) || points.length !== 5) return null;
+    let previous = result.as_of;
+    for (const point of points) {
+      if (!validPrice(point.close) || typeof point.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(point.date) || point.date <= previous) return null;
+      const time=Date.parse(`${point.date}T00:00:00Z`);
+      if (!Number.isFinite(time) || new Date(time).toISOString().slice(0,10)!==point.date || [0,6].includes(new Date(time).getUTCDay())) return null;
+      previous=point.date;
+    }
+    return {points:points.map(p=>({date:p.date,close:p.close})),asOf:result.as_of,checkedAt:result.data_status.checked_at,beatsBaseline:result.backtest?.model_beats_baseline};
+  }
+  window.StockPredictOverview = { summarize, normalizeWatchSymbol, parseWatchlist, parseWatchlistImport, validateResearch };
   const root = document.getElementById("stock-overview");
   if (!root) return;
   const i18n = window.StockPredictI18n;
   i18n.register({
     "zh-TW": {
       "overview.nav": "個股總覽", "overview.kicker": "YOUR MARKET AT A GLANCE",
-      "overview.title": "追蹤個股，一眼掌握。", "overview.copy": "自選每日行情；已納入收集的股票另顯示封存預測。非即時報價，非投資建議。",
+      "overview.title": "追蹤個股，一眼掌握。", "overview.copy": "每日行情與研究預測；正式追蹤股票另顯示封存估計。非即時報價，非投資建議。",
       "overview.export": "匯出清單", "overview.import": "匯入清單", "overview.importApply": "套用並取代清單", "overview.importCancel": "取消",
       "overview.importPreview": "將以 {symbols} 取代目前清單。只驗證檔案格式，行情將逐檔讀取；不會啟用正式預測。",
       "overview.importInvalid": "匯入失敗。請使用本網站匯出的 JSON，最多 8 檔且檔案不超過 4 KB。原清單未變更。",
       "overview.imported": "已匯入 {count} 檔，清單已取代。", "overview.exported": "已匯出股票代碼清單，不包含行情或預測紀錄。",
       "overview.importEmpty": "空清單", "overview.retry": "重試此檔", "overview.queued": "排隊讀取 · 第 {position}/{total} 檔",
-      "overview.reloadQuote": "重新讀取此檔行情",
+      "overview.reloadQuote": "更新此檔行情與研究預測",
+      "overview.research": "研究預測", "overview.researchQueued": "等待計算研究預測…", "overview.researchLoading": "計算研究預測中…（上限 20 秒）",
+      "overview.researchFailed": "研究預測暫時無法取得；行情仍可查看，請重試。", "overview.researchStale": "缺少最新應有收盤，暫停研究預測。",
+      "overview.researchRetry": "重試研究預測", "overview.researchNote": "本次依現有資料計算，未盤前封存、不列入正式成績。",
+      "overview.researchBasis": "Ridge AR(5) · 依 {date} 收盤計算", "overview.researchPath": "五交易日估計路徑",
+      "overview.researchRisk": "每日價格未還原權息，分割可能影響估計；五日預測表現尚未驗證。",
+      "overview.researchBaseline": "這段一日回測未優於維持前收盤基準。",
+      "overview.researchChecked": "資料檢查 {time}（台北）",
       "overview.fetching": "讀取行情中 · 已 {seconds} 秒／上限 30 秒", "overview.validating": "驗證 {symbol} 行情中 · 已 {seconds} 秒／上限 30 秒",
       "overview.admission": "檢查正式追蹤條件", "overview.admissionLoading": "檢查條件中…", "overview.admissionFailed": "檢查暫時無法完成，請稍後重試。",
       "overview.admissionReview": "行情與五交易日試算符合前置條件；尚未啟用正式收集。",
@@ -93,18 +114,25 @@
       "overview.archive": "{date} 盤前封存 · 第 {horizon} 日估計",
       "overview.older": "較早起日封存", "overview.onTime": "當日起日封存",
       "overview.relative": "較最新保存收盤 {pct}", "overview.source": "來源：{source} · TWD",
-      "overview.details": "查看預測詳情", "overview.note": "估計取自最近一次純台股封存；較早起日的路徑不等於新的當日預測。",
+      "overview.details": "查看預測詳情", "overview.note": "原三檔顯示封存估計；其它股票顯示本次研究預測，未盤前封存且不列入成績。",
       "overview.loaded": "本次讀取 {time}（台北）", "overview.compare": "查看完整成績與 ADR 比較 →",
     },
     en: {
       "overview.nav": "Stock overview", "overview.kicker": "YOUR MARKET AT A GLANCE",
-      "overview.title": "Your stocks. At a glance.", "overview.copy": "Your daily watchlist, with archived forecasts for enrolled stocks. Not live quotes or investment advice.",
+      "overview.title": "Your stocks. At a glance.", "overview.copy": "Daily closes and research forecasts, with archived estimates for formally tracked stocks. Not live quotes or investment advice.",
       "overview.export": "Export list", "overview.import": "Import list", "overview.importApply": "Apply and replace list", "overview.importCancel": "Cancel",
       "overview.importPreview": "Replace your list with {symbols}. Only file format is checked; quotes load individually. Formal forecasts stay unchanged.",
       "overview.importInvalid": "Import failed. Use a StockPredict export JSON with up to 8 symbols, at most 4 KB. Your list was not changed.",
       "overview.imported": "Imported {count} stocks and replaced the list.", "overview.exported": "Exported symbols only; no quotes or forecast history.",
       "overview.importEmpty": "an empty list", "overview.retry": "Retry this stock", "overview.queued": "Queued · stock {position}/{total}",
-      "overview.reloadQuote": "Reload this stock quote",
+      "overview.reloadQuote": "Refresh this quote and research forecast",
+      "overview.research": "Research forecast", "overview.researchQueued": "Research forecast queued…", "overview.researchLoading": "Computing research forecast… (20s limit)",
+      "overview.researchFailed": "Research forecast unavailable. Daily quotes remain available; please retry.", "overview.researchStale": "Latest required close missing; research forecast paused.",
+      "overview.researchRetry": "Retry research forecast", "overview.researchNote": "Computed from current data; not archived before open and excluded from formal scores.",
+      "overview.researchBasis": "Ridge AR(5) · based on the {date} close", "overview.researchPath": "Five-session estimate path",
+      "overview.researchRisk": "Daily prices are not adjusted for corporate actions. Splits can affect estimates; five-day forecast performance is unvalidated.",
+      "overview.researchBaseline": "The one-day backtest did not beat the previous-close baseline.",
+      "overview.researchChecked": "Data checked {time} (Taipei)",
       "overview.fetching": "Loading quote · {seconds}s elapsed / 30s limit", "overview.validating": "Checking {symbol} · {seconds}s elapsed / 30s limit",
       "overview.admission": "Check forecast prerequisites", "overview.admissionLoading": "Checking prerequisites…", "overview.admissionFailed": "Prerequisite check unavailable. Please retry later.",
       "overview.admissionReview": "Quote and five-session dry run meet prerequisites. Formal collection is not enabled.",
@@ -135,7 +163,7 @@
       "overview.archive": "Archived before open on {date} · Day {horizon} estimate",
       "overview.older": "Earlier forecast origin", "overview.onTime": "Target-day forecast origin",
       "overview.relative": "Versus latest saved close {pct}", "overview.source": "Source: {source} · TWD",
-      "overview.details": "View forecast details", "overview.note": "Estimates use the latest Taiwan-only archive. An older-origin path is not a new target-day forecast.",
+      "overview.details": "View forecast details", "overview.note": "The original three stocks show archived estimates. Other stocks show current research forecasts, without pre-open archiving or formal scoring.",
       "overview.loaded": "Read at {time} (Taipei)", "overview.compare": "Full scores and ADR comparison →",
     },
   });
@@ -170,7 +198,7 @@
       const enrolled = defaults.includes(symbol);
       const entry = enrolled ? state[symbol] : quotes[symbol];
       const card = node("article", "overview-card");
-      card.setAttribute("aria-busy", String(enrolled ? loading : !!entry?.loading));
+      card.setAttribute("aria-busy", String(enrolled ? loading : !!entry?.loading || !!entry?.research?.loading));
       const head = node("div", "overview-card-head");
       const identity = node("div"); identity.append(node("span", "overview-symbol", symbol), node("h3", "", (names[symbol] ? i18n.t(names[symbol]) : entry?.quote?.name || symbol))); head.append(identity);
       const remove = node("button", "watchlist-remove", "×"); remove.type = "button";
@@ -200,10 +228,25 @@
       card.append(node("p", "overview-date", t("asof", { date: view.day || "—" })));
       if (!view.fresh) card.append(node("p", "overview-pending", t("expected", { date: view.expected })));
       if (!enrolled) {
-        const note = node("div", "overview-estimate");
-        note.append(node("span", "overview-badge", t("quoteOnly")), node("h4", "", t("noCollection")), node("p", "overview-date", t("noCollectionNote")));
+        const note = node("div", "overview-estimate research-estimate");
+        note.append(node("span", "overview-badge research-badge", t("research")));
+        const preview = entry.research?.data;
+        if (preview) {
+          const first=preview.points[0];
+          note.append(node("p", "overview-label", t("target", {date:first.date})), node("strong", "research-estimate-price", number(first.close)), node("p", "overview-date", t("researchBasis",{date:preview.asOf})));
+          note.append(node("p", "overview-date", t("researchChecked",{time:new Intl.DateTimeFormat(i18n.getLanguage(),{timeZone:"Asia/Taipei",dateStyle:"short",timeStyle:"medium"}).format(new Date(preview.checkedAt))})));
+          const path=node("details", "research-path");path.append(node("summary", "", t("researchPath")));
+          for (const point of preview.points) path.append(node("p", "overview-date", `${point.date} · ${number(point.close)} TWD`));note.append(path);
+          if (preview.beatsBaseline === false) note.append(node("p", "overview-pending", t("researchBaseline")));
+        } else {
+          note.append(node("p", "overview-pending", t(!quote.fresh ? "researchStale" : entry.research?.error ? "researchFailed" : entry.research?.loading ? "researchLoading" : "researchQueued")));
+          if (quote.fresh && entry.research?.error) {
+            const retry=node("button", "button button-secondary", t("researchRetry"));retry.type="button";retry.addEventListener("click",()=>retryQuote(symbol));note.append(retry);
+          }
+        }
+        note.append(node("p", "research-disclosure", t("researchNote")),node("p", "overview-date", t("researchRisk")));
         card.append(note, node("p", "overview-date", t("source", { source: quote.source })));
-        const reload = node("button", "button button-secondary overview-detail", t("reloadQuote")); reload.type = "button";reload.addEventListener("click",()=>retryQuote(symbol));card.append(reload);
+        const reload = node("button", "button button-secondary overview-detail", t("reloadQuote")); reload.type = "button";reload.disabled=!!entry.research?.loading || quoteQueue.includes(symbol);reload.addEventListener("click",()=>retryQuote(symbol));card.append(reload);
         const analyze = node("button", "button button-secondary overview-detail", t("analyze")); analyze.type = "button";
         analyze.addEventListener("click", () => {
           document.getElementById("symbol").value = symbol;
@@ -300,11 +343,26 @@
     try {
       while (quoteQueue.length && current === quoteGeneration) {
         const symbol=quoteQueue.shift();if(!symbols.includes(symbol))continue;
-        const request=new AbortController();quoteController=request;quotes[symbol]={loading:true,started:Date.now()};render();
-        const timer=setTimeout(()=>request.abort(),30000);
+        const request=new AbortController();quoteController=request;
+        const cached=quotes[symbol]?.quote;
+        if (!cached) quotes[symbol]={loading:true,started:Date.now()};
+        render();let timer=setTimeout(()=>request.abort(),30000);
         try {
-          const quote=await fetchQuote(symbol,request.signal);
-          if(current===quoteGeneration && symbols.includes(symbol))quotes[symbol]={quote};
+          const quote=cached || await fetchQuote(symbol,request.signal);
+          if(current!==quoteGeneration || !symbols.includes(symbol))return;
+          quotes[symbol]={quote};clearTimeout(timer);
+          if (quote.fresh) {
+            quotes[symbol].research={loading:true};render();
+            timer=setTimeout(()=>request.abort(),20000);
+            try {
+              const params=new URLSearchParams({symbol,source:"twse",horizon:"5",market_context:"none",lang:i18n.getLanguage()});
+              const response=await fetch(`/api/analysis?${params}`,{cache:"no-store",signal:request.signal});
+              if(!response.ok)throw new Error("research unavailable");
+              const data=validateResearch(await response.json(),quote);
+              if(!data)throw new Error("research validation failed");
+              if(current===quoteGeneration && symbols.includes(symbol))quotes[symbol]={quote,research:{data}};
+            } catch {if(current===quoteGeneration && symbols.includes(symbol))quotes[symbol]={quote,research:{error:true}};}
+          }
         } catch {if(current===quoteGeneration && symbols.includes(symbol))quotes[symbol]={};}
         finally {clearTimeout(timer)}
         if(current===quoteGeneration)render();
@@ -316,10 +374,10 @@
     const selected=symbols.filter(x=>!defaults.includes(x));
     if(refresh)admissions={};
     quotes=Object.fromEntries(selected.map(symbol=>[symbol,!refresh&&quotes[symbol]?.quote?quotes[symbol]:{loading:true}]));
-    quoteQueue=selected.filter(symbol=>!quotes[symbol]?.quote);render();drainQuotes(current);
+    quoteQueue=selected.filter(symbol=>!quotes[symbol]?.quote || (quotes[symbol].quote.fresh && !quotes[symbol].research));render();drainQuotes(current);
   }
   function retryQuote(symbol) {
-    if(!symbols.includes(symbol)||quotes[symbol]?.loading)return;
+    if(!symbols.includes(symbol)||quotes[symbol]?.loading||quotes[symbol]?.research?.loading||quoteQueue.includes(symbol))return;
     quotes[symbol]={loading:true};quoteQueue.push(symbol);render();drainQuotes(quoteGeneration);
   }
   async function checkAdmission(symbol) {
@@ -348,6 +406,7 @@
       if (storageAvailable) { messageKey = "added"; messageValues = { symbol }; }
       document.getElementById("watchlist-symbol").value = "";
       if (defaults.includes(symbol)) window.StockPredictScoreboard?.refresh();
+      else if (quote.fresh) {quoteQueue.push(symbol);drainQuotes(quoteGeneration);}
     } catch { if (current === revision) messageKey = "addFailed"; }
     finally { clearTimeout(timer); adding = false; addingStarted=null; render(); }
   });
