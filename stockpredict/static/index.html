@@ -11,6 +11,7 @@
   <script src="/static/audit.js" defer></script>
   <script src="/static/app.js" defer></script>
   <script src="/static/community.js" defer></script>
+  <script src="/static/overview.js" defer></script>
   <script src="/static/scoreboard.js" defer></script>
   <script src="/static/historical.js" defer></script>
   <script src="/static/report_archive.js" defer></script>
@@ -23,7 +24,8 @@
         <span>Stock<span class="brand-accent">Predict</span><span class="brand-version">BETA</span></span>
       </a>
       <nav data-i18n-aria-label="nav.label" aria-label="主導覽">
-        <a href="#analysis" class="nav-current" data-i18n="nav.analysis">分析工作台</a>
+        <a href="#stock-overview" class="nav-current" data-i18n="overview.nav">個股總覽</a>
+        <a href="#analysis" data-i18n="nav.analysis">分析工作台</a>
         <a href="#method" data-i18n="nav.method">模型說明</a>
         <a href="#scoreboard" data-i18n="score.title">預測成績看板</a>
         <a href="#community-section" data-i18n="nav.feedback">留言建議</a>
@@ -39,6 +41,12 @@
   </header>
 
   <main class="page" id="analysis">
+    <section id="stock-overview" class="stock-overview" aria-labelledby="overview-title" aria-busy="true">
+      <div class="overview-heading"><div><p class="eyebrow" data-i18n="overview.kicker">YOUR MARKET AT A GLANCE</p><h2 id="overview-title" data-i18n="overview.title">追蹤個股，一眼掌握。</h2><p data-i18n="overview.copy">每日收盤與純台股封存預測。非即時報價，非投資建議。</p></div><button id="overview-refresh" class="button button-secondary" type="button" data-i18n="overview.refresh" disabled>更新總覽</button></div>
+      <p id="overview-status" class="overview-read-time" role="status" aria-live="polite">讀取封存資料中…</p>
+      <div id="overview-cards" class="overview-grid"></div>
+      <div class="overview-footer"><p data-i18n="overview.note">估計取自最近一次純台股封存；較早起日的路徑不等於新的當日預測。</p><a href="#scoreboard" data-i18n="overview.compare">查看完整成績與 ADR 比較 →</a></div>
+    </section>
     <section class="page-intro" aria-labelledby="page-title">
       <div>
         <p class="eyebrow" data-i18n="intro.eyebrow">市場研究工作台</p>
