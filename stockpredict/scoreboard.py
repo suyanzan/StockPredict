@@ -229,12 +229,14 @@ def scoreboard():
                 "SELECT min(checked_at) AS started_at FROM sp_scoreboard_checks"
             ).fetchone()
         from stockpredict.monitoring import health_alerts
+        from stockpredict.weekly_accuracy import summarize_week
 
         result = evaluate(predictions, actuals)
         return {
             "status": "ready",
             **result,
             "last_check": check,
+            "weekly_accuracy": summarize_week(result["predictions"], predictions, actuals),
             "alerts": health_alerts(result["predictions"], check, first["started_at"]),
         }
     except (psycopg.Error, RuntimeError):
