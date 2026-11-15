@@ -41,3 +41,30 @@ test('invalid prices cannot produce quotes or estimated returns',()=>{
  const r=summarize({...detail,base_close:NaN,forecast:[{target_date:'2026-11-16',actual_close:false,predicted_close:Infinity}]},market);
  assert.equal(r.close,null);assert.equal(r.forecast,null);assert.equal(r.change,null);
 });
+
+test('missing scoreboard script exits loading and retry reloads instead of waiting forever',()=>{
+ const timers=new Map(), listeners=new Map(), elements=new Map();let reloaded=false;
+ const element=()=>({attributes:{},append(){},replaceChildren(){},
+  setAttribute(key,value){this.attributes[key]=value;},
+  addEventListener(key,fn){this[key]=fn;}});
+ const getElementById=id=>{
+  if(!elements.has(id))elements.set(id,element());
+  return elements.get(id);
+ };
+ const sandbox={
+  window:{StockPredictI18n:{register(){},subscribe(){},t:key=>key,getLanguage:()=> 'en'},
+   addEventListener:(key,fn)=>listeners.set(key,fn),location:{reload:()=>{reloaded=true;}}},
+  document:{getElementById,createElement:element},
+  setTimeout:(fn,delay)=>{const id=timers.size+1;timers.set(id,{fn,delay});return id;},
+  clearTimeout:id=>timers.delete(id),
+ };
+ vm.runInNewContext(fs.readFileSync('stockpredict/static/overview.js','utf8'),sandbox);
+ assert.equal(getElementById('stock-overview').attributes['aria-busy'],'true');
+ assert.equal(getElementById('overview-refresh').disabled,true);
+ const deadline=[...timers.values()].find(timer=>timer.delay===40000);
+ assert.ok(deadline);deadline.fn();
+ assert.equal(getElementById('stock-overview').attributes['aria-busy'],'false');
+ assert.equal(getElementById('overview-refresh').disabled,false);
+ assert.equal(getElementById('overview-status').textContent,'overview.unavailable');
+ getElementById('overview-refresh').click();assert.equal(reloaded,true);
+});

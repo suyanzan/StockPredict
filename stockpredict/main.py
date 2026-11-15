@@ -1,13 +1,14 @@
 """HTTP API and same-origin, dependency-free web dashboard."""
 
 import json
+import re
 from pathlib import Path
 from typing import Annotated, Literal
 
 from fastapi import FastAPI, Query, Request
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -78,6 +79,8 @@ async def community_cache_policy(request: Request, call_next):
         response.headers["Cache-Control"] = "no-store"
     if request.url.path == "/admin":
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
+    if request.url.path == "/" or request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-cache"
     return response
 
 
@@ -122,7 +125,12 @@ class FactorCsvAnalysis(BaseModel):
 
 @app.get("/", include_in_schema=False)
 def index():
-    return FileResponse(STATIC / "index.html")
+    from stockpredict.provenance import release_identity
+
+    version = release_identity()["source_hash"]
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    html = re.sub(r'((?:src|href)="/static/[^"?]+)"', rf'\1?v={version}"', html)
+    return HTMLResponse(html)
 
 
 @app.get("/admin", include_in_schema=False)
