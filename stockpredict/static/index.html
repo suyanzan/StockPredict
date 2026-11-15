@@ -11,6 +11,7 @@
   <script src="/static/audit.js" defer></script>
   <script src="/static/app.js" defer></script>
   <script src="/static/community.js" defer></script>
+  <script src="/static/weekly_accuracy.js" defer></script>
   <script src="/static/overview.js" defer></script>
   <script src="/static/reliability.js" defer></script>
   <script src="/static/daily_news.js" defer></script>
@@ -44,6 +45,11 @@
   </header>
 
   <main class="page">
+    <section id="weekly-accuracy" class="weekly-accuracy" aria-labelledby="weekly-title" aria-busy="true">
+      <div class="overview-heading"><div><p class="eyebrow" data-i18n="weekly.kicker">PREDICTION TRACK RECORD</p><h2 id="weekly-title" data-i18n="weekly.title">先看過去一週的預測實績。</h2><p data-i18n="weekly.copy">盤前已封存、收盤後核對的隔日預測。價格偏差與方向命中分開看，成績隨資料更新。</p></div><button id="weekly-refresh" type="button" class="button button-secondary" data-i18n="weekly.refresh" disabled>更新實績</button></div>
+      <p id="weekly-status" class="overview-read-time" role="status" aria-live="polite">核對最近五個交易日的封存成績…</p>
+      <div id="weekly-content"></div>
+    </section>
     <section id="stock-overview" class="stock-overview" aria-labelledby="overview-title" aria-busy="true">
       <div class="overview-heading"><div><p class="eyebrow" data-i18n="overview.kicker">YOUR MARKET AT A GLANCE</p><h2 id="overview-title" data-i18n="overview.title">追蹤個股，一眼掌握。</h2><p data-i18n="overview.copy">每日行情與研究預測；正式追蹤股票另顯示封存估計。非即時報價，非投資建議。</p></div><button id="overview-refresh" class="button button-secondary" type="button" data-i18n="overview.refresh" disabled>更新總覽</button></div>
       <section id="reliability-status" class="reliability-strip" aria-live="polite" aria-label="資料更新狀態"></section>

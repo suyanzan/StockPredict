@@ -2568,3 +2568,21 @@ dialog#prediction-detail::backdrop { background: #17293d80; }
 @media(max-width:800px) { .reliability-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:1000px) { .overview-grid { gap:12px; } .overview-card { padding:17px; } .overview-card-head { align-items:flex-start; flex-wrap:wrap; } }
 @media(max-width:700px) { .overview-grid { grid-template-columns:1fr; } .overview-heading { flex-wrap:wrap; gap:14px; } .overview-card { padding:22px; } .overview-footer { flex-direction:column; gap:10px; } .overview-footer p { max-width:none; } .overview-empty { min-height:130px; } .header-inner nav { justify-content:flex-start; gap:22px; overflow-x:auto; } .header-inner nav a { flex-shrink:0; white-space:nowrap; } }
+
+.weekly-accuracy { margin:0 0 40px; padding:24px; background:#fff; border:1px solid var(--border); border-top:4px solid #009c8e; border-radius:16px; }
+.weekly-accuracy .overview-heading { margin-bottom:12px; }
+.weekly-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.weekly-card { background:#f5f8fc; border-radius:12px; padding:20px; min-width:0; }
+.weekly-card h3 { font-size:13px; color:var(--muted); margin:0; }
+.weekly-number { font-size:36px; font-weight:800; margin:10px 0; line-height:1.2; font-variant-numeric:tabular-nums; }
+.weekly-explain { font-size:13px; line-height:1.7; margin:8px 0; }
+.weekly-note { font-size:12px; color:var(--muted); line-height:1.7; }
+.weekly-verdict { background:#fff8eb; border:1px solid #f0dfbd; border-radius:10px; padding:15px 18px; margin-top:18px; color:#79561e; font-size:14px; }
+.weekly-verdict p { margin:8px 0 0; line-height:1.7; font-size:13px; }
+.weekly-caution { font-size:12px; line-height:1.7; color:#526579; }
+.weekly-details summary { cursor:pointer; color:#008b7e; font-size:13px; margin:16px 0; }
+.weekly-table-wrap { overflow-x:auto; }
+.weekly-table { border-collapse:collapse; width:100%; font-size:12px; }
+.weekly-table th,.weekly-table td { text-align:left; padding:10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.weekly-link { display:inline-block; color:#008b7e; font-size:13px; margin-top:15px; }
+@media(max-width:700px) { .weekly-accuracy { padding:18px; } .weekly-grid { grid-template-columns:1fr; gap:10px; } .weekly-number { font-size:30px; } }
