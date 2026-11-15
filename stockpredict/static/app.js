@@ -715,11 +715,13 @@
     const forecast = analysis.forecast;
     chartPoints = [...history.map((p) => ({ ...p, predicted: false })), ...forecast.map((p) => ({ ...p, predicted: true }))];
     const compact = $("chart-container").clientWidth < 480;
-    const width = 940, height = compact ? 520 : 370;
-    const left = compact ? 106 : 65, right = 25, top = compact ? 32 : 24, bottom = compact ? 54 : 39;
+    const width = 940, height = compact ? 620 : 400;
+    // Keep labels readable in screen pixels as the SVG scales on smaller screens.
+    const labelSize = Math.max(14, Math.ceil(13 * width / $("chart-container").clientWidth));
+    const left = Math.ceil(labelSize * 5.2), right = 25, top = labelSize * 2, bottom = labelSize * 2.4;
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    svg.style.setProperty("--chart-text-size", compact ? "22px" : "11px");
-    svg.style.setProperty("--chart-small-text-size", compact ? "20px" : "10px");
+    svg.style.setProperty("--chart-text-size", `${labelSize}px`);
+    svg.style.setProperty("--chart-small-text-size", `${labelSize}px`);
     const chartWidth = width - left - right, chartHeight = height - top - bottom;
     const values = [...history.map((p) => p.close), ...forecast.flatMap((p) => [p.lower, p.upper])];
     const low = Math.min(...values), high = Math.max(...values);
@@ -751,7 +753,7 @@
     const bandBottom = [...forward].reverse().map((p, i) => `L${x(start + forward.length - 1 - i)},${y(p.lower)}`).join(" ");
     svg.append(svgElement("path", { d: `${bandTop} ${bandBottom} Z`, class: "band" }));
     svg.append(svgElement("line", { x1: x(start), y1: top, x2: x(start), y2: top + chartHeight, class: "boundary" }));
-    svg.append(svgElement("text", { x: Math.min(x(start) + 9, width - 100), y: top + 13, class: "chart-date-label" }, t("chart.boundary")));
+    svg.append(svgElement("text", { x: width - right, y: top - labelSize * .5, "text-anchor": "end", class: "chart-date-label" }, t("chart.boundary")));
     svg.append(svgElement("path", { d: historyPath, class: "history-path" }));
     svg.append(svgElement("path", { d: forward.map((p, i) => `${i ? "L" : "M"}${x(start + i)},${y(p.close)}`).join(" "), class: "forecast-path" }));
     svg.append(svgElement("circle", { cx: x(start), cy: y(initial.close), r: 3.5, fill: "#3973c8", stroke: "white", "stroke-width": 2 }));
@@ -764,8 +766,8 @@
       group.append(svgElement("text",{x:x(index),y:top+20,"text-anchor":"middle",fill:"#995a00"},[...new Set(events.map(e=>e.type==="split"?"S":"D"))].join("/")));
       group.append(svgElement("title",{},`${date} · ${events.map(e=>t(`audit.${e.type}`)).join(" / ")}`));svg.append(group);
     }
-    const labelIndexes = new Set([0, Math.round((chartPoints.length - 1) * .25), Math.round((chartPoints.length - 1) * .5), Math.round((chartPoints.length - 1) * .75), chartPoints.length - 1]);
-    for (const index of labelIndexes) svg.append(svgElement("text", { x: x(index), y: height - 13, "text-anchor": index === 0 ? "start" : index === chartPoints.length - 1 ? "end" : "middle" }, dateLabel.format(parsedDate(chartPoints[index].date))));
+    const labelIndexes = new Set((compact ? [0, .5, 1] : [0, .25, .5, .75, 1]).map(fraction => Math.round((chartPoints.length - 1) * fraction)));
+    for (const index of labelIndexes) svg.append(svgElement("text", { x: x(index), y: height - labelSize * .6, "text-anchor": index === 0 ? "start" : index === chartPoints.length - 1 ? "end" : "middle" }, dateLabel.format(parsedDate(chartPoints[index].date))));
     svg.append(svgElement("line", { id: "chart-crosshair", class: "crosshair", x1: 0, x2: 0, y1: top, y2: top + chartHeight, visibility: "hidden" }));
     svg.append(svgElement("circle", { id: "chart-hover-dot", r: 4.5, fill: "#17293d", stroke: "#fff", "stroke-width": 2, visibility: "hidden" }));
     svg.removeAttribute("data-i18n-aria-label");
