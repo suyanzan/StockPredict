@@ -2511,5 +2511,13 @@ dialog#prediction-detail::backdrop { background: #17293d80; }
 .overview-footer { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-top:17px; font-size:12px; color:var(--muted); }
 .overview-footer p { margin:0; max-width:70%; }
 .overview-footer a { color:var(--green); font-weight:650; }
+.watchlist-form { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:18px 0 8px; }
+.watchlist-form label { font-size:13px; font-weight:650; }
+.watchlist-form input { min-width:150px; width:210px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); padding:10px 12px; font:inherit; font-size:13px; }
+.watchlist-message { min-height:18px; margin:8px 0 14px; color:#925b0b; font-size:13px; }
+.watchlist-remove { order:3; border:1px solid var(--border); border-radius:50%; background:transparent; color:var(--muted); cursor:pointer; width:30px; height:30px; flex-shrink:0; font-size:20px; line-height:1; }
+.watchlist-remove:hover { background:#fff3de; color:#925b0b; }
+.watchlist-empty { grid-column:1/-1; padding:35px 15px; border:1px dashed var(--border); border-radius:12px; text-align:center; color:var(--muted); }
+.overview-estimate h4 { margin:12px 0; font-size:15px; }
 @media(max-width:1000px) { .overview-grid { gap:12px; } .overview-card { padding:17px; } .overview-card-head { align-items:flex-start; flex-wrap:wrap; } }
 @media(max-width:700px) { .overview-grid { grid-template-columns:1fr; } .overview-heading { flex-wrap:wrap; gap:14px; } .overview-card { padding:22px; } .overview-footer { flex-direction:column; gap:10px; } .overview-footer p { max-width:none; } .overview-empty { min-height:130px; } .header-inner nav { justify-content:flex-start; gap:22px; overflow-x:auto; } .header-inner nav a { flex-shrink:0; white-space:nowrap; } }
