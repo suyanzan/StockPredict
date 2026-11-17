@@ -1,130 +1,126 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-16",
-  "generated_at": "2026-11-16T00:39:15.971678+00:00",
+  "brief_date": "2026-11-17",
+  "generated_at": "2026-11-17T00:53:12.114251+00:00",
   "articles": [
     {
-      "id": "nvidia-compliance-pressure",
+      "id": "ai-chip-access-rule",
       "category": "ai",
       "published_date": "2026-11-16",
-      "published_at": "2026-11-16T00:40+08:00",
+      "published_at": "2026-11-16T22:50+08:00",
       "title": {
-        "zh-TW": "美財長要求輝達說明出口合規，接班仍未定案",
-        "en": "US Treasury presses NVIDIA on compliance as CEO search continues"
+        "zh-TW": "美公布海外 AI 晶片存取新規，關注出口許可範圍",
+        "en": "US announces rules on overseas access to advanced AI chips"
       },
       "summary": {
-        "zh-TW": "據中央社與路透，美財長貝森特要求輝達在10天內回答出口合規問題，並主張外部接班人。這是官員要求，非違規判決或任命結果。",
-        "en": "CNA and Reuters report that Treasury Secretary Bessent requested NVIDIA compliance answers within ten days and urged an external CEO search. Neither a violation finding nor a successor appointment was announced."
+        "zh-TW": "中央社引述路透報導，美國商務部公布規定，防止中國企業透過第三國資料中心遠端使用先進 AI 晶片，部分國家企業取得高階晶片須申請許可。適用細節應依官方規則核對。",
+        "en": "CNA, citing Reuters, reports US rules addressing Chinese access to advanced AI chips through third-country data centers, with licensing requirements for certain destinations. Specific applicability requires checking the official rules."
       },
       "impact": {
-        "zh-TW": "觀察合規回應與交付指引，不直接推定台灣供應鏈訂單改變。",
-        "en": "Watch compliance responses and delivery guidance, without assuming changes to Taiwanese supplier orders."
+        "zh-TW": "追蹤許可、客戶部署與交付時程；新規不等於所有海外訂單取消。",
+        "en": "Track licensing and deployment schedules; the announcement does not establish cancellation of all overseas orders."
       },
       "sources": [
         {
           "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/aopl/202611160002.aspx"
-        },
-        {
-          "publisher": "Reuters via Investing.com",
-          "url": "https://www.investing.com/news/economy-news/bessent-says-nvidia-must-go-outside-the-company-to-find-new-ceo-5028004"
+          "url": "https://www.cna.com.tw/news/aopl/202611160297.aspx"
         }
       ]
     },
     {
-      "id": "fed-inflation-remarks",
+      "id": "taiwan-nov16-close",
       "category": "economy",
       "published_date": "2026-11-16",
-      "published_at": "2026-11-15T18:42+00:00",
+      "published_at": "2026-11-16T14:51+08:00",
       "title": {
-        "zh-TW": "Fed 官員稱通膨仍待處理，並非新利率決議",
-        "en": "Fed official flags inflation concerns, not a new rate decision"
+        "zh-TW": "台股11/16跌6.03%，AI 供應鏈風險重新定價",
+        "en": "Taiwan stocks fell 6.03% on November 16 amid AI repricing"
       },
       "summary": {
-        "zh-TW": "路透報導，施密德稱通膨偏高，Fed 有責任處理；他未明確主張再次升息。",
-        "en": "Reuters reports that Jeff Schmid said inflation remains too high and the Fed must respond. He did not explicitly call for another hike."
+        "zh-TW": "中央社報導，11/16 加權指數收41040.08點，下跌2635.04點、跌幅6.03%。台積電收2215元、台達電收1120元。這些是已完成交易日收盤，不是11/17即時報價。",
+        "en": "CNA reports the November 16 TAIEX close at 41,040.08, down 2,635.04 points or 6.03%. TSMC closed at NT$2,215 and Delta at NT$1,120. These are completed-session closes, not live November 17 quotes."
       },
       "impact": {
-        "zh-TW": "留意融資成本；談話不等於政策結果。",
-        "en": "Monitor financing costs; remarks do not determine policy outcomes."
-      },
-      "sources": [
-        {
-          "publisher": "Reuters",
-          "url": "https://www.reuters.com/world/us/fed-has-some-work-do-inflation-kc-fed-chief-says-2026-11-15/"
-        }
-      ]
-    },
-    {
-      "id": "intel-shareholder-lawsuit",
-      "category": "economy",
-      "published_date": "2026-11-16",
-      "published_at": "2026-11-15T23:05+00:00",
-      "title": {
-        "zh-TW": "Intel 遭股東提告，PC 需求揭露受質疑",
-        "en": "Intel shareholders challenge PC-demand disclosures"
-      },
-      "summary": {
-        "zh-TW": "路透報導，股東指控 Intel 未及時揭露 PC 需求與庫存壓力；訴訟指控尚非判決。",
-        "en": "Reuters reports that shareholders sued Intel over alleged delays in disclosing PC-demand and inventory pressures. The allegations are not a court finding."
-      },
-      "impact": {
-        "zh-TW": "觀察終端需求，勿把訴訟當成供應商損失。",
-        "en": "Watch end demand; litigation does not establish supplier losses."
-      },
-      "sources": [
-        {
-          "publisher": "Reuters",
-          "url": "https://www.reuters.com/business/intel-sued-by-shareholders-following-29-stock-plunge-2026-11-15/"
-        }
-      ]
-    },
-    {
-      "id": "taiwan-bank-valuation",
-      "category": "economy",
-      "published_date": "2026-11-15",
-      "published_at": "2026-11-15T19:42+08:00",
-      "title": {
-        "zh-TW": "銀行股債帳面損益分化，最新報導揭露9月底數據",
-        "en": "Taiwan bank valuation report highlights September-end exposures"
-      },
-      "summary": {
-        "zh-TW": "中央社引述金管會數據，9月底銀行業股票未實現利益9371億元，債券未實現損失1920億元。這是產業帳面損益，並非11月已實現獲利。",
-        "en": "CNA cites regulator data showing banks had NT$937.1 billion in unrealized equity gains and NT$192 billion in unrealized bond losses at September-end. These are sector valuations, not November realized profits."
-      },
-      "impact": {
-        "zh-TW": "利率變動對淨利差與既有債券評價可能有不同影響，應分項觀察。",
-        "en": "Rate changes can affect interest margins and existing bond valuations differently; assess them separately."
+        "zh-TW": "區分股價波動與企業基本面，不能由單日下跌推定隔日必反彈。",
+        "en": "Separate price volatility from fundamentals; a one-day decline does not establish a next-day rebound."
       },
       "sources": [
         {
           "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/afe/202611150180.aspx"
+          "url": "https://www.cna.com.tw/news/afe/202611160135.aspx"
         }
       ]
     },
     {
-      "id": "japan-q3-gdp",
+      "id": "fed-ai-scenarios",
       "category": "economy",
-      "published_date": "2026-11-16",
-      "published_at": "2026-11-16T00:13+00:00",
+      "published_date": "2026-11-17",
+      "published_at": "2026-11-16T17:02+00:00",
       "title": {
-        "zh-TW": "日本第三季 GDP 年化微縮，消費與設備投資分歧",
-        "en": "Japan GDP contracts slightly as consumption and investment diverge"
+        "zh-TW": "Fed 主席談 AI 經濟機會與風險，並非政策決議",
+        "en": "Fed chair outlines AI opportunities and risks, not a policy decision"
       },
       "summary": {
-        "zh-TW": "路透報導，日本第三季 GDP 年化減0.1%；消費季減0.3%，設備投資季增1.6%。年化與季增率不可混用。",
-        "en": "Reuters reports Japan Q3 GDP fell 0.1% annualized; consumption fell 0.3% quarter-on-quarter while capital spending rose 1.6%. These are different measurement bases."
+        "zh-TW": "路透報導，Warsh 討論 AI 對生產力與就業的不同情境；這不是確定的經濟預測或新利率決議。",
+        "en": "Reuters reports Warsh discussed alternative AI scenarios for productivity and employment, not a settled economic forecast or a new rate decision."
       },
       "impact": {
-        "zh-TW": "分辨消費與企業投資，勿外推單一台廠營收。",
-        "en": "Separate consumer and investment demand; do not extrapolate company revenue."
+        "zh-TW": "檢視企業實際回報，不將 AI 願景視為獲利。",
+        "en": "Assess realized business returns rather than treating AI ambitions as earnings."
       },
       "sources": [
         {
           "publisher": "Reuters",
-          "url": "https://www.reuters.com/business/japans-economy-unexpectedly-shrinks-july-september-consumption-falters-2026-11-16/"
+          "url": "https://www.reuters.com/business/feds-warsh-says-emerging-technologies-will-have-significant-impact-risks-need-be-2026-11-16/"
+        }
+      ]
+    },
+    {
+      "id": "china-october-demand",
+      "category": "economy",
+      "published_date": "2026-11-16",
+      "published_at": "2026-11-16T02:06+00:00",
+      "title": {
+        "zh-TW": "中國10月工業與零售增速放緩，內需復甦仍待觀察",
+        "en": "China October production and retail data point to softer demand"
+      },
+      "summary": {
+        "zh-TW": "路透引述官方數據，10月工業產出年增4.8%、零售年增0.4%，皆低於調查預期；年增不代表月增。",
+        "en": "Reuters cites official October industrial-output growth of 4.8% and retail growth of 0.4%, both below poll forecasts. These are year-on-year rates."
+      },
+      "impact": {
+        "zh-TW": "分別檢查消費與投資需求，勿直接套用個別台廠。",
+        "en": "Assess consumption and investment separately; aggregate figures do not determine individual Taiwanese company results."
+      },
+      "sources": [
+        {
+          "publisher": "Reuters",
+          "url": "https://www.reuters.com/world/chinas-factory-output-retail-sales-growth-slow-october-2026-11-16/"
+        }
+      ]
+    },
+    {
+      "id": "taiwan-science-draft",
+      "category": "ai",
+      "published_date": "2026-11-16",
+      "published_at": "2026-11-16T19:18+08:00",
+      "title": {
+        "zh-TW": "台灣科技白皮書草案納入主權 AI，實施與採購仍待後續",
+        "en": "Taiwan science-policy draft includes sovereign AI; execution remains ahead"
+      },
+      "summary": {
+        "zh-TW": "中央社報導，國科會提出2027至2030年科學技術白皮書草案，涵蓋半導體、主權 AI、太空等九項議題。草案不等於預算或個別企業訂單已核定。",
+        "en": "CNA reports a draft 2027–2030 science and technology white paper covering nine themes, including semiconductors, sovereign AI and space. A draft does not establish approved budgets or company orders."
+      },
+      "impact": {
+        "zh-TW": "追蹤正式政策、預算與採購進度，避免先把政策方向換算成公司收入。",
+        "en": "Track adopted policy, budgets and procurement before translating policy direction into company revenue."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/afe/202611160251.aspx"
         }
       ]
     }
@@ -141,16 +137,16 @@
         "en": "Foundry"
       },
       "article_ids": [
-        "nvidia-compliance-pressure"
+        "taiwan-nov16-close"
       ],
-      "relationship": "industry_inference",
+      "relationship": "direct",
       "reason": {
-        "zh-TW": "晶圓代工產業可觀察 AI 晶片合規與客戶交付展望；這是關聯推論，沒有新訂單公告。",
-        "en": "Watch AI-chip compliance and customer delivery guidance as foundry-sector factors. This is an inference, not a new-order announcement."
+        "zh-TW": "報導直接提及11/16股價；觀察後續公司揭露與客戶需求，將市場情緒和營運分開。",
+        "en": "The report names TSMC in the November 16 session. Watch company disclosures and customer demand separately from market sentiment."
       },
       "risk": {
-        "zh-TW": "政策變化與客戶排程可能影響需求，不能從官員談話直接估算營收。",
-        "en": "Policy and customer scheduling may affect demand; official remarks do not quantify revenue effects."
+        "zh-TW": "單日跌幅不代表估值已便宜，客戶投資與政策變化仍有不確定性。",
+        "en": "A one-day decline does not establish cheap valuation; customer spending and policy remain uncertain."
       }
     },
     {
@@ -164,65 +160,17 @@
         "en": "Servers and computer manufacturing"
       },
       "article_ids": [
-        "nvidia-compliance-pressure",
-        "fed-inflation-remarks"
+        "ai-chip-access-rule",
+        "taiwan-science-draft"
       ],
       "relationship": "industry_inference",
       "reason": {
-        "zh-TW": "追蹤伺服器平台交付與客戶融資成本對建置時程的可能影響；報導未披露廣達訂單變動。",
-        "en": "Monitor platform deliveries and how customer financing costs may affect deployment timing. The reports disclose no Quanta order changes."
+        "zh-TW": "以伺服器產業觀察出口許可與主權 AI 部署後續；報導未公告廣達新增訂單。",
+        "en": "Use the server business to monitor licensing and sovereign-AI deployment. The stories announce no new Quanta orders."
       },
       "risk": {
-        "zh-TW": "供應鏈合規、零組件取得與客戶延後投資都可能造成交付風險。",
-        "en": "Supply-chain compliance, component availability and delayed customer investment can affect deliveries."
-      }
-    },
-    {
-      "symbol": "2357.TW",
-      "name": {
-        "zh-TW": "華碩",
-        "en": "ASUSTeK Computer"
-      },
-      "sector": {
-        "zh-TW": "PC 品牌與電腦設備",
-        "en": "PC brands and computer equipment"
-      },
-      "article_ids": [
-        "intel-shareholder-lawsuit",
-        "japan-q3-gdp"
-      ],
-      "relationship": "industry_inference",
-      "reason": {
-        "zh-TW": "以 PC 品牌觀察庫存與終端消費需求，對照公司後續揭露；Intel 訴訟不是華碩營運數據。",
-        "en": "Use the PC brand to monitor inventory and consumer demand against its own disclosures. Intel litigation is not ASUS operating data."
-      },
-      "risk": {
-        "zh-TW": "零組件成本、庫存與消費復甦速度可能分歧，不能把總體數據直接換算成公司獲利。",
-        "en": "Component costs, inventories and consumer recovery can diverge; macro data do not establish company profit."
-      }
-    },
-    {
-      "symbol": "2886.TW",
-      "name": {
-        "zh-TW": "兆豐金",
-        "en": "Mega Financial Holding"
-      },
-      "sector": {
-        "zh-TW": "金融控股",
-        "en": "Financial holding"
-      },
-      "article_ids": [
-        "taiwan-bank-valuation",
-        "fed-inflation-remarks"
-      ],
-      "relationship": "industry_inference",
-      "reason": {
-        "zh-TW": "作為金融類股觀察利差與債券評價變化；產業合計數字不是兆豐個別損益。",
-        "en": "Monitor interest margins and bond valuations as financial-sector factors. Aggregate bank figures are not Mega-specific results."
-      },
-      "risk": {
-        "zh-TW": "利率、匯率與避險成本方向未必一致，帳面利益也不等於已實現獲利。",
-        "en": "Rates, exchange rates and hedging costs can move differently; unrealized gains are not realized earnings."
+        "zh-TW": "政策草案尚待實施；許可、零組件與客戶建置時程可能影響交付。",
+        "en": "Draft policy still needs execution; licensing, components and customer schedules can affect delivery."
       }
     },
     {
@@ -236,16 +184,62 @@
         "en": "Power and industrial automation"
       },
       "article_ids": [
-        "japan-q3-gdp"
+        "taiwan-nov16-close"
+      ],
+      "relationship": "direct",
+      "reason": {
+        "zh-TW": "報導直接提及11/16收盤；以電源與自動化業務觀察實際需求，避免把股價波動當成訂單訊號。",
+        "en": "The report names Delta’s November 16 close. Monitor demand in power and automation without treating price moves as order signals."
+      },
+      "risk": {
+        "zh-TW": "專案時程、需求與匯率仍可能波動，跌停不構成未來反彈保證。",
+        "en": "Project timing, demand and currencies remain variable; a limit-down close does not guarantee a rebound."
+      }
+    },
+    {
+      "symbol": "2357.TW",
+      "name": {
+        "zh-TW": "華碩",
+        "en": "ASUSTeK Computer"
+      },
+      "sector": {
+        "zh-TW": "PC 品牌與電腦設備",
+        "en": "PC brands and computer equipment"
+      },
+      "article_ids": [
+        "china-october-demand"
       ],
       "relationship": "industry_inference",
       "reason": {
-        "zh-TW": "以電源與工業自動化業務觀察企業設備投資需求；日本 GDP 報導沒有披露台達電訂單。",
-        "en": "Monitor business equipment investment through its power and industrial-automation activities. The Japan GDP report discloses no Delta orders."
+        "zh-TW": "以 PC 品牌觀察消費需求與庫存，應再對照公司揭露；中國零售總量不是華碩營收。",
+        "en": "Monitor consumer demand and inventories against company disclosures. China’s aggregate retail figures are not ASUS revenue."
       },
       "risk": {
-        "zh-TW": "區域需求、匯率及專案遞延可能不同步，總體設備投資成長不保證公司受益。",
-        "en": "Regional demand, currencies and project delays can diverge; aggregate investment growth does not guarantee company gains."
+        "zh-TW": "產品組合、區域銷售與成本不同，單月總體數據不足推估公司獲利。",
+        "en": "Product mix, regional sales and costs differ; one month of macro data cannot establish company earnings."
+      }
+    },
+    {
+      "symbol": "2886.TW",
+      "name": {
+        "zh-TW": "兆豐金",
+        "en": "Mega Financial Holding"
+      },
+      "sector": {
+        "zh-TW": "金融控股",
+        "en": "Financial holding"
+      },
+      "article_ids": [
+        "fed-ai-scenarios"
+      ],
+      "relationship": "industry_inference",
+      "reason": {
+        "zh-TW": "以金融類股觀察生產力與就業情境如何影響利率及信用需求；Fed 談話未揭露兆豐業績。",
+        "en": "Use the financial sector to monitor how productivity and employment scenarios may affect rates and credit demand. The remarks disclose no Mega results."
+      },
+      "risk": {
+        "zh-TW": "AI 的總體影響仍不確定，利差、信用成本與匯率可能朝不同方向變化。",
+        "en": "AI’s macro effects remain uncertain; margins, credit costs and currencies can move in different directions."
       }
     }
   ]
