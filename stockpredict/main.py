@@ -20,6 +20,7 @@ from stockpredict.corporate_actions import router as corporate_actions_router
 from stockpredict.daily_news import router as daily_news_router
 from stockpredict.data import DataSourceError, demo_data, normalize_symbol, parse_csv, yahoo_data
 from stockpredict.forecast import analyze
+from stockpredict.fund_plan import router as fund_plan_router
 from stockpredict.historical import router as historical_router
 from stockpredict.localization import Language, add_localizations, localize_error
 from stockpredict.market_data import overnight_factors
@@ -48,6 +49,7 @@ app.include_router(quotes_router)
 app.include_router(reliability_router)
 app.include_router(onboarding_router)
 app.include_router(daily_news_router)
+app.include_router(fund_plan_router)
 
 
 @app.get("/api/reference-quotes/latest")
@@ -67,29 +69,27 @@ def latest_reference_quotes(symbol: str = Query(max_length=20)):
 @app.middleware("http")
 async def community_cache_policy(request: Request, call_next):
     response = await call_next(request)
-    if (
-        request.url.path.startswith(
-            (
-                "/api/health",
-                "/api/community",
-                "/api/analysis",
-                "/api/scoreboard",
-                "/api/calendar",
-                "/api/historical-backtest",
-                "/api/predictions",
-                "/api/backtest-runs",
-                "/api/corporate-actions",
-                "/api/reference-quotes",
-                "/api/quotes",
-                "/api/reliability",
-                "/api/collection/readiness",
-                "/api/news",
-            )
+    if request.url.path.startswith(
+        (
+            "/api/health",
+            "/api/community",
+            "/api/analysis",
+            "/api/scoreboard",
+            "/api/calendar",
+            "/api/historical-backtest",
+            "/api/predictions",
+            "/api/backtest-runs",
+            "/api/corporate-actions",
+            "/api/reference-quotes",
+            "/api/quotes",
+            "/api/reliability",
+            "/api/collection/readiness",
+            "/api/news",
+            "/api/plan",
         )
-        or request.url.path == "/admin"
-    ):
+    ) or request.url.path in ("/admin", "/plan"):
         response.headers["Cache-Control"] = "no-store"
-    if request.url.path == "/admin":
+    if request.url.path in ("/admin", "/plan"):
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
     if request.url.path == "/" or request.url.path.startswith("/static/"):
         response.headers["Cache-Control"] = "no-cache"
@@ -148,6 +148,11 @@ def index():
 @app.get("/admin", include_in_schema=False)
 def feedback_admin():
     return FileResponse(STATIC / "admin.html")
+
+
+@app.get("/plan", include_in_schema=False)
+def private_fund_plan():
+    return FileResponse(STATIC / "plan.html")
 
 
 @app.get("/api/health")

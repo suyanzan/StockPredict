@@ -1,0 +1,21 @@
+.plan-page h2 { font-size: 20px; margin: 0 0 16px; }
+.plan-page h3 { font-size: 15px; margin: 22px 0 10px; }
+.plan-disclaimer { font-size: 13px; color: #8a5a12; }
+.plan-section { padding: 24px; margin-bottom: 20px; }
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; align-items: end; margin-bottom: 16px; }
+.plan-grid label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+.plan-grid input { border: 1px solid var(--border); border-radius: 6px; padding: 10px; font: inherit; font-weight: 400; }
+.plan-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+.plan-table th, .plan-table td { text-align: right; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.plan-table th:first-child, .plan-table td:first-child { text-align: left; }
+.plan-table .plan-strong td { font-weight: 700; }
+.plan-neg { color: #b54538; }
+.plan-pos { color: #138b7d; }
+.plan-note { font-size: 13px; color: #718194; line-height: 1.8; }
+.plan-buys { list-style: none; padding: 0; margin: 12px 0 0; font-size: 13px; }
+.plan-buys li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+.plan-buys button { background: none; border: 0; color: #a43f35; cursor: pointer; font: inherit; }
+@media (max-width: 560px) {
+  .plan-section { padding: 18px; overflow-x: auto; }
+  .plan-table { font-size: 12px; }
+}

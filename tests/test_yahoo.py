@@ -358,3 +358,11 @@ def test_completed_through_never_admits_a_candle_after_today(monkeypatch):
     mock_response(monkeypatch, payload)
     points, _ = data.yahoo_data("UMC", completed_through=date(2026, 11, 18))
     assert points[-1] == {"date": "2026-11-17", "close": 999.0}
+
+
+def test_yahoo_long_history_range_is_explicit_and_bounded(monkeypatch):
+    requests = mock_response(monkeypatch, yahoo_payload())
+    data.yahoo_data("0050.TW", history_range="max")
+    assert "range=max&" in requests[0][0].full_url
+    with pytest.raises(ValueError):
+        data.yahoo_data("0050.TW", history_range="1d")
