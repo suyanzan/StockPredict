@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>StockPredict · 私人 0050 資金計畫</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/admin.css">
+  <link rel="stylesheet" href="/static/plan.css">
+  <script src="/static/plan.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="/">Stock<span class="brand-accent">Predict</span></a>
+    <div class="admin-header-actions"><a href="/">返回網站</a></div>
+  </div></header>
+  <main class="page admin-page plan-page">
+    <section class="page-intro"><div><p class="eyebrow">OWNER WORKSPACE</p>
+      <h1>0050 資金計畫</h1>
+      <p>只有持有管理金鑰的站主可以使用。你輸入的金額與持股只存在這台裝置的瀏覽器，不會傳到伺服器；伺服器只提供 0050 歷史價格與百分比回測。</p>
+      <p class="plan-disclaimer">歷史模擬不代表未來，也不是投資建議。回測使用 Yahoo 收盤價（已反映分割、不含配息），手續費 0.1425%、賣出另計 0.1% 證交稅，未計最低手續費。</p>
+    </div></section>
+    <p id="plan-message" class="notice" role="status" hidden></p>
+
+    <section class="panel admin-auth" id="plan-auth">
+      <form id="plan-login-form">
+        <label for="plan-key">管理金鑰</label>
+        <input id="plan-key" type="password" minlength="32" maxlength="1024" autocomplete="off" required>
+        <p>與留言管理頁相同的金鑰。此頁不會保存金鑰；重新整理後需再次輸入。</p>
+        <button class="button button-primary" type="submit">開始</button>
+      </form>
+    </section>
+
+    <div id="plan-app" hidden>
+      <section class="panel plan-section">
+        <h2>1. 資金分配與最壞情境</h2>
+        <div class="plan-grid">
+          <label>可投入資金（元）<input id="in-total" type="number" min="0" step="10000"></label>
+          <label>保留定存／現金（%）<input id="in-keep" type="number" min="0" max="100" step="5"></label>
+          <label>衛星（短期套利）占投入部分（%）<input id="in-sat" type="number" min="0" max="50" step="5"></label>
+          <label>定存年利率（%，自行輸入）<input id="in-rate" type="number" min="0" max="10" step="0.05"></label>
+        </div>
+        <table class="plan-table"><tbody id="alloc-body"></tbody></table>
+        <p id="alloc-note" class="plan-note"></p>
+      </section>
+
+      <section class="panel plan-section">
+        <h2>2. 分批買入時程</h2>
+        <div class="plan-grid">
+          <label>第一次買入月份<input id="in-start" type="month"></label>
+          <label>分幾個月買完<input id="in-months" type="number" min="1" max="24" step="1"></label>
+        </div>
+        <p class="plan-note">每月核心金額 = 核心資金 ÷ 月數。股數以目前收盤價估算，實際以下單時價格為準。</p>
+        <table class="plan-table"><thead><tr><th>月份</th><th>核心買入</th><th>約略股數</th></tr></thead><tbody id="schedule-body"></tbody></table>
+      </section>
+
+      <section class="panel plan-section">
+        <h2>3. 我的持股與平均成本</h2>
+        <div class="plan-grid">
+          <label>原有股數<input id="in-held" type="number" min="0" step="1"></label>
+          <label>原有平均成本（元／股）<input id="in-held-cost" type="number" min="0" step="0.01"></label>
+        </div>
+        <form id="buy-form" class="plan-grid plan-buy">
+          <label>日期<input id="buy-date" type="date" required></label>
+          <label>股數<input id="buy-shares" type="number" min="1" step="1" required></label>
+          <label>成交價<input id="buy-price" type="number" min="0.01" step="0.01" required></label>
+          <button class="button button-secondary" type="submit">記錄買入</button>
+        </form>
+        <table class="plan-table"><tbody id="holding-body"></tbody></table>
+        <ul id="buy-list" class="plan-buys"></ul>
+      </section>
+
+      <section class="panel plan-section">
+        <h2>4. 歷史回測：一次投入 vs 分批 vs 衛星套利</h2>
+        <form id="sim-form" class="plan-grid">
+          <label>觀察期（月）<input id="sim-horizon" type="number" min="6" max="120" step="6" value="36"></label>
+          <label>漲幾 % 賣出<input id="sim-up" type="number" min="1" max="50" step="1" value="8"></label>
+          <label>賣出持股的 %<input id="sim-fraction" type="number" min="5" max="100" step="1" value="33"></label>
+          <label>從賣價跌幾 % 買回<input id="sim-down" type="number" min="1" max="50" step="1" value="10"></label>
+          <button class="button button-primary" type="submit">重新回測</button>
+        </form>
+        <p id="sim-meta" class="plan-note"></p>
+        <h3>一次投入 vs 分批買入（報酬率 %）</h3>
+        <table class="plan-table"><thead><tr><th></th><th>中位數</th><th>差的 5%</th><th>最差</th><th>最好</th><th>虧損機率</th></tr></thead><tbody id="lump-body"></tbody></table>
+        <p id="lump-note" class="plan-note"></p>
+        <h3>衛星比例比較（核心分批 + 衛星套利規則）</h3>
+        <table class="plan-table"><thead><tr><th>衛星</th><th>中位數</th><th>差的 5%</th><th>最差</th><th>交易次數</th><th>勝過純分批</th></tr></thead><tbody id="sat-body"></tbody></table>
+        <p class="plan-note">衛星規則：一開始買進，漲到參考價 +X% 時賣出部分持股換回現金；之後從賣價下跌 Y% 時把現金全數買回。每次交易都更新參考價。</p>
+      </section>
+
+      <div class="admin-actions"><button id="plan-logout" class="button button-secondary" type="button">登出</button></div>
+    </div>
+  </main>
+</body>
+</html>
