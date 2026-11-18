@@ -366,3 +366,22 @@ def test_yahoo_long_history_range_is_explicit_and_bounded(monkeypatch):
     assert "range=max&" in requests[0][0].full_url
     with pytest.raises(ValueError):
         data.yahoo_data("0050.TW", history_range="1d")
+
+
+def test_yahoo_explicit_period_window(monkeypatch):
+    requests = mock_response(monkeypatch, yahoo_payload())
+    data.yahoo_data("0050.TW", period=(1000, 2000))
+    url = requests[0][0].full_url
+    assert "period1=1000&period2=2000&interval=1d" in url and "range=" not in url
+    for bad in ((2000, 1000), (-1, 5), (1.5, 2)):
+        with pytest.raises(ValueError):
+            data.yahoo_data("0050.TW", period=bad)
+
+
+def test_yahoo_rejects_downsampled_history(monkeypatch):
+    payload = yahoo_payload()
+    payload["chart"]["result"][0]["meta"]["dataGranularity"] = "3mo"
+    mock_response(monkeypatch, payload)
+    with pytest.raises(data.DataSourceError) as caught:
+        data.yahoo_data("0050.TW", history_range="max")
+    assert caught.value.code == "us_invalid_data"

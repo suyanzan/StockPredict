@@ -28,6 +28,8 @@ MONTH = 21  # Trading days per month, for spacing scheduled buys.
 START_STEP = 5  # Sample a start date every five trading days.
 SATELLITE_SHARES = (0.0, 0.1, 0.2)
 CACHE_SECONDS = 6 * 3600
+HISTORY_YEARS = 20
+CHUNK_SECONDS = 10 * 365 * 86400  # Yahoo truncates long daily windows.
 SESSION_COOKIE = "sp_plan_owner"
 SESSION_SECONDS = 7 * 24 * 3600
 SESSION_PATH = "/api/plan"
@@ -108,9 +110,22 @@ def _history() -> tuple[list[str], np.ndarray]:
         cached = _cache.get("history")
         if cached and time.monotonic() - cached[0] < CACHE_SECONDS:
             return cached[1], cached[2]
-    points, _ = yahoo_data(SYMBOL, history_range="max")
-    dates = [point["date"] for point in points]
-    closes = np.array([point["close"] for point in points], dtype=float)
+    end = int(time.time())
+    begin = end - HISTORY_YEARS * 365 * 86400
+    merged: dict[str, float] = {}
+    while begin < end:
+        stop = min(end, begin + CHUNK_SECONDS)
+        try:
+            points, _ = yahoo_data(SYMBOL, period=(begin, stop))
+        except DataSourceError:
+            if not merged and stop < end:
+                begin = stop  # The fund may not have existed for the whole window.
+                continue
+            raise
+        merged.update((point["date"], point["close"]) for point in points)
+        begin = stop
+    dates = sorted(merged)
+    closes = np.array([merged[day] for day in dates], dtype=float)
     with _lock:
         _cache["history"] = (time.monotonic(), dates, closes)
     return dates, closes

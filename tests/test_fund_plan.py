@@ -65,7 +65,11 @@ def test_plan_returns_percentages_and_caches_history(client, monkeypatch):
     headers = {"Authorization": f"Bearer {TOKEN}"}
     body = client.get("/api/plan/0050?months=12&horizon_months=24", headers=headers).json()
     assert body["symbol"] == "0050.TW" and body["latest"]["close"] == 100.0
-    assert calls == [("0050.TW", {"history_range": "max"})]
+    # Long daily history is requested in explicit windows of at most ten years.
+    assert len(calls) == 2 and all(symbol == "0050.TW" for symbol, _ in calls)
+    windows = [kwargs["period"] for _, kwargs in calls]
+    assert windows[0][1] == windows[1][0]
+    assert all(0 < end - begin <= fund_plan.CHUNK_SECONDS for begin, end in windows)
     sim = body["simulation"]
     # Steadily rising prices: buying everything up front beats spreading it out.
     assert sim["lump_sum"]["median"] > sim["monthly"]["median"] > 0
@@ -74,7 +78,24 @@ def test_plan_returns_percentages_and_caches_history(client, monkeypatch):
     assert sim["satellite"][0]["beats_monthly_pct"] is None
     assert body["max_drawdown"]["pct"] == 0
     client.get("/api/plan/0050", headers=headers)
-    assert len(calls) == 1  # Served from cache.
+    assert len(calls) == 2  # Served from cache.
+
+
+def test_history_skips_windows_before_the_fund_existed(monkeypatch):
+    dates, values = series(list(np.linspace(50, 100, 300)))
+    calls = []
+
+    def fake(symbol, **kwargs):
+        calls.append(kwargs["period"])
+        if len(calls) == 1:
+            raise DataSourceError("no data", code="us_unavailable")
+        return [{"date": d, "close": float(c)} for d, c in zip(dates, values)], {}
+
+    fund_plan._cache.clear()
+    monkeypatch.setattr(fund_plan, "yahoo_data", fake)
+    history_dates, closes = fund_plan._history()
+    fund_plan._cache.clear()
+    assert len(calls) == 2 and history_dates == dates and closes[-1] == 100.0
 
 
 def test_plan_rejects_horizon_shorter_than_buying_period(client, monkeypatch):
