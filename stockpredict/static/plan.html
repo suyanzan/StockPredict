@@ -57,17 +57,19 @@
       </section>
 
       <section class="panel plan-section">
-        <h2>3. 我的持股與平均成本</h2>
+        <h2>3. 我的持股與投資損益</h2>
         <div class="plan-grid">
           <label>原有股數<input id="in-held" type="number" min="0" step="1"></label>
           <label>原有平均成本（元／股）<input id="in-held-cost" type="number" min="0" step="0.01"></label>
         </div>
         <form id="buy-form" class="plan-grid plan-buy">
+          <label>類型<select id="buy-type"><option value="buy">買入</option><option value="sell">賣出</option><option value="dividend">配息</option></select></label>
           <label>日期<input id="buy-date" type="date" required></label>
-          <label>股數<input id="buy-shares" type="number" min="1" step="1" required></label>
-          <label>成交價<input id="buy-price" type="number" min="0.01" step="0.01" required></label>
-          <button class="button button-secondary" type="submit">記錄買入</button>
+          <label id="buy-shares-label">股數<input id="buy-shares" type="number" min="1" step="1" required></label>
+          <label id="buy-price-label">成交價<input id="buy-price" type="number" min="0.0001" step="0.0001" required></label>
+          <button class="button button-secondary" type="submit">記錄</button>
         </form>
+        <p class="plan-note">損益以平均成本法計算；買入計 0.1425% 手續費，賣出另扣 0.1% 證交稅。配息請填參與配息的股數與每股配息金額。</p>
         <table class="plan-table"><tbody id="holding-body"></tbody></table>
         <ul id="buy-list" class="plan-buys"></ul>
       </section>
@@ -88,6 +90,16 @@
         <h3>衛星比例比較（核心分批 + 衛星套利規則）</h3>
         <table class="plan-table"><thead><tr><th>衛星</th><th>中位數</th><th>差的 5%</th><th>最差</th><th>交易次數</th><th>勝過純分批</th></tr></thead><tbody id="sat-body"></tbody></table>
         <p class="plan-note">衛星規則：一開始買進，漲到參考價 +X% 時賣出部分持股換回現金；之後從賣價下跌 Y% 時把現金全數買回。每次交易都更新參考價。</p>
+      </section>
+
+      <section class="panel plan-section">
+        <h2>5. 模擬交易（參考用）</h2>
+        <p class="plan-note">從 2026-11-19 起，以虛擬 100 萬元、每天 0050 的實際收盤價自動執行規則（當日收盤決策並成交、整股零股、含手續費與證交稅）。規則參數與第 4 區相同，分批月數與第 1 區衛星比例相同。這是模擬，不代表實際下單結果。</p>
+        <p id="paper-status" class="plan-note"></p>
+        <table class="plan-table"><thead><tr><th>帳戶</th><th>總資產</th><th>報酬率</th><th>現金</th><th>股數</th><th>已分批</th></tr></thead><tbody id="paper-body"></tbody></table>
+        <svg id="paper-chart" class="plan-chart" viewBox="0 0 600 180" role="img" aria-label="兩個模擬帳戶的資產走勢"></svg>
+        <h3>模擬交易紀錄（最新在上）</h3>
+        <table class="plan-table"><thead><tr><th>日期</th><th>帳戶</th><th>動作</th><th>股數</th><th>價格</th><th>金額</th></tr></thead><tbody id="paper-trades"></tbody></table>
       </section>
 
       <div class="admin-actions"><button id="plan-logout" class="button button-secondary" type="button">登出這台裝置</button></div>

@@ -26,6 +26,7 @@ from stockpredict.localization import Language, add_localizations, localize_erro
 from stockpredict.market_data import overnight_factors
 from stockpredict.onboarding import router as onboarding_router
 from stockpredict.overnight import build_context, pending_context, reference_timing
+from stockpredict.paper_trade import router as paper_trade_router
 from stockpredict.quotes import router as quotes_router
 from stockpredict.reference_profiles import (
     canonical_reference_symbol,
@@ -50,6 +51,7 @@ app.include_router(reliability_router)
 app.include_router(onboarding_router)
 app.include_router(daily_news_router)
 app.include_router(fund_plan_router)
+app.include_router(paper_trade_router)
 
 
 @app.get("/api/reference-quotes/latest")

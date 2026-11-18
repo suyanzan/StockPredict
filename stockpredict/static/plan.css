@@ -15,6 +15,9 @@
 .plan-buys { list-style: none; padding: 0; margin: 12px 0 0; font-size: 13px; }
 .plan-buys li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
 .plan-buys button { background: none; border: 0; color: #a43f35; cursor: pointer; font: inherit; }
+.plan-grid select { border: 1px solid var(--border); border-radius: 6px; padding: 10px; font: inherit; font-weight: 400; }
+.plan-chart { width: 100%; height: auto; margin: 16px 0 4px; }
+.plan-legend { font-size: 12px; }
 @media (max-width: 560px) {
   .plan-section { padding: 18px; overflow-x: auto; }
   .plan-table { font-size: 12px; }
