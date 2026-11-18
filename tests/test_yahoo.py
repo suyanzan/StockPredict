@@ -335,3 +335,26 @@ def test_yahoo_does_not_invent_close_if_not_published(monkeypatch, missing):
     mock_response(monkeypatch, payload)
     points, _ = data.yahoo_data("AAPL")
     assert len(points) == 69 and points[-1]["close"] == 169.0
+
+
+def test_calendar_confirmed_close_survives_rolled_trading_period(monkeypatch):
+    """Evening refresh: Yahoo may already report the next session's schedule."""
+    payload = session_payload(monkeypatch, "2026-11-17T21:30:00-05:00")
+    rolled = {"start": 1, "end": 2}  # Not today's schedule.
+    payload["chart"]["result"][0]["meta"]["currentTradingPeriod"] = {"regular": rolled}
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("UMC")
+    assert points[-1]["date"] == "2026-11-16"  # Unconfirmed: conservative default.
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("UMC", completed_through=date(2026, 11, 17))
+    assert points[-1] == {"date": "2026-11-17", "close": 999.0}
+
+
+def test_completed_through_never_admits_a_candle_after_today(monkeypatch):
+    payload = session_payload(monkeypatch, "2026-11-17T21:30:00-05:00")
+    result = payload["chart"]["result"][0]
+    result["timestamp"].append(result["timestamp"][-1] + 86400)
+    result["indicators"]["quote"][0]["close"].append(555.0)
+    mock_response(monkeypatch, payload)
+    points, _ = data.yahoo_data("UMC", completed_through=date(2026, 11, 18))
+    assert points[-1]["date"] == "2026-11-17"

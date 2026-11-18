@@ -191,8 +191,14 @@ def _today_session_completed(meta: dict, now: datetime) -> bool:
         return False
 
 
-def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
-    """Daily closes, never silently fall back to synthetic data on failure."""
+def yahoo_data(symbol: str, *, completed_through: date | None = None) -> tuple[list[dict], dict]:
+    """Daily closes, never silently fall back to synthetic data on failure.
+
+    ``completed_through`` lets a caller that has already confirmed a session is
+    complete from the exchange calendar keep that day's candle. Without it,
+    today's candle depends on Yahoo's ``currentTradingPeriod``, which can roll
+    to the next session during the evening and would hide a finished close.
+    """
     url = (
         f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol, safe='')}"
         "?range=2y&interval=1d&events=div%2Csplits"
@@ -263,7 +269,10 @@ def yahoo_data(symbol: str) -> tuple[list[dict], dict]:
         points = []
         for timestamp, close in zip(timestamps, closes):
             day = datetime.fromtimestamp(timestamp, timezone).date()
-            if close is not None and (day < today or (include_today and day == today)):
+            confirmed = completed_through is not None and day <= completed_through
+            if close is not None and (
+                day < today or (day == today and (include_today or confirmed))
+            ):
                 points.append({"date": day.isoformat(), "close": float(close)})
         points.sort(key=lambda p: p["date"])
         validate_points(points)

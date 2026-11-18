@@ -44,7 +44,11 @@ def _download(symbol: str, session_date: str, attempts: int):
     for attempt in range(1, attempts + 1):
         details = {"symbol": symbol, "expected_session": session_date, "attempt": attempt}
         try:
-            points, metadata = yahoo_data(symbol)
+            # refresh() already confirmed this session closed via the exchange
+            # calendar, so do not depend on Yahoo's rolling trading-period field.
+            points, metadata = yahoo_data(
+                symbol, completed_through=date.fromisoformat(session_date)
+            )
             validate_points(points)
             details.update(
                 actual_session=points[-1]["date"],

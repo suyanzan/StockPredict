@@ -35,7 +35,7 @@ def fake_provider(monkeypatch, *, end=date(2026, 10, 30), metadata=None):
     calls, sleeps = [], []
     points = observations(end)
 
-    def fetch(symbol):
+    def fetch(symbol, **_):
         calls.append(symbol)
         return deepcopy(points), {
             "currency": "USD",
@@ -66,7 +66,9 @@ def tree_bytes(root):
 def test_before_close_or_weekend_never_fetches_or_mutates_files(
     monkeypatch, tmp_path, text, status
 ):
-    monkeypatch.setattr(refresh_job, "yahoo_data", lambda _: pytest.fail("Unexpected request"))
+    monkeypatch.setattr(
+        refresh_job, "yahoo_data", lambda *_, **__: pytest.fail("Unexpected request")
+    )
     output = tmp_path / "not-created"
     result = refresh_job.refresh(output, now=datetime.fromisoformat(text))
     assert result["status"] == status
@@ -107,7 +109,9 @@ def test_intact_current_snapshot_skips_second_cron_without_requests(monkeypatch,
     fake_provider(monkeypatch)
     first = refresh_job.refresh(tmp_path, now=NOW)
     before = tree_bytes(tmp_path)
-    monkeypatch.setattr(refresh_job, "yahoo_data", lambda _: pytest.fail("Duplicate request"))
+    monkeypatch.setattr(
+        refresh_job, "yahoo_data", lambda *_, **__: pytest.fail("Duplicate request")
+    )
     monkeypatch.setattr(refresh_job, "_sleep", lambda _: pytest.fail("Unexpected pacing"))
     result = refresh_job.refresh(tmp_path, now=NOW + timedelta(hours=1))
     assert result == {**first, "status": "already_current"}
@@ -169,7 +173,7 @@ def test_late_symbol_failure_preserves_previous_snapshot_and_stops(monkeypatch, 
     before = tree_bytes(tmp_path)
     calls, sleeps = [], []
 
-    def fetch(symbol):
+    def fetch(symbol, **_):
         calls.append(symbol)
         if symbol == "TSM":
             raise DataSourceError(
@@ -237,7 +241,9 @@ def test_symlink_output_directory_rejected_before_network(monkeypatch, tmp_path)
     destination.mkdir()
     link = tmp_path / "link"
     link.symlink_to(destination, target_is_directory=True)
-    monkeypatch.setattr(refresh_job, "yahoo_data", lambda _: pytest.fail("Unexpected request"))
+    monkeypatch.setattr(
+        refresh_job, "yahoo_data", lambda *_, **__: pytest.fail("Unexpected request")
+    )
     with pytest.raises(ValueError, match="symbolic"):
         refresh_job.refresh(link, now=NOW)
     assert list(destination.iterdir()) == []
@@ -347,7 +353,7 @@ def test_delayed_close_recovers_without_refetching_successful_symbols(
 ):
     calls, sleeps = [], []
 
-    def fetch(symbol):
+    def fetch(symbol, **_):
         calls.append(symbol)
         end = date(2026, 10, 29) if calls == ["UMC"] else date(2026, 10, 30)
         return observations(end), {"currency": "USD", "exchange_timezone": "America/New_York"}
@@ -394,7 +400,7 @@ def test_retry_policy_honors_cooldown_and_stops_permanent_errors(
 ):
     calls, sleeps = [], []
 
-    def fetch(symbol):
+    def fetch(symbol, **_):
         calls.append(symbol)
         raise DataSourceError(
             "private-provider-body", code=code, http_status=status, retry_after=cooldown
@@ -441,7 +447,9 @@ def test_recovery_uses_latest_completed_exchange_session(
     assert result["status"] == "updated" and result["session_date"] == expected
     manifest = json.loads((tmp_path / "manifest.json").read_text())
     assert datetime.fromisoformat(manifest["generated_at"]) == now
-    monkeypatch.setattr(refresh_job, "yahoo_data", lambda _: pytest.fail("Duplicate request"))
+    monkeypatch.setattr(
+        refresh_job, "yahoo_data", lambda *_, **__: pytest.fail("Duplicate request")
+    )
     assert (
         refresh_job.refresh(tmp_path, now=now, latest_completed=True)["status"] == "already_current"
     )
