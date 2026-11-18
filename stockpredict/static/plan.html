@@ -23,16 +23,17 @@
     </div></section>
     <p id="plan-message" class="notice" role="status" hidden></p>
 
-    <section class="panel admin-auth" id="plan-auth">
+    <section class="panel admin-auth" id="plan-auth" hidden>
       <form id="plan-login-form">
         <label for="plan-key">管理金鑰</label>
         <input id="plan-key" type="password" minlength="32" maxlength="1024" autocomplete="off" required>
-        <p>與留言管理頁相同的金鑰。此頁不會保存金鑰；重新整理後需再次輸入。</p>
+        <p>與留言管理頁相同的金鑰。登入後這台裝置會保留 7 天（安全 Cookie，不保存金鑰本身）；到期或登出後需再次輸入。</p>
         <button class="button button-primary" type="submit">開始</button>
       </form>
     </section>
 
     <div id="plan-app" hidden>
+      <p id="plan-expiry" class="plan-note"></p>
       <section class="panel plan-section">
         <h2>1. 資金分配與最壞情境</h2>
         <div class="plan-grid">
@@ -89,7 +90,7 @@
         <p class="plan-note">衛星規則：一開始買進，漲到參考價 +X% 時賣出部分持股換回現金；之後從賣價下跌 Y% 時把現金全數買回。每次交易都更新參考價。</p>
       </section>
 
-      <div class="admin-actions"><button id="plan-logout" class="button button-secondary" type="button">登出</button></div>
+      <div class="admin-actions"><button id="plan-logout" class="button button-secondary" type="button">登出這台裝置</button></div>
     </div>
   </main>
 </body>

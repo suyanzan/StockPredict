@@ -6,16 +6,19 @@ and holdings never reach the server; the private page scales results locally.
 These are historical simulations, not forecasts or advice.
 """
 
+import hashlib
+import hmac
+import os
 import threading
 import time
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Annotated
 
 import numpy as np
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, Query, Request, Response
 from fastapi.responses import JSONResponse
 
-from stockpredict.community import require_admin
+from stockpredict.community import _origin_check, require_admin
 from stockpredict.data import DataSourceError, yahoo_data
 
 SYMBOL = "0050.TW"
@@ -25,10 +28,79 @@ MONTH = 21  # Trading days per month, for spacing scheduled buys.
 START_STEP = 5  # Sample a start date every five trading days.
 SATELLITE_SHARES = (0.0, 0.1, 0.2)
 CACHE_SECONDS = 6 * 3600
+SESSION_COOKIE = "sp_plan_owner"
+SESSION_SECONDS = 7 * 24 * 3600
+SESSION_PATH = "/api/plan"
 
 router = APIRouter()
 _cache: dict = {}
 _lock = threading.Lock()
+
+
+def _signature(expires: int) -> str:
+    key = os.getenv("COMMUNITY_ADMIN_TOKEN", "").encode()
+    return hmac.new(key, f"plan-owner:{expires}".encode(), hashlib.sha256).hexdigest()
+
+
+def _session_expiry(request: Request) -> int | None:
+    """Expiry of a valid owner cookie. Rotating the owner key revokes every session."""
+    if len(os.getenv("COMMUNITY_ADMIN_TOKEN", "").encode()) < 32:
+        return None
+    expires_text, _, signature = request.cookies.get(SESSION_COOKIE, "").partition(".")
+    if not expires_text.isdigit() or len(expires_text) > 12:
+        return None
+    expires = int(expires_text)
+    if expires <= time.time() or expires > time.time() + SESSION_SECONDS + 60:
+        return None
+    if not hmac.compare_digest(signature, _signature(expires)):
+        return None
+    return expires
+
+
+def require_plan_owner(
+    request: Request, authorization: Annotated[str | None, Header()] = None
+) -> None:
+    if _session_expiry(request) is None:
+        require_admin(authorization)
+
+
+def _iso(expires: int) -> str:
+    return datetime.fromtimestamp(expires, timezone.utc).isoformat()
+
+
+@router.post("/api/plan/session", dependencies=[Depends(require_admin)])
+def start_session(request: Request, response: Response):
+    _origin_check(request)
+    expires = int(time.time()) + SESSION_SECONDS
+    response.set_cookie(
+        SESSION_COOKIE,
+        f"{expires}.{_signature(expires)}",
+        max_age=SESSION_SECONDS,
+        httponly=True,
+        samesite="strict",
+        secure=os.getenv("RENDER", "").lower() == "true" or request.url.scheme == "https",
+        path=SESSION_PATH,
+    )
+    return {"expires_at": _iso(expires)}
+
+
+@router.get("/api/plan/session")
+def session_status(request: Request):
+    expires = _session_expiry(request)
+    if expires is None:
+        return JSONResponse(
+            status_code=401,
+            content={"detail": {"code": "unauthorized", "message": "需要輸入管理金鑰。"}},
+        )
+    return {"expires_at": _iso(expires)}
+
+
+@router.delete("/api/plan/session", status_code=204)
+def end_session(request: Request):
+    _origin_check(request)
+    response = Response(status_code=204)
+    response.delete_cookie(SESSION_COOKIE, path=SESSION_PATH)
+    return response
 
 
 def _history() -> tuple[list[str], np.ndarray]:
@@ -152,7 +224,7 @@ def simulate(
     }
 
 
-@router.get("/api/plan/0050", dependencies=[Depends(require_admin)])
+@router.get("/api/plan/0050", dependencies=[Depends(require_plan_owner)])
 def plan_0050(
     months: Annotated[int, Query(ge=1, le=24)] = 12,
     horizon_months: Annotated[int, Query(ge=6, le=120)] = 36,

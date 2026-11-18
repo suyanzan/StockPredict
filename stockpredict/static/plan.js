@@ -10,7 +10,6 @@
     total: 2000000, keep: 20, sat: 10, rate: 0, start: "2027-01", months: 12,
     held: 3000, heldCost: 0, buys: [],
   };
-  let token = "";
   let data = null;
   let state = load();
 
@@ -60,13 +59,14 @@
       sell_fraction_pct: $("sim-fraction").value,
     });
     show("正在讀取 0050 歷史價格並回測…");
-    const response = await fetch(`/api/plan/0050?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await fetch(`/api/plan/0050?${params}`, { credentials: "same-origin" });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
       const code = body?.detail?.code;
-      if (code === "unauthorized") throw new Error("管理金鑰無效，請重新輸入。");
+      if (code === "unauthorized") {
+        signedOut("登入已過期，請重新輸入管理金鑰。");
+        throw new Error("登入已過期，請重新輸入管理金鑰。");
+      }
       if (code === "admin_not_configured") throw new Error("管理功能尚未設定，請先在 Render 設定管理金鑰。");
       throw new Error(body?.detail?.message || "回測暫時無法使用，請稍後再試。");
     }
@@ -182,24 +182,53 @@
     el.addEventListener("change", async () => {
       state[key] = parse(el.value);
       save();
-      if (key === "months" && token) {
+      if (key === "months" && data) {
         try { await fetchPlan(); } catch (error) { show(error.message, true); }
       }
       renderAll();
     });
   }
 
+  function signedOut(message) {
+    data = null;
+    $("plan-app").hidden = true;
+    $("plan-auth").hidden = false;
+    if (message) show(message, true);
+  }
+
+  function setExpiry(expiresAt) {
+    const when = new Date(expiresAt);
+    $("plan-expiry").textContent = Number.isNaN(when.getTime())
+      ? ""
+      : `已登入，這台裝置的登入會保留到 ${when.toLocaleString("zh-TW", { hour12: false })}。`;
+  }
+
+  async function openApp() {
+    $("plan-auth").hidden = true;
+    $("plan-app").hidden = false;
+    await fetchPlan();
+    renderAll();
+  }
+
   $("plan-login-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    token = $("plan-key").value.trim();
+    const key = $("plan-key").value.trim();
     try {
-      await fetchPlan();
+      const response = await fetch("/api/plan/session", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Authorization: `Bearer ${key}` },
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const code = body?.detail?.code;
+        if (code === "admin_not_configured") throw new Error("管理功能尚未設定，請先在 Render 設定管理金鑰。");
+        throw new Error("管理金鑰無效，請重新輸入。");
+      }
       $("plan-key").value = "";
-      $("plan-auth").hidden = true;
-      $("plan-app").hidden = false;
-      renderAll();
+      setExpiry(body.expires_at);
+      await openApp();
     } catch (error) {
-      token = "";
       show(error.message, true);
     }
   });
@@ -223,11 +252,10 @@
     event.target.reset();
     renderHoldings();
   });
-  $("plan-logout").addEventListener("click", () => {
-    token = "";
-    data = null;
-    $("plan-app").hidden = true;
-    $("plan-auth").hidden = false;
+  $("plan-logout").addEventListener("click", async () => {
+    await fetch("/api/plan/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
+    signedOut("");
+    show("已登出這台裝置。");
   });
 
   bind("in-total", "total");
@@ -238,4 +266,20 @@
   bind("in-months", "months", (v) => Math.min(24, Math.max(1, Math.round(Number(v) || 1))));
   bind("in-held", "held");
   bind("in-held-cost", "heldCost");
+
+  // Resume a remembered session without asking for the key again.
+  (async () => {
+    try {
+      const response = await fetch("/api/plan/session", { credentials: "same-origin" });
+      if (!response.ok) {
+        $("plan-auth").hidden = false;
+        return;
+      }
+      setExpiry((await response.json()).expires_at);
+      await openApp();
+    } catch (error) {
+      if ($("plan-app").hidden) $("plan-auth").hidden = false;
+      show(error.message, true);
+    }
+  })();
 })();
