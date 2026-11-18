@@ -11,6 +11,7 @@
     held: 3000, heldCost: 0, buys: [],
   };
   let data = null;
+  let paper = null;
   let state = load();
 
   function load() {
@@ -72,6 +73,19 @@
     }
     data = body;
     show("");
+    const paperParams = new URLSearchParams({
+      months: String(state.months),
+      satellite_pct: String(Math.min(50, Math.max(0, state.sat))),
+      up_pct: $("sim-up").value,
+      down_pct: $("sim-down").value,
+      sell_fraction_pct: $("sim-fraction").value,
+    });
+    try {
+      const paperResponse = await fetch(`/api/plan/paper?${paperParams}`, { credentials: "same-origin" });
+      paper = paperResponse.ok ? await paperResponse.json() : null;
+    } catch {
+      paper = null;
+    }
   }
 
   function renderAllocation() {
@@ -111,33 +125,70 @@
     }
   }
 
+  const SELL_COST = 0.001425 + 0.001;
+  const TYPE_LABEL = { buy: "買入", sell: "賣出", dividend: "配息" };
+
+  // Average-cost ledger: existing holding first, then records in date order.
+  function ledger(records) {
+    let shares = Number(state.held) || 0;
+    let cost = shares * (Number(state.heldCost) || 0);
+    let invested = cost;
+    let realized = 0;
+    let dividends = 0;
+    for (const r of records) {
+      const type = r.type || "buy";
+      if (type === "buy") {
+        shares += r.shares;
+        cost += r.shares * r.price * (1 + BUY_FEE);
+        invested += r.shares * r.price * (1 + BUY_FEE);
+      } else if (type === "sell") {
+        if (r.shares > shares) return { error: `${r.date} 賣出 ${r.shares} 股超過當時持有的 ${shares} 股。` };
+        const basis = shares ? cost / shares * r.shares : 0;
+        realized += r.shares * r.price * (1 - SELL_COST) - basis;
+        cost -= basis;
+        shares -= r.shares;
+      } else {
+        dividends += r.shares * r.price;
+      }
+    }
+    return { shares, cost, invested, realized, dividends };
+  }
+
   function renderHoldings() {
     const body = $("holding-body");
     body.replaceChildren();
-    let shares = Number(state.held) || 0;
-    let cost = shares * (Number(state.heldCost) || 0);
-    state.buys.forEach((b) => {
-      shares += b.shares;
-      cost += b.shares * b.price * (1 + BUY_FEE);
-    });
+    const result = ledger(state.buys);
+    if (result.error) {
+      row(body, ["紀錄有誤", { text: result.error, cls: "plan-neg" }]);
+      return;
+    }
+    const { shares, cost, invested, realized, dividends } = result;
     const avg = shares ? cost / shares : 0;
-    row(body, ["總股數", `${shares.toLocaleString("zh-TW")} 股（${num(shares / 1000, 3)} 張）`]);
+    row(body, ["持有股數", `${shares.toLocaleString("zh-TW")} 股（${num(shares / 1000, 3)} 張）`]);
     row(body, ["平均成本（含手續費）", avg ? `${num(avg)} 元` : "—"]);
-    row(body, ["總投入成本", money(cost)]);
-    if (data && shares) {
+    row(body, ["持股成本", money(cost)]);
+    row(body, ["累計投入", money(invested)]);
+    row(body, ["已實現損益（賣出）", { text: money(realized), cls: realized < 0 ? "plan-neg" : "plan-pos" }]);
+    row(body, ["累計配息", money(dividends)]);
+    if (data) {
       const price = data.latest.close;
-      const value = shares * price;
-      const net = value * (1 - 0.001425 - 0.001);
-      row(body, [`市值（${data.latest.date} 收盤 ${num(price)}）`, money(value)]);
-      row(body, ["若現在全部賣出，扣費後損益", signed(cost ? (net / cost - 1) * 100 : 0)], "plan-strong");
-      row(body, ["回本價（扣賣出成本）", avg ? `${num(avg / (1 - 0.001425 - 0.001))} 元` : "—"]);
+      const unrealized = shares * price * (1 - SELL_COST) - cost;
+      const total = unrealized + realized + dividends;
+      row(body, [`市值（${data.latest.date} 收盤 ${num(price)}）`, money(shares * price)]);
+      row(body, ["未實現損益（扣賣出成本）", { text: money(unrealized), cls: unrealized < 0 ? "plan-neg" : "plan-pos" }]);
+      row(body, ["總損益（含已實現與配息）", { text: money(total), cls: total < 0 ? "plan-neg" : "plan-pos" }], "plan-strong");
+      row(body, ["總報酬率（÷ 累計投入）", signed(invested ? total / invested * 100 : 0)], "plan-strong");
+      if (avg) row(body, ["持股回本價（扣賣出成本）", `${num(avg / (1 - SELL_COST))} 元`]);
     }
     const list = $("buy-list");
     list.replaceChildren();
     state.buys.forEach((b, index) => {
       const li = document.createElement("li");
       const text = document.createElement("span");
-      text.textContent = `${b.date}　${b.shares.toLocaleString("zh-TW")} 股 @ ${num(b.price)}`;
+      const type = b.type || "buy";
+      text.textContent = type === "dividend"
+        ? `${b.date}　配息 ${b.shares.toLocaleString("zh-TW")} 股 × ${num(b.price, 4)} = ${money(b.shares * b.price)}`
+        : `${b.date}　${TYPE_LABEL[type]} ${b.shares.toLocaleString("zh-TW")} 股 @ ${num(b.price)}`;
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "刪除";
@@ -148,6 +199,63 @@
       });
       li.append(text, remove);
       list.append(li);
+    });
+  }
+
+  const ACCOUNT_LABEL = { plan: "分批＋衛星", baseline: "純分批（對照）" };
+  const REASON_LABEL = { monthly: "每月分批", satellite_start: "衛星建倉", take_profit: "衛星獲利了結", buy_back: "衛星買回" };
+
+  function renderPaper() {
+    const status = $("paper-status");
+    const body = $("paper-body");
+    const tradesBody = $("paper-trades");
+    const chart = $("paper-chart");
+    body.replaceChildren();
+    tradesBody.replaceChildren();
+    chart.replaceChildren();
+    if (!paper) {
+      status.textContent = "模擬交易資料暫時無法讀取。";
+      return;
+    }
+    if (paper.status === "waiting") {
+      status.textContent = `模擬將從 ${paper.start} 起的第一個收盤價開始（台股收盤資料約下午 3 點後可取得）。`;
+      return;
+    }
+    status.textContent = `首個交易日 ${paper.first_trading_day}，最新 ${paper.latest.date} 收盤 ${num(paper.latest.close)}。`;
+    for (const [name, a] of Object.entries(paper.accounts)) {
+      row(body, [ACCOUNT_LABEL[name], money(a.value), signed(a.return_pct), money(a.cash), a.shares.toLocaleString("zh-TW"), `${a.installments_done}/${a.installments_total}`]);
+    }
+    drawChart(chart, paper.series);
+    [...paper.trades].reverse().forEach((t) => {
+      row(tradesBody, [t.date, ACCOUNT_LABEL[t.account], REASON_LABEL[t.reason] || t.side, t.shares.toLocaleString("zh-TW"), num(t.price), money(t.amount)]);
+    });
+  }
+
+  function drawChart(svg, series) {
+    if (series.length < 2) return;
+    const ns = "http://www.w3.org/2000/svg";
+    const values = series.flatMap((p) => [p.plan, p.baseline]);
+    const lo = Math.min(...values);
+    const hi = Math.max(...values);
+    const span = hi - lo || 1;
+    const x = (i) => 10 + (i / (series.length - 1)) * 580;
+    const y = (v) => 165 - ((v - lo) / span) * 145;
+    [["plan", "#138b7d"], ["baseline", "#8a96a3"]].forEach(([key, color]) => {
+      const line = document.createElementNS(ns, "polyline");
+      line.setAttribute("points", series.map((p, i) => `${x(i).toFixed(1)},${y(p[key]).toFixed(1)}`).join(" "));
+      line.setAttribute("fill", "none");
+      line.setAttribute("stroke", color);
+      line.setAttribute("stroke-width", "2");
+      svg.append(line);
+    });
+    [["分批＋衛星", "#138b7d", 10], ["純分批", "#8a96a3", 110]].forEach(([label, color, left]) => {
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("x", String(left));
+      text.setAttribute("y", "14");
+      text.setAttribute("fill", color);
+      text.setAttribute("class", "plan-legend");
+      text.textContent = `— ${label}`;
+      svg.append(text);
     });
   }
 
@@ -174,6 +282,7 @@
     renderSchedule();
     renderHoldings();
     renderSimulation();
+    renderPaper();
   }
 
   function bind(id, key, parse = Number) {
@@ -182,7 +291,7 @@
     el.addEventListener("change", async () => {
       state[key] = parse(el.value);
       save();
-      if (key === "months" && data) {
+      if ((key === "months" || key === "sat") && data) {
         try { await fetchPlan(); } catch (error) { show(error.message, true); }
       }
       renderAll();
@@ -243,15 +352,31 @@
   });
   $("buy-form").addEventListener("submit", (event) => {
     event.preventDefault();
-    const shares = Number($("buy-shares").value);
+    const shares = Math.round(Number($("buy-shares").value));
     const price = Number($("buy-price").value);
+    const type = $("buy-type").value;
     if (!(shares > 0 && price > 0) || !$("buy-date").value) return;
-    state.buys.push({ date: $("buy-date").value, shares, price });
-    state.buys.sort((a, b) => a.date.localeCompare(b.date));
+    const records = [...state.buys, { type, date: $("buy-date").value, shares, price }]
+      .sort((a, b) => a.date.localeCompare(b.date));
+    const check = ledger(records);
+    if (check.error) {
+      show(check.error, true);
+      return;
+    }
+    show("");
+    state.buys = records;
     save();
     event.target.reset();
+    updateFormLabels();
     renderHoldings();
   });
+  function updateFormLabels() {
+    const dividend = $("buy-type").value === "dividend";
+    $("buy-shares-label").firstChild.textContent = dividend ? "參與配息股數" : "股數";
+    $("buy-price-label").firstChild.textContent = dividend ? "每股配息（元）" : "成交價";
+  }
+  $("buy-type").addEventListener("change", updateFormLabels);
+
   $("plan-logout").addEventListener("click", async () => {
     await fetch("/api/plan/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {});
     signedOut("");
