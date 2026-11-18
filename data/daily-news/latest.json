@@ -1,130 +1,134 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-18",
-  "generated_at": "2026-11-18T15:17:34.912850+00:00",
+  "brief_date": "2026-11-19",
+  "generated_at": "2026-11-19T07:50:20+08:00",
   "articles": [
     {
-      "id": "nvidia-q3-results",
+      "id": "anthropic-ipo-priced",
       "category": "ai",
-      "published_date": "2026-11-18",
-      "published_at": "2026-11-18T17:57+08:00",
+      "published_date": "2026-11-19",
+      "published_at": "2026-11-18T14:24:00-08:00",
       "title": {
-        "zh-TW": "輝達財報優於預期，上調明年營收成長預估",
-        "en": "Nvidia results beat expectations and it raises next-year growth outlook"
+        "zh-TW": "Anthropic IPO 定價每股83美元，高於原訂區間",
+        "en": "Anthropic prices IPO at US$83 a share, above its range"
       },
       "summary": {
-        "zh-TW": "中央社引述法新社、路透報導，輝達第三季營收倍增至逾1150億美元、獲利653億美元，並把明年營收成長預估由70%上調至75%；盤後股價漲近5%。75%為公司預估，不是已實現數字。",
-        "en": "CNA, citing AFP and Reuters, reports Nvidia's third-quarter revenue doubled to more than US$115 billion with profit of US$65.3 billion, and it lifted its next-year revenue growth outlook from 70% to 75%. Shares rose nearly 5% after hours. The 75% figure is a company forecast."
+        "zh-TW": "美聯社報導，Anthropic 首次公開發行定價每股83美元，高於70至78美元區間，估值約1.5兆美元，發行8.25億股，預定週四在那斯達克以 ANT 代號掛牌；另有260億美元私募。公司仍未獲利，並稱已簽約須投入約9000億美元算力與基礎設施支出，其中約700億美元在未來12個月。",
+        "en": "AP reports Anthropic priced its IPO at US$83 a share, above the US$70-78 range, valuing it at about US$1.5 trillion with 825 million shares; trading on Nasdaq as ANT is scheduled for Thursday, plus a US$26 billion private placement. It is unprofitable and says it has signed deals requiring about US$900 billion of compute and infrastructure spending, about US$70 billion within 12 months."
       },
       "impact": {
-        "zh-TW": "財報緩解 AI 需求疑慮，但領導層更替與對中管制仍是變數；預估上調不代表各供應商訂單同步增加。",
-        "en": "Results eased AI demand worries, but leadership change and China controls remain variables; a higher outlook does not establish matching orders for every supplier."
+        "zh-TW": "定價強勁反映市場對 AI 模型公司的需求，但掛牌表現尚未發生；龐大算力承諾屬合約規劃，實際採購節奏與供應商分配仍待觀察。",
+        "en": "Strong pricing reflects appetite for AI model companies, but trading has not yet begun; the compute commitments are contractual plans, and actual purchase timing and supplier allocation remain to be seen."
       },
       "sources": [
         {
-          "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/afe/202611180290.aspx"
+          "publisher": "AP via Yahoo Finance",
+          "url": "https://finance.yahoo.com/markets/stocks/articles/anthropic-prices-ipo-83-per-222443646.html"
         }
       ]
     },
     {
-      "id": "nvidia-china-hopper-halt",
-      "category": "ai",
-      "published_date": "2026-11-18",
-      "published_at": "2026-11-18T09:16+00:00",
-      "title": {
-        "zh-TW": "輝達表示已停止向中國出貨獲許可的 Hopper 產品",
-        "en": "Nvidia says it has stopped shipping licensed Hopper products to China"
-      },
-      "summary": {
-        "zh-TW": "路透報導，輝達代理執行長 Colette Kress 在財報會議表示，截至10月25日的季度售予中國24億美元獲許可 Hopper 資料中心產品，但目前已停止出貨，財測不含此部分；未說明原因或是否永久。",
-        "en": "Reuters reports interim CEO Colette Kress said on the earnings call that Nvidia sold US$2.4 billion of licensed Hopper data-center products to China in the quarter ended October 25 but is no longer shipping them, and guidance excludes them. She did not say why or whether the halt is permanent."
-      },
-      "impact": {
-        "zh-TW": "中國市場貢獻不確定性升高；停止出貨是否影響上游晶圓與封裝排程，需看後續公司說明。",
-        "en": "Uncertainty over China revenue rises; whether the halt affects upstream wafer or packaging schedules depends on later company disclosures."
-      },
-      "sources": [
-        {
-          "publisher": "Reuters via Yahoo",
-          "url": "https://malaysia.news.yahoo.com/nvidia-stops-shipping-us-approved-091655496.html"
-        }
-      ]
-    },
-    {
-      "id": "uscc-china-ai-chips",
-      "category": "ai",
-      "published_date": "2026-11-18",
-      "published_at": "2026-11-18T22:33+08:00",
-      "title": {
-        "zh-TW": "美國會諮詢機構年報：中國軍方尋求取得先進 AI 晶片",
-        "en": "US commission report says China's military seeks advanced AI chips"
-      },
-      "summary": {
-        "zh-TW": "中央社引述路透，美中經濟暨安全審查委員會11/18發布年報，指中國試圖規避出口管制取得輝達先進晶片用於 AI 武器，並評估華為昇騰等國產晶片仍落後輝達與 AMD。此為委員會評估，非執法結論。",
-        "en": "CNA, citing Reuters, says the US-China Economic and Security Review Commission's annual report, released November 18, finds China seeking to evade export controls to obtain advanced Nvidia chips for AI weapons, and assesses domestic chips such as Huawei Ascend still trail Nvidia and AMD. It is a commission assessment, not an enforcement finding."
-      },
-      "impact": {
-        "zh-TW": "報告可能強化管制討論，但年報建議不等於已立法或新禁令生效。",
-        "en": "The report may intensify control debates, but its recommendations are not enacted law or new bans in force."
-      },
-      "sources": [
-        {
-          "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/aopl/202611180358.aspx"
-        }
-      ]
-    },
-    {
-      "id": "singapore-chip-checks",
-      "category": "ai",
-      "published_date": "2026-11-18",
-      "published_at": "2026-11-18T18:54+08:00",
-      "title": {
-        "zh-TW": "新加坡總理稱願協助美國檢查 AI 晶片使用情形",
-        "en": "Singapore PM offers to help US check AI chip use"
-      },
-      "summary": {
-        "zh-TW": "中央社引述法新社，新加坡總理黃循財表示願協助美方檢查先進 AI 晶片在當地的使用，並研究美方防止中企在東南亞租用算力的新措施；新規要求出貨新加坡、馬來西亞等地的先進晶片須申請許可。",
-        "en": "CNA, citing AFP, says Singapore Prime Minister Lawrence Wong offered to help the US check how advanced AI chips are used in Singapore and is studying new US measures against Chinese firms renting compute in Southeast Asia. The rules require licences for advanced-chip shipments to Singapore, Malaysia and others."
-      },
-      "impact": {
-        "zh-TW": "東南亞資料中心的出貨許可與合規流程可能拉長交期；實際影響需看許可核發情況。",
-        "en": "Licensing and compliance for Southeast Asian data centers may lengthen lead times; actual impact depends on how licences are granted."
-      },
-      "sources": [
-        {
-          "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/aopl/202611180315.aspx"
-        }
-      ]
-    },
-    {
-      "id": "taiwan-nov18-close",
+      "id": "fed-minutes-december-hike",
       "category": "economy",
-      "published_date": "2026-11-18",
-      "published_at": "2026-11-18T13:53+08:00",
+      "published_date": "2026-11-19",
+      "published_at": "2026-11-18T11:32:00-08:00",
       "title": {
-        "zh-TW": "台股11/18震盪1677點收漲102點，外資連三賣",
-        "en": "Taiwan stocks swing 1,677 points, close up 102 as foreigners sell"
+        "zh-TW": "聯準會會議紀要：多數官員預期12月再升息",
+        "en": "Fed minutes show most officials expect a December hike"
       },
       "summary": {
-        "zh-TW": "中央社報導，加權指數收40194.91點、漲102.8點，盤中高低差1677點；台積電收2175元、聯發科漲2.6%。外資賣超約765.6億元、連三日累計逾1848億元，群創為外資主要買超個股之一。",
-        "en": "CNA reports the TAIEX closed at 40,194.91, up 102.8 points after a 1,677-point intraday range; TSMC closed at NT$2,175 and MediaTek rose 2.6%. Foreign investors net sold about NT$76.6 billion, over NT$184.8 billion across three sessions; Innolux was among their top net buys."
+        "zh-TW": "聯準會公布10月27至28日會議紀要。美聯社引述，幾乎所有官員預期12月升息1碼，兩位提及升息2碼；10月利率維持3.9%，Cook 與 Hammack 投票主張升息。多數官員擔心通膨可能延續。理事 Waller 另主張考慮升息2碼，屬個人看法。",
+        "en": "The Fed released minutes of its October 27-28 meeting. AP reports nearly all officials expect a quarter-point hike in December and two floated a half point; the rate was held at 3.9% in October with Cook and Hammack dissenting for a hike. Most worried inflation could persist. Governor Waller separately backed considering a half-point move, his own view."
       },
       "impact": {
-        "zh-TW": "指數守住4萬點但波動仍大，外資持續賣超；單日收紅不代表賣壓結束。",
-        "en": "The index held 40,000 but volatility stays high with continued foreign selling; one up day does not mean selling pressure has ended."
+        "zh-TW": "升息預期升溫可能推升美元與資金成本，對新興市場匯率及資金流向形成壓力；12月實際決策尚未發生。",
+        "en": "Higher hike expectations may lift the dollar and funding costs and pressure emerging-market currencies and flows; the December decision has not yet happened."
+      },
+      "sources": [
+        {
+          "publisher": "AP via Yahoo Finance",
+          "url": "https://ca.finance.yahoo.com/news/fed-minutes-higher-interest-rates-191215222.html"
+        },
+        {
+          "publisher": "Federal Reserve Board",
+          "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm"
+        }
+      ]
+    },
+    {
+      "id": "us-chip-rule-southeast-asia",
+      "category": "ai",
+      "published_date": "2026-11-17",
+      "published_at": "2026-11-17T18:06:00+08:00",
+      "title": {
+        "zh-TW": "美擴大先進 AI 晶片出口管制，東南亞資料中心受關注",
+        "en": "US widens advanced AI chip export controls, putting Southeast Asian data centers in focus"
+      },
+      "summary": {
+        "zh-TW": "中央社引述路透報導，美國商務部16日發布暫行最終規則，出口至新加坡、泰國、馬來西亞、印尼及巴西的最先進晶片須取得許可，並限制第三國遠端取用。集邦科技預估部分訂單可能遞延或削減；馬來西亞學者認為既有封測影響有限，規劃中資料中心衝擊較大。",
+        "en": "CNA, citing Reuters, reports the US Commerce Department on the 16th issued an interim final rule requiring licenses for the most advanced chips going to Singapore, Thailand, Malaysia, Indonesia and Brazil, and limits third-country remote access. TrendForce expects some orders may be delayed or cut; a Malaysian academic sees limited impact on existing packaging but more on planned data centers."
+      },
+      "impact": {
+        "zh-TW": "許可審查可能拉長東南亞 AI 伺服器出貨時程並提高合規成本；訂單遞延屬研調預估，非已確認數字。",
+        "en": "License reviews could lengthen AI server delivery timelines in Southeast Asia and raise compliance costs; order deferrals are a research forecast, not confirmed figures."
       },
       "sources": [
         {
           "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/afe/202611180148.aspx"
+          "url": "https://www.cna.com.tw/news/afe/202611170256.aspx"
         },
         {
           "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/afe/202611180304.aspx"
+          "url": "https://www.cna.com.tw/news/aopl/202611170275.aspx"
+        }
+      ]
+    },
+    {
+      "id": "nvidia-ceo-change-taiwan",
+      "category": "ai",
+      "published_date": "2026-11-18",
+      "published_at": "2026-11-18T19:50:00+08:00",
+      "title": {
+        "zh-TW": "學者：輝達領導層更替對台影響仍不明",
+        "en": "Researchers say Nvidia's leadership change has uncertain impact on Taiwan"
+      },
+      "summary": {
+        "zh-TW": "焦點台灣報導，中研院經濟所論壇中，學者討論黃仁勳卸任輝達執行長的影響。中華經濟研究院院長連賢明認為新領導人策略可能影響台灣伺服器廠毛利；成大林常青認為2027年雲端訂單大致底定，短期影響有限。以上皆為學者看法。",
+        "en": "Focus Taiwan reports researchers at an Academia Sinica economics forum discussed Jensen Huang's exit as Nvidia CEO. Chung-Hua Institution president Lien Hsien-ming said a new leader's strategy could affect Taiwanese server makers' margins, while NCKU's Lin Chang-ching said 2027 cloud orders are largely set, limiting short-term impact. These are the researchers' views."
+      },
+      "impact": {
+        "zh-TW": "短期訂單能見度被視為穩定，但中長期採購策略與議價條件可能改變，需留意輝達新管理層的說明。",
+        "en": "Near-term order visibility is seen as stable, but longer-term sourcing and pricing terms could shift; watch statements from Nvidia's new management."
+      },
+      "sources": [
+        {
+          "publisher": "Focus Taiwan (CNA)",
+          "url": "https://focustaiwan.tw/business/202611180023"
+        }
+      ]
+    },
+    {
+      "id": "us-stocks-mixed-nov18",
+      "category": "economy",
+      "published_date": "2026-11-19",
+      "published_at": "2026-11-19T05:32:00+08:00",
+      "title": {
+        "zh-TW": "美股18日收盤互有漲跌，道瓊跌逾1%",
+        "en": "US stocks close mixed on Nov. 18 as the Dow drops over 1%"
+      },
+      "summary": {
+        "zh-TW": "中央社報導，市場評估輝達財報與聯準會會議紀要，並等待 Anthropic 定價。道瓊指數跌561.25點至50198.17點，標普500跌0.23%至7323.63點，那斯達克漲0.42%至24429.88點，費城半導體指數小漲0.10%。紀要偏鷹為報導解讀。",
+        "en": "CNA reports markets weighed Nvidia's results and the Fed minutes ahead of Anthropic's pricing. The Dow fell 561.25 points to 50,198.17, the S&P 500 slipped 0.23% to 7,323.63, the Nasdaq rose 0.42% to 24,429.88, and the Philadelphia Semiconductor Index edged up 0.10%. Calling the minutes hawkish is the report's interpretation."
+      },
+      "impact": {
+        "zh-TW": "科技股相對抗跌但半導體指數漲幅有限，顯示資金對 AI 與利率雙重因素仍在拉鋸；不代表台股走勢。",
+        "en": "Tech held up better while chip stocks barely rose, suggesting investors are balancing AI and rate factors; this does not indicate Taiwan's market direction."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/afe/202611190012.aspx"
         }
       ]
     }
@@ -141,63 +145,41 @@
         "en": "Semiconductors"
       },
       "reason": {
-        "zh-TW": "報導指台積電為輝達生產 H200，且11/18收2175元；關注輝達對中出貨停止與財測對先進製程需求的訊號。",
-        "en": "Reports say TSMC makes Nvidia's H200, and it closed at NT$2,175 on November 18; watch signals from Nvidia's China halt and outlook for advanced-node demand."
+        "zh-TW": "先進 AI 晶片晶圓代工龍頭；AI 公司算力投資與出口管制規則都可能影響先進製程需求，屬產業推論。",
+        "en": "Leading foundry for advanced AI chips; AI compute spending and export rules may both affect advanced-node demand, as an industry inference."
       },
       "risk": {
-        "zh-TW": "出口管制擴大、外資持續調節，對中出貨停止的影響尚未量化。",
-        "en": "Wider export controls, continued foreign selling, and an unquantified effect from the China halt."
+        "zh-TW": "出口管制擴大、終端客戶訂單遞延及匯率波動。",
+        "en": "Wider export controls, deferred end-customer orders and currency swings."
       },
       "article_ids": [
-        "nvidia-china-hopper-halt",
-        "taiwan-nov18-close"
+        "anthropic-ipo-priced",
+        "us-chip-rule-southeast-asia",
+        "us-stocks-mixed-nov18"
       ],
-      "relationship": "direct"
-    },
-    {
-      "symbol": "2454.TW",
-      "name": {
-        "zh-TW": "聯發科",
-        "en": "MediaTek"
-      },
-      "sector": {
-        "zh-TW": "IC 設計",
-        "en": "IC design"
-      },
-      "reason": {
-        "zh-TW": "中央社報導聯發科11/18漲2.6%，屬當日反彈的權值股；觀察 AI 情緒回溫能否延續。",
-        "en": "CNA reports MediaTek rose 2.6% on November 18 among rebounding heavyweights; watch whether improved AI sentiment persists."
-      },
-      "risk": {
-        "zh-TW": "大盤高波動，單日漲幅可能反轉；終端需求與競爭變化。",
-        "en": "High market volatility may reverse one-day gains; end-demand and competition shifts."
-      },
-      "article_ids": [
-        "taiwan-nov18-close"
-      ],
-      "relationship": "direct"
+      "relationship": "industry_inference"
     },
     {
       "symbol": "2382.TW",
       "name": {
         "zh-TW": "廣達",
-        "en": "Quanta"
+        "en": "Quanta Computer"
       },
       "sector": {
-        "zh-TW": "AI 伺服器",
-        "en": "AI servers"
+        "zh-TW": "電腦及週邊",
+        "en": "Computers and peripherals"
       },
       "reason": {
-        "zh-TW": "產業推論：輝達財報與上調預估攸關 AI 伺服器組裝需求；報導未直接提及廣達。",
-        "en": "Industry inference: Nvidia's results and higher outlook bear on AI server assembly demand; the reports do not name Quanta."
+        "zh-TW": "AI 伺服器代工廠；學者指新領導層策略可能影響台灣伺服器廠毛利，東南亞許可審查也可能影響出貨時程，屬推論。",
+        "en": "AI server maker; researchers say new Nvidia leadership could affect Taiwanese server makers' margins, and Southeast Asian licensing may affect delivery timing, as an inference."
       },
       "risk": {
-        "zh-TW": "輝達策略或客戶結構改變可能壓縮組裝毛利；東南亞出貨許可延長交期。",
-        "en": "Changes in Nvidia strategy or customer mix may pressure assembly margins; Southeast Asian licensing may delay shipments."
+        "zh-TW": "客戶採購策略改變、毛利壓縮及出貨遞延。",
+        "en": "Customer sourcing changes, margin pressure and shipment delays."
       },
       "article_ids": [
-        "nvidia-q3-results",
-        "singapore-chip-checks"
+        "nvidia-ceo-change-taiwan",
+        "us-chip-rule-southeast-asia"
       ],
       "relationship": "industry_inference"
     },
@@ -208,45 +190,69 @@
         "en": "Delta Electronics"
       },
       "sector": {
-        "zh-TW": "電源與散熱",
-        "en": "Power and thermal"
+        "zh-TW": "電子零組件",
+        "en": "Electronic components"
       },
       "reason": {
-        "zh-TW": "產業推論：資料中心建置帶動電源與散熱需求，11/18散熱族群反彈；報導未直接提及台達電。",
-        "en": "Industry inference: data-center build-outs drive power and thermal demand, and thermal stocks rebounded on November 18; the reports do not name Delta."
+        "zh-TW": "資料中心電源與散熱供應商；AI 公司大型基礎設施支出計畫若落實，可能帶動相關需求，屬推論，非已取得訂單。",
+        "en": "Data-center power and cooling supplier; if AI firms' large infrastructure plans proceed they may support demand, as an inference, not confirmed orders."
       },
       "risk": {
-        "zh-TW": "AI 資本支出放緩、管制使海外資料中心專案延後。",
-        "en": "Slower AI capex or controls delaying overseas data-center projects."
+        "zh-TW": "基礎設施支出延後、競爭加劇及原物料成本。",
+        "en": "Delayed infrastructure spending, competition and input costs."
       },
       "article_ids": [
-        "nvidia-q3-results",
-        "taiwan-nov18-close"
+        "anthropic-ipo-priced",
+        "nvidia-ceo-change-taiwan"
       ],
       "relationship": "industry_inference"
     },
     {
-      "symbol": "3481.TW",
+      "symbol": "3711.TW",
       "name": {
-        "zh-TW": "群創",
-        "en": "Innolux"
+        "zh-TW": "日月光投控",
+        "en": "ASE Technology"
       },
       "sector": {
-        "zh-TW": "面板",
-        "en": "Display panels"
+        "zh-TW": "半導體",
+        "en": "Semiconductors"
       },
       "reason": {
-        "zh-TW": "中央社報導外資整體賣超之際，群創為外資買超前段個股；觀察資金輪動是否延續。",
-        "en": "CNA reports Innolux was among foreign investors' top net buys amid broad net selling; watch whether the rotation continues."
+        "zh-TW": "封裝測試大廠；美國新規涵蓋馬來西亞等東南亞國家，學者認為既有封測影響有限，可觀察後續許可實務，屬推論。",
+        "en": "Packaging and testing leader; the new US rule covers Malaysia and other Southeast Asian countries, where an academic sees limited impact on existing packaging and testing; watch licensing practice, as an inference."
       },
       "risk": {
-        "zh-TW": "單日法人買超不代表趨勢，面板景氣與報價波動。",
-        "en": "One day of net buying is not a trend; panel cycle and price volatility."
+        "zh-TW": "管制範圍再擴大、客戶調整產能布局及景氣循環。",
+        "en": "Further control expansion, customer capacity shifts and cyclical demand."
       },
       "article_ids": [
-        "taiwan-nov18-close"
+        "us-chip-rule-southeast-asia"
       ],
-      "relationship": "direct"
+      "relationship": "industry_inference"
+    },
+    {
+      "symbol": "2882.TW",
+      "name": {
+        "zh-TW": "國泰金",
+        "en": "Cathay Financial Holding"
+      },
+      "sector": {
+        "zh-TW": "金融保險",
+        "en": "Financials and insurance"
+      },
+      "reason": {
+        "zh-TW": "壽險子公司持有大量海外資產；聯準會升息預期與美元走勢可能影響避險成本與債券評價，屬產業推論。",
+        "en": "Its life insurer holds large overseas assets; Fed hike expectations and dollar moves may affect hedging costs and bond valuations, as an industry inference."
+      },
+      "risk": {
+        "zh-TW": "美債殖利率急升、匯率劇烈波動及監理規範變動。",
+        "en": "Sharp Treasury yield rises, volatile exchange rates and regulatory changes."
+      },
+      "article_ids": [
+        "fed-minutes-december-hike",
+        "us-stocks-mixed-nov18"
+      ],
+      "relationship": "industry_inference"
     }
   ]
 }
