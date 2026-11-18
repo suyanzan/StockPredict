@@ -344,7 +344,7 @@ def test_calendar_confirmed_close_survives_rolled_trading_period(monkeypatch):
     payload["chart"]["result"][0]["meta"]["currentTradingPeriod"] = {"regular": rolled}
     mock_response(monkeypatch, payload)
     points, _ = data.yahoo_data("UMC")
-    assert points[-1]["date"] == "2026-11-16"  # Unconfirmed: conservative default.
+    assert points[-1]["close"] == 169.0  # Unconfirmed: conservative default.
     mock_response(monkeypatch, payload)
     points, _ = data.yahoo_data("UMC", completed_through=date(2026, 11, 17))
     assert points[-1] == {"date": "2026-11-17", "close": 999.0}
@@ -357,4 +357,4 @@ def test_completed_through_never_admits_a_candle_after_today(monkeypatch):
     result["indicators"]["quote"][0]["close"].append(555.0)
     mock_response(monkeypatch, payload)
     points, _ = data.yahoo_data("UMC", completed_through=date(2026, 11, 18))
-    assert points[-1]["date"] == "2026-11-17"
+    assert points[-1] == {"date": "2026-11-17", "close": 999.0}
