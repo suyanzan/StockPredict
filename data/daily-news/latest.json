@@ -1,126 +1,130 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-17",
-  "generated_at": "2026-11-17T00:53:12.114251+00:00",
+  "brief_date": "2026-11-18",
+  "generated_at": "2026-11-18T15:17:34.912850+00:00",
   "articles": [
     {
-      "id": "ai-chip-access-rule",
+      "id": "nvidia-q3-results",
       "category": "ai",
-      "published_date": "2026-11-16",
-      "published_at": "2026-11-16T22:50+08:00",
+      "published_date": "2026-11-18",
+      "published_at": "2026-11-18T17:57+08:00",
       "title": {
-        "zh-TW": "美公布海外 AI 晶片存取新規，關注出口許可範圍",
-        "en": "US announces rules on overseas access to advanced AI chips"
+        "zh-TW": "輝達財報優於預期，上調明年營收成長預估",
+        "en": "Nvidia results beat expectations and it raises next-year growth outlook"
       },
       "summary": {
-        "zh-TW": "中央社引述路透報導，美國商務部公布規定，防止中國企業透過第三國資料中心遠端使用先進 AI 晶片，部分國家企業取得高階晶片須申請許可。適用細節應依官方規則核對。",
-        "en": "CNA, citing Reuters, reports US rules addressing Chinese access to advanced AI chips through third-country data centers, with licensing requirements for certain destinations. Specific applicability requires checking the official rules."
+        "zh-TW": "中央社引述法新社、路透報導，輝達第三季營收倍增至逾1150億美元、獲利653億美元，並把明年營收成長預估由70%上調至75%；盤後股價漲近5%。75%為公司預估，不是已實現數字。",
+        "en": "CNA, citing AFP and Reuters, reports Nvidia's third-quarter revenue doubled to more than US$115 billion with profit of US$65.3 billion, and it lifted its next-year revenue growth outlook from 70% to 75%. Shares rose nearly 5% after hours. The 75% figure is a company forecast."
       },
       "impact": {
-        "zh-TW": "追蹤許可、客戶部署與交付時程；新規不等於所有海外訂單取消。",
-        "en": "Track licensing and deployment schedules; the announcement does not establish cancellation of all overseas orders."
+        "zh-TW": "財報緩解 AI 需求疑慮，但領導層更替與對中管制仍是變數；預估上調不代表各供應商訂單同步增加。",
+        "en": "Results eased AI demand worries, but leadership change and China controls remain variables; a higher outlook does not establish matching orders for every supplier."
       },
       "sources": [
         {
           "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/aopl/202611160297.aspx"
+          "url": "https://www.cna.com.tw/news/afe/202611180290.aspx"
         }
       ]
     },
     {
-      "id": "taiwan-nov16-close",
-      "category": "economy",
-      "published_date": "2026-11-16",
-      "published_at": "2026-11-16T14:51+08:00",
-      "title": {
-        "zh-TW": "台股11/16跌6.03%，AI 供應鏈風險重新定價",
-        "en": "Taiwan stocks fell 6.03% on November 16 amid AI repricing"
-      },
-      "summary": {
-        "zh-TW": "中央社報導，11/16 加權指數收41040.08點，下跌2635.04點、跌幅6.03%。台積電收2215元、台達電收1120元。這些是已完成交易日收盤，不是11/17即時報價。",
-        "en": "CNA reports the November 16 TAIEX close at 41,040.08, down 2,635.04 points or 6.03%. TSMC closed at NT$2,215 and Delta at NT$1,120. These are completed-session closes, not live November 17 quotes."
-      },
-      "impact": {
-        "zh-TW": "區分股價波動與企業基本面，不能由單日下跌推定隔日必反彈。",
-        "en": "Separate price volatility from fundamentals; a one-day decline does not establish a next-day rebound."
-      },
-      "sources": [
-        {
-          "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/afe/202611160135.aspx"
-        }
-      ]
-    },
-    {
-      "id": "fed-ai-scenarios",
-      "category": "economy",
-      "published_date": "2026-11-17",
-      "published_at": "2026-11-16T17:02+00:00",
-      "title": {
-        "zh-TW": "Fed 主席談 AI 經濟機會與風險，並非政策決議",
-        "en": "Fed chair outlines AI opportunities and risks, not a policy decision"
-      },
-      "summary": {
-        "zh-TW": "路透報導，Warsh 討論 AI 對生產力與就業的不同情境；這不是確定的經濟預測或新利率決議。",
-        "en": "Reuters reports Warsh discussed alternative AI scenarios for productivity and employment, not a settled economic forecast or a new rate decision."
-      },
-      "impact": {
-        "zh-TW": "檢視企業實際回報，不將 AI 願景視為獲利。",
-        "en": "Assess realized business returns rather than treating AI ambitions as earnings."
-      },
-      "sources": [
-        {
-          "publisher": "Reuters",
-          "url": "https://www.reuters.com/business/feds-warsh-says-emerging-technologies-will-have-significant-impact-risks-need-be-2026-11-16/"
-        }
-      ]
-    },
-    {
-      "id": "china-october-demand",
-      "category": "economy",
-      "published_date": "2026-11-16",
-      "published_at": "2026-11-16T02:06+00:00",
-      "title": {
-        "zh-TW": "中國10月工業與零售增速放緩，內需復甦仍待觀察",
-        "en": "China October production and retail data point to softer demand"
-      },
-      "summary": {
-        "zh-TW": "路透引述官方數據，10月工業產出年增4.8%、零售年增0.4%，皆低於調查預期；年增不代表月增。",
-        "en": "Reuters cites official October industrial-output growth of 4.8% and retail growth of 0.4%, both below poll forecasts. These are year-on-year rates."
-      },
-      "impact": {
-        "zh-TW": "分別檢查消費與投資需求，勿直接套用個別台廠。",
-        "en": "Assess consumption and investment separately; aggregate figures do not determine individual Taiwanese company results."
-      },
-      "sources": [
-        {
-          "publisher": "Reuters",
-          "url": "https://www.reuters.com/world/chinas-factory-output-retail-sales-growth-slow-october-2026-11-16/"
-        }
-      ]
-    },
-    {
-      "id": "taiwan-science-draft",
+      "id": "nvidia-china-hopper-halt",
       "category": "ai",
-      "published_date": "2026-11-16",
-      "published_at": "2026-11-16T19:18+08:00",
+      "published_date": "2026-11-18",
+      "published_at": "2026-11-18T09:16+00:00",
       "title": {
-        "zh-TW": "台灣科技白皮書草案納入主權 AI，實施與採購仍待後續",
-        "en": "Taiwan science-policy draft includes sovereign AI; execution remains ahead"
+        "zh-TW": "輝達表示已停止向中國出貨獲許可的 Hopper 產品",
+        "en": "Nvidia says it has stopped shipping licensed Hopper products to China"
       },
       "summary": {
-        "zh-TW": "中央社報導，國科會提出2027至2030年科學技術白皮書草案，涵蓋半導體、主權 AI、太空等九項議題。草案不等於預算或個別企業訂單已核定。",
-        "en": "CNA reports a draft 2027–2030 science and technology white paper covering nine themes, including semiconductors, sovereign AI and space. A draft does not establish approved budgets or company orders."
+        "zh-TW": "路透報導，輝達代理執行長 Colette Kress 在財報會議表示，截至10月25日的季度售予中國24億美元獲許可 Hopper 資料中心產品，但目前已停止出貨，財測不含此部分；未說明原因或是否永久。",
+        "en": "Reuters reports interim CEO Colette Kress said on the earnings call that Nvidia sold US$2.4 billion of licensed Hopper data-center products to China in the quarter ended October 25 but is no longer shipping them, and guidance excludes them. She did not say why or whether the halt is permanent."
       },
       "impact": {
-        "zh-TW": "追蹤正式政策、預算與採購進度，避免先把政策方向換算成公司收入。",
-        "en": "Track adopted policy, budgets and procurement before translating policy direction into company revenue."
+        "zh-TW": "中國市場貢獻不確定性升高；停止出貨是否影響上游晶圓與封裝排程，需看後續公司說明。",
+        "en": "Uncertainty over China revenue rises; whether the halt affects upstream wafer or packaging schedules depends on later company disclosures."
+      },
+      "sources": [
+        {
+          "publisher": "Reuters via Yahoo",
+          "url": "https://malaysia.news.yahoo.com/nvidia-stops-shipping-us-approved-091655496.html"
+        }
+      ]
+    },
+    {
+      "id": "uscc-china-ai-chips",
+      "category": "ai",
+      "published_date": "2026-11-18",
+      "published_at": "2026-11-18T22:33+08:00",
+      "title": {
+        "zh-TW": "美國會諮詢機構年報：中國軍方尋求取得先進 AI 晶片",
+        "en": "US commission report says China's military seeks advanced AI chips"
+      },
+      "summary": {
+        "zh-TW": "中央社引述路透，美中經濟暨安全審查委員會11/18發布年報，指中國試圖規避出口管制取得輝達先進晶片用於 AI 武器，並評估華為昇騰等國產晶片仍落後輝達與 AMD。此為委員會評估，非執法結論。",
+        "en": "CNA, citing Reuters, says the US-China Economic and Security Review Commission's annual report, released November 18, finds China seeking to evade export controls to obtain advanced Nvidia chips for AI weapons, and assesses domestic chips such as Huawei Ascend still trail Nvidia and AMD. It is a commission assessment, not an enforcement finding."
+      },
+      "impact": {
+        "zh-TW": "報告可能強化管制討論，但年報建議不等於已立法或新禁令生效。",
+        "en": "The report may intensify control debates, but its recommendations are not enacted law or new bans in force."
       },
       "sources": [
         {
           "publisher": "中央通訊社",
-          "url": "https://www.cna.com.tw/news/afe/202611160251.aspx"
+          "url": "https://www.cna.com.tw/news/aopl/202611180358.aspx"
+        }
+      ]
+    },
+    {
+      "id": "singapore-chip-checks",
+      "category": "ai",
+      "published_date": "2026-11-18",
+      "published_at": "2026-11-18T18:54+08:00",
+      "title": {
+        "zh-TW": "新加坡總理稱願協助美國檢查 AI 晶片使用情形",
+        "en": "Singapore PM offers to help US check AI chip use"
+      },
+      "summary": {
+        "zh-TW": "中央社引述法新社，新加坡總理黃循財表示願協助美方檢查先進 AI 晶片在當地的使用，並研究美方防止中企在東南亞租用算力的新措施；新規要求出貨新加坡、馬來西亞等地的先進晶片須申請許可。",
+        "en": "CNA, citing AFP, says Singapore Prime Minister Lawrence Wong offered to help the US check how advanced AI chips are used in Singapore and is studying new US measures against Chinese firms renting compute in Southeast Asia. The rules require licences for advanced-chip shipments to Singapore, Malaysia and others."
+      },
+      "impact": {
+        "zh-TW": "東南亞資料中心的出貨許可與合規流程可能拉長交期；實際影響需看許可核發情況。",
+        "en": "Licensing and compliance for Southeast Asian data centers may lengthen lead times; actual impact depends on how licences are granted."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/aopl/202611180315.aspx"
+        }
+      ]
+    },
+    {
+      "id": "taiwan-nov18-close",
+      "category": "economy",
+      "published_date": "2026-11-18",
+      "published_at": "2026-11-18T13:53+08:00",
+      "title": {
+        "zh-TW": "台股11/18震盪1677點收漲102點，外資連三賣",
+        "en": "Taiwan stocks swing 1,677 points, close up 102 as foreigners sell"
+      },
+      "summary": {
+        "zh-TW": "中央社報導，加權指數收40194.91點、漲102.8點，盤中高低差1677點；台積電收2175元、聯發科漲2.6%。外資賣超約765.6億元、連三日累計逾1848億元，群創為外資主要買超個股之一。",
+        "en": "CNA reports the TAIEX closed at 40,194.91, up 102.8 points after a 1,677-point intraday range; TSMC closed at NT$2,175 and MediaTek rose 2.6%. Foreign investors net sold about NT$76.6 billion, over NT$184.8 billion across three sessions; Innolux was among their top net buys."
+      },
+      "impact": {
+        "zh-TW": "指數守住4萬點但波動仍大，外資持續賣超；單日收紅不代表賣壓結束。",
+        "en": "The index held 40,000 but volatility stays high with continued foreign selling; one up day does not mean selling pressure has ended."
+      },
+      "sources": [
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/afe/202611180148.aspx"
+        },
+        {
+          "publisher": "中央通訊社",
+          "url": "https://www.cna.com.tw/news/afe/202611180304.aspx"
         }
       ]
     }
@@ -133,45 +137,69 @@
         "en": "TSMC"
       },
       "sector": {
-        "zh-TW": "晶圓代工",
-        "en": "Foundry"
+        "zh-TW": "半導體",
+        "en": "Semiconductors"
       },
-      "article_ids": [
-        "taiwan-nov16-close"
-      ],
-      "relationship": "direct",
       "reason": {
-        "zh-TW": "報導直接提及11/16股價；觀察後續公司揭露與客戶需求，將市場情緒和營運分開。",
-        "en": "The report names TSMC in the November 16 session. Watch company disclosures and customer demand separately from market sentiment."
+        "zh-TW": "報導指台積電為輝達生產 H200，且11/18收2175元；關注輝達對中出貨停止與財測對先進製程需求的訊號。",
+        "en": "Reports say TSMC makes Nvidia's H200, and it closed at NT$2,175 on November 18; watch signals from Nvidia's China halt and outlook for advanced-node demand."
       },
       "risk": {
-        "zh-TW": "單日跌幅不代表估值已便宜，客戶投資與政策變化仍有不確定性。",
-        "en": "A one-day decline does not establish cheap valuation; customer spending and policy remain uncertain."
-      }
+        "zh-TW": "出口管制擴大、外資持續調節，對中出貨停止的影響尚未量化。",
+        "en": "Wider export controls, continued foreign selling, and an unquantified effect from the China halt."
+      },
+      "article_ids": [
+        "nvidia-china-hopper-halt",
+        "taiwan-nov18-close"
+      ],
+      "relationship": "direct"
+    },
+    {
+      "symbol": "2454.TW",
+      "name": {
+        "zh-TW": "聯發科",
+        "en": "MediaTek"
+      },
+      "sector": {
+        "zh-TW": "IC 設計",
+        "en": "IC design"
+      },
+      "reason": {
+        "zh-TW": "中央社報導聯發科11/18漲2.6%，屬當日反彈的權值股；觀察 AI 情緒回溫能否延續。",
+        "en": "CNA reports MediaTek rose 2.6% on November 18 among rebounding heavyweights; watch whether improved AI sentiment persists."
+      },
+      "risk": {
+        "zh-TW": "大盤高波動，單日漲幅可能反轉；終端需求與競爭變化。",
+        "en": "High market volatility may reverse one-day gains; end-demand and competition shifts."
+      },
+      "article_ids": [
+        "taiwan-nov18-close"
+      ],
+      "relationship": "direct"
     },
     {
       "symbol": "2382.TW",
       "name": {
         "zh-TW": "廣達",
-        "en": "Quanta Computer"
+        "en": "Quanta"
       },
       "sector": {
-        "zh-TW": "伺服器與電腦代工",
-        "en": "Servers and computer manufacturing"
+        "zh-TW": "AI 伺服器",
+        "en": "AI servers"
       },
-      "article_ids": [
-        "ai-chip-access-rule",
-        "taiwan-science-draft"
-      ],
-      "relationship": "industry_inference",
       "reason": {
-        "zh-TW": "以伺服器產業觀察出口許可與主權 AI 部署後續；報導未公告廣達新增訂單。",
-        "en": "Use the server business to monitor licensing and sovereign-AI deployment. The stories announce no new Quanta orders."
+        "zh-TW": "產業推論：輝達財報與上調預估攸關 AI 伺服器組裝需求；報導未直接提及廣達。",
+        "en": "Industry inference: Nvidia's results and higher outlook bear on AI server assembly demand; the reports do not name Quanta."
       },
       "risk": {
-        "zh-TW": "政策草案尚待實施；許可、零組件與客戶建置時程可能影響交付。",
-        "en": "Draft policy still needs execution; licensing, components and customer schedules can affect delivery."
-      }
+        "zh-TW": "輝達策略或客戶結構改變可能壓縮組裝毛利；東南亞出貨許可延長交期。",
+        "en": "Changes in Nvidia strategy or customer mix may pressure assembly margins; Southeast Asian licensing may delay shipments."
+      },
+      "article_ids": [
+        "nvidia-q3-results",
+        "singapore-chip-checks"
+      ],
+      "relationship": "industry_inference"
     },
     {
       "symbol": "2308.TW",
@@ -180,67 +208,45 @@
         "en": "Delta Electronics"
       },
       "sector": {
-        "zh-TW": "電源與工業自動化",
-        "en": "Power and industrial automation"
+        "zh-TW": "電源與散熱",
+        "en": "Power and thermal"
       },
-      "article_ids": [
-        "taiwan-nov16-close"
-      ],
-      "relationship": "direct",
       "reason": {
-        "zh-TW": "報導直接提及11/16收盤；以電源與自動化業務觀察實際需求，避免把股價波動當成訂單訊號。",
-        "en": "The report names Delta’s November 16 close. Monitor demand in power and automation without treating price moves as order signals."
+        "zh-TW": "產業推論：資料中心建置帶動電源與散熱需求，11/18散熱族群反彈；報導未直接提及台達電。",
+        "en": "Industry inference: data-center build-outs drive power and thermal demand, and thermal stocks rebounded on November 18; the reports do not name Delta."
       },
       "risk": {
-        "zh-TW": "專案時程、需求與匯率仍可能波動，跌停不構成未來反彈保證。",
-        "en": "Project timing, demand and currencies remain variable; a limit-down close does not guarantee a rebound."
-      }
+        "zh-TW": "AI 資本支出放緩、管制使海外資料中心專案延後。",
+        "en": "Slower AI capex or controls delaying overseas data-center projects."
+      },
+      "article_ids": [
+        "nvidia-q3-results",
+        "taiwan-nov18-close"
+      ],
+      "relationship": "industry_inference"
     },
     {
-      "symbol": "2357.TW",
+      "symbol": "3481.TW",
       "name": {
-        "zh-TW": "華碩",
-        "en": "ASUSTeK Computer"
+        "zh-TW": "群創",
+        "en": "Innolux"
       },
       "sector": {
-        "zh-TW": "PC 品牌與電腦設備",
-        "en": "PC brands and computer equipment"
+        "zh-TW": "面板",
+        "en": "Display panels"
       },
-      "article_ids": [
-        "china-october-demand"
-      ],
-      "relationship": "industry_inference",
       "reason": {
-        "zh-TW": "以 PC 品牌觀察消費需求與庫存，應再對照公司揭露；中國零售總量不是華碩營收。",
-        "en": "Monitor consumer demand and inventories against company disclosures. China’s aggregate retail figures are not ASUS revenue."
+        "zh-TW": "中央社報導外資整體賣超之際，群創為外資買超前段個股；觀察資金輪動是否延續。",
+        "en": "CNA reports Innolux was among foreign investors' top net buys amid broad net selling; watch whether the rotation continues."
       },
       "risk": {
-        "zh-TW": "產品組合、區域銷售與成本不同，單月總體數據不足推估公司獲利。",
-        "en": "Product mix, regional sales and costs differ; one month of macro data cannot establish company earnings."
-      }
-    },
-    {
-      "symbol": "2886.TW",
-      "name": {
-        "zh-TW": "兆豐金",
-        "en": "Mega Financial Holding"
-      },
-      "sector": {
-        "zh-TW": "金融控股",
-        "en": "Financial holding"
+        "zh-TW": "單日法人買超不代表趨勢，面板景氣與報價波動。",
+        "en": "One day of net buying is not a trend; panel cycle and price volatility."
       },
       "article_ids": [
-        "fed-ai-scenarios"
+        "taiwan-nov18-close"
       ],
-      "relationship": "industry_inference",
-      "reason": {
-        "zh-TW": "以金融類股觀察生產力與就業情境如何影響利率及信用需求；Fed 談話未揭露兆豐業績。",
-        "en": "Use the financial sector to monitor how productivity and employment scenarios may affect rates and credit demand. The remarks disclose no Mega results."
-      },
-      "risk": {
-        "zh-TW": "AI 的總體影響仍不確定，利差、信用成本與匯率可能朝不同方向變化。",
-        "en": "AI’s macro effects remain uncertain; margins, credit costs and currencies can move in different directions."
-      }
+      "relationship": "direct"
     }
   ]
 }
