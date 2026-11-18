@@ -124,3 +124,49 @@ def test_simulation_needs_enough_history():
         fund_plan.simulate(
             np.ones(100), months=12, horizon_months=36, up=0.08, down=0.1, fraction=0.33
         )
+
+
+def test_owner_session_replaces_the_key_for_seven_days(client, monkeypatch):
+    provide(monkeypatch, list(np.linspace(50, 100, 1500)))
+    assert client.get("/api/plan/session").status_code == 401
+    assert client.post("/api/plan/session").status_code == 401
+    started = client.post("/api/plan/session", headers={"Authorization": f"Bearer {TOKEN}"})
+    assert started.status_code == 200
+    cookie = started.headers["set-cookie"]
+    assert "HttpOnly" in cookie and "SameSite=strict" in cookie and "Path=/api/plan" in cookie
+    assert f"Max-Age={7 * 24 * 3600}" in cookie and TOKEN not in cookie
+    # The cookie alone now authorises the plan, without the key.
+    assert client.get("/api/plan/session").status_code == 200
+    assert client.get("/api/plan/0050").status_code == 200
+    assert client.delete("/api/plan/session").status_code == 204
+    client.cookies.clear()
+    assert client.get("/api/plan/0050").status_code == 401
+
+
+def test_owner_session_is_revoked_by_rotating_the_key(client, monkeypatch):
+    provide(monkeypatch, [100.0] * 1200)
+    client.post("/api/plan/session", headers={"Authorization": f"Bearer {TOKEN}"})
+    assert client.get("/api/plan/session").status_code == 200
+    monkeypatch.setenv("COMMUNITY_ADMIN_TOKEN", "n" * 40)
+    assert client.get("/api/plan/session").status_code == 401
+
+
+def test_owner_session_rejects_forged_or_expired_cookies(client, monkeypatch):
+    now = int(fund_plan.time.time())
+    for value in (
+        "abc",
+        f"{now + 3600}.{'0' * 64}",
+        f"{now - 1}.{fund_plan._signature(now - 1)}",
+        f"{now + 30 * 86400}.{fund_plan._signature(now + 30 * 86400)}",
+    ):
+        client.cookies.set(fund_plan.SESSION_COOKIE, value, path="/api/plan")
+        assert client.get("/api/plan/session").status_code == 401
+        client.cookies.clear()
+
+
+def test_owner_session_rejects_cross_site_creation(client):
+    response = client.post(
+        "/api/plan/session",
+        headers={"Authorization": f"Bearer {TOKEN}", "Origin": "https://evil.example"},
+    )
+    assert response.status_code == 403
