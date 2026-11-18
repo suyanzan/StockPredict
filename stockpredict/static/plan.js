@@ -73,6 +73,9 @@
     }
     data = body;
     show("");
+  }
+
+  async function fetchPaper() {
     const paperParams = new URLSearchParams({
       months: String(state.months),
       satellite_pct: String(Math.min(50, Math.max(0, state.sat))),
@@ -87,6 +90,8 @@
       paper = null;
     }
   }
+
+  const latestQuote = () => data?.latest || (paper?.status === "running" ? paper.latest : null);
 
   function renderAllocation() {
     const body = $("alloc-body");
@@ -117,7 +122,7 @@
     const invest = state.total * (1 - state.keep / 100);
     const monthly = invest * (1 - state.sat / 100) / state.months;
     const [year, month] = (state.start || "2027-01").split("-").map(Number);
-    const price = data ? data.latest.close : null;
+    const price = latestQuote()?.close ?? null;
     for (let k = 0; k < state.months; k += 1) {
       const d = new Date(year, month - 1 + k, 1);
       const label = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -170,11 +175,12 @@
     row(body, ["累計投入", money(invested)]);
     row(body, ["已實現損益（賣出）", { text: money(realized), cls: realized < 0 ? "plan-neg" : "plan-pos" }]);
     row(body, ["累計配息", money(dividends)]);
-    if (data) {
-      const price = data.latest.close;
+    const quote = latestQuote();
+    if (quote) {
+      const price = quote.close;
       const unrealized = shares * price * (1 - SELL_COST) - cost;
       const total = unrealized + realized + dividends;
-      row(body, [`市值（${data.latest.date} 收盤 ${num(price)}）`, money(shares * price)]);
+      row(body, [`市值（${quote.date} 收盤 ${num(price)}）`, money(shares * price)]);
       row(body, ["未實現損益（扣賣出成本）", { text: money(unrealized), cls: unrealized < 0 ? "plan-neg" : "plan-pos" }]);
       row(body, ["總損益（含已實現與配息）", { text: money(total), cls: total < 0 ? "plan-neg" : "plan-pos" }], "plan-strong");
       row(body, ["總報酬率（÷ 累計投入）", signed(invested ? total / invested * 100 : 0)], "plan-strong");
@@ -291,8 +297,9 @@
     el.addEventListener("change", async () => {
       state[key] = parse(el.value);
       save();
-      if ((key === "months" || key === "sat") && data) {
-        try { await fetchPlan(); } catch (error) { show(error.message, true); }
+      if (key === "months" || key === "sat") {
+        const [plan] = await Promise.allSettled([fetchPlan(), fetchPaper()]);
+        if (plan.status === "rejected") show(plan.reason.message, true);
       }
       renderAll();
     });
@@ -315,8 +322,9 @@
   async function openApp() {
     $("plan-auth").hidden = true;
     $("plan-app").hidden = false;
-    await fetchPlan();
+    const [plan] = await Promise.allSettled([fetchPlan(), fetchPaper()]);
     renderAll();
+    if (plan.status === "rejected") show(plan.reason.message, true);
   }
 
   $("plan-login-form").addEventListener("submit", async (event) => {
@@ -343,12 +351,9 @@
   });
   $("sim-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    try {
-      await fetchPlan();
-      renderAll();
-    } catch (error) {
-      show(error.message, true);
-    }
+    const [plan] = await Promise.allSettled([fetchPlan(), fetchPaper()]);
+    renderAll();
+    if (plan.status === "rejected") show(plan.reason.message, true);
   });
   $("buy-form").addEventListener("submit", (event) => {
     event.preventDefault();

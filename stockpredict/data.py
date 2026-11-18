@@ -195,7 +195,11 @@ YAHOO_RANGES = ("2y", "10y", "max")
 
 
 def yahoo_data(
-    symbol: str, *, completed_through: date | None = None, history_range: str = "2y"
+    symbol: str,
+    *,
+    completed_through: date | None = None,
+    history_range: str = "2y",
+    period: tuple[int, int] | None = None,
 ) -> tuple[list[dict], dict]:
     """Daily closes, never silently fall back to synthetic data on failure.
 
@@ -204,12 +208,20 @@ def yahoo_data(
     today's candle depends on Yahoo's ``currentTradingPeriod``, which can roll
     to the next session during the evening and would hide a finished close.
     ``history_range`` widens the window; long ranges keep the latest MAX_POINTS.
+    ``period`` (UNIX start, end) requests an explicit window instead; Yahoo may
+    silently downsample ``range=max``, so long histories use explicit windows.
+    Non-daily data is always rejected.
     """
     if history_range not in YAHOO_RANGES:
         raise ValueError("Unsupported Yahoo history range.")
+    if period is not None and not (
+        type(period[0]) is int and type(period[1]) is int and 0 <= period[0] < period[1]
+    ):
+        raise ValueError("Invalid Yahoo history period.")
+    window = f"period1={period[0]}&period2={period[1]}" if period else f"range={history_range}"
     url = (
         f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol, safe='')}"
-        f"?range={history_range}&interval=1d&events=div%2Csplits"
+        f"?{window}&interval=1d&events=div%2Csplits"
     )
     request = Request(url, headers={"User-Agent": "StockPredict/0.1", "Accept": "application/json"})
     try:
@@ -263,6 +275,8 @@ def yahoo_data(
         meta = result["meta"]
         if not isinstance(meta, dict):
             raise ValueError("invalid upstream metadata")
+        if meta.get("dataGranularity", "1d") != "1d":
+            raise ValueError("upstream returned non-daily data")
         timezone = ZoneInfo(meta.get("exchangeTimezoneName", "UTC"))
         closes = result["indicators"]["quote"][0]["close"]
         timestamps = result["timestamp"]
