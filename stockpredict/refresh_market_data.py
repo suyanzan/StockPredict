@@ -294,6 +294,76 @@ def refresh(
     return {"status": "updated", "session_date": session_date, "snapshot_id": snapshot_id}
 
 
+# (level, title, explanation). "warning" means an upstream condition the code
+# reports honestly; "error" means something in this project needs attention.
+_FAILURE_CAUSES = {
+    "us_rate_limited": (
+        "warning",
+        "Yahoo 限流（HTTP 429）— 外部服務問題，非程式錯誤",
+        "Yahoo 暫時拒絕請求。未發布任何資料，既有快照保持不變；下次排程會再試，不需處理。",
+    ),
+    "us_unavailable": (
+        "warning",
+        "Yahoo 尚未提供當日收盤價 — 資料延遲，非程式錯誤",
+        "供應商的資料尚未包含所需交易日，或暫時無法使用。未發布任何資料；下次排程會再試。",
+    ),
+    "us_connection_failed": (
+        "warning",
+        "無法連線到 Yahoo — 網路或外部服務問題，非程式錯誤",
+        "連線逾時或中斷。未發布任何資料；下次排程會再試。",
+    ),
+    "us_access_denied": (
+        "error",
+        "Yahoo 拒絕存取（HTTP 401/403）— 需要確認",
+        "可能是供應商封鎖或改變存取規則。若連續發生，需要檢查。",
+    ),
+    "us_invalid_data": (
+        "error",
+        "Yahoo 資料格式或內容異常 — 需要確認",
+        "回傳內容不符預期（幣別、時區或欄位）。可能是供應商格式變更，需要檢查程式。",
+    ),
+    "snapshot_generation_failed": (
+        "error",
+        "產生或寫入快照失敗 — 程式或環境錯誤，需要處理",
+        "錯誤發生在本專案的快照處理，而不是供應商。",
+    ),
+}
+
+
+def _escape_command(value: str, *, property_value: bool = False) -> str:
+    value = value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    if property_value:
+        value = value.replace(":", "%3A").replace(",", "%2C")
+    return value
+
+
+def _report_failure(reason: str, http_status: int | None = None) -> None:
+    """Label the cause in GitHub Actions; a no-op anywhere else."""
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        return
+    level, title, detail = _FAILURE_CAUSES.get(
+        reason,
+        ("error", "未分類的失敗 — 需要確認", "請查看執行紀錄中的詳細訊息。"),
+    )
+    if reason == "us_unavailable" and http_status is not None:
+        title = f"Yahoo 暫時無法使用（HTTP {http_status}）— 外部服務問題，非程式錯誤"
+        detail = "供應商回應錯誤狀態。未發布任何資料；下次排程會再試。"
+    message = f"{detail}（reason={reason}, http_status={http_status}）"
+    print(
+        f"::{level} title={_escape_command(title, property_value=True)}::"
+        f"{_escape_command(message)}",
+        flush=True,
+    )
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        icon = "🟡" if level == "warning" else "🔴"
+        try:
+            with open(summary, "a", encoding="utf-8") as output:
+                output.write(f"\n### {icon} {title}\n\n{detail}\n\n`reason={reason}`\n")
+        except OSError:
+            pass
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Refresh completed US reference-price CSVs.")
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -319,9 +389,11 @@ def main() -> int:
                 }
             )
         )
+        _report_failure(exc.code, exc.http_status)
         return 1
     except (OSError, ValueError, TypeError, KeyError):
         print(json.dumps({"status": "unavailable", "reason": "snapshot_generation_failed"}))
+        _report_failure("snapshot_generation_failed")
         return 1
     print(json.dumps(result, sort_keys=True))
     return 0

@@ -255,6 +255,7 @@ def test_cli_error_reports_only_safe_fields(monkeypatch, capsys, tmp_path):
             "do-not-print-provider-body", code="us_rate_limited", http_status=429, retry_after=600
         )
 
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
     monkeypatch.setattr(refresh_job, "refresh", unavailable)
     monkeypatch.setattr(sys, "argv", ["refresh", "--output-dir", str(tmp_path)])
     assert refresh_job.main() == 1
@@ -266,6 +267,49 @@ def test_cli_error_reports_only_safe_fields(monkeypatch, capsys, tmp_path):
         "http_status": 429,
         "retry_after_seconds": 600,
     }
+
+
+@pytest.mark.parametrize(
+    ("error", "level", "title_text"),
+    [
+        (DataSourceError("x", code="us_rate_limited", http_status=429), "warning", "限流"),
+        (DataSourceError("x", code="us_unavailable"), "warning", "尚未提供"),
+        (DataSourceError("x", code="us_unavailable", http_status=503), "warning", "HTTP 503"),
+        (DataSourceError("x", code="us_connection_failed"), "warning", "無法連線"),
+        (DataSourceError("x", code="us_invalid_data"), "error", "需要確認"),
+        (ValueError("x"), "error", "程式或環境錯誤"),
+    ],
+)
+def test_github_actions_failure_names_its_cause(
+    monkeypatch, capsys, tmp_path, error, level, title_text
+):
+    def failing(*args, **kwargs):
+        raise error
+
+    summary = tmp_path / "summary.md"
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+    monkeypatch.setattr(refresh_job, "refresh", failing)
+    monkeypatch.setattr(sys, "argv", ["refresh", "--output-dir", str(tmp_path / "out")])
+    assert refresh_job.main() == 1
+    lines = capsys.readouterr().out.splitlines()
+    assert json.loads(lines[0])["status"] == "unavailable"
+    command = lines[1]
+    assert command.startswith(f"::{level} title=") and title_text in command
+    title = command.split("::")[1].removeprefix(f"{level} title=")
+    assert ":" not in title and "," not in title
+    assert title_text in summary.read_text(encoding="utf-8")
+
+
+def test_failure_labels_are_silent_outside_github_actions(monkeypatch, capsys, tmp_path):
+    def limited(*args, **kwargs):
+        raise DataSourceError("x", code="us_rate_limited", http_status=429)
+
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.setattr(refresh_job, "refresh", limited)
+    monkeypatch.setattr(sys, "argv", ["refresh", "--output-dir", str(tmp_path)])
+    assert refresh_job.main() == 1
+    assert len(capsys.readouterr().out.splitlines()) == 1
 
 
 def _workflow_shell(name):
