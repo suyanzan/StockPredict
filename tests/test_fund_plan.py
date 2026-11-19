@@ -35,11 +35,11 @@ def provide(monkeypatch, closes):
     dates, values = series(closes)
     calls = []
 
-    def fake(symbol, **kwargs):
-        calls.append((symbol, kwargs))
-        return [{"date": d, "close": float(c)} for d, c in zip(dates, values)], {}
+    def fake():
+        calls.append(1)
+        return list(dates), [float(c) for c in values], {}
 
-    monkeypatch.setattr(fund_plan, "yahoo_data", fake)
+    monkeypatch.setattr(fund_plan.plan_data, "load_history", fake)
     return calls
 
 
@@ -65,11 +65,7 @@ def test_plan_returns_percentages_and_caches_history(client, monkeypatch):
     headers = {"Authorization": f"Bearer {TOKEN}"}
     body = client.get("/api/plan/0050?months=12&horizon_months=24", headers=headers).json()
     assert body["symbol"] == "0050.TW" and body["latest"]["close"] == 100.0
-    # Twenty years of daily history in one-year windows, newest first, without gaps.
-    assert len(calls) == fund_plan.HISTORY_YEARS and all(sym == "0050.TW" for sym, _ in calls)
-    windows = [kwargs["period"] for _, kwargs in calls]
-    assert all(newer[0] == older[1] for newer, older in zip(windows, windows[1:]))
-    assert all(0 < end - begin <= fund_plan.CHUNK_SECONDS for begin, end in windows)
+    assert len(calls) == 1  # Read from the published snapshot, not Yahoo.
     sim = body["simulation"]
     # Steadily rising prices: buying everything up front beats spreading it out.
     assert sim["lump_sum"]["median"] > sim["monthly"]["median"] > 0
@@ -78,50 +74,7 @@ def test_plan_returns_percentages_and_caches_history(client, monkeypatch):
     assert sim["satellite"][0]["beats_monthly_pct"] is None
     assert body["max_drawdown"]["pct"] == 0
     client.get("/api/plan/0050", headers=headers)
-    assert len(calls) == fund_plan.HISTORY_YEARS  # Served from cache.
-
-
-def test_history_stops_at_the_first_failing_older_window(monkeypatch):
-    newer = series(list(np.linspace(80, 100, 250)))
-    older = series(list(np.linspace(50, 80, 250)))
-    older = ([d.replace("2010", "2009") for d in older[0]], older[1])
-    calls = []
-
-    def fake(symbol, **kwargs):
-        calls.append(kwargs["period"])
-        if len(calls) > 2:
-            raise DataSourceError("no data", code="us_unavailable")
-        dates, values = newer if len(calls) == 1 else older
-        return [{"date": d, "close": float(c)} for d, c in zip(dates, values)], {}
-
-    fund_plan._cache.clear()
-    monkeypatch.setattr(fund_plan, "yahoo_data", fake)
-    monkeypatch.setattr(fund_plan.time, "sleep", lambda _: None)
-    history_dates, closes = fund_plan._history()
-    # Window 3 fails twice (with one retry); history ends there, cached only briefly.
-    assert len(calls) == 4 and closes[-1] == 100.0
-    assert history_dates == sorted(set(older[0]) | set(newer[0]))
-    expires = fund_plan._cache["history"][0]
-    assert expires - fund_plan.time.monotonic() <= fund_plan.PARTIAL_CACHE_SECONDS
-    fund_plan._cache.clear()
-
-
-def test_history_retries_a_transient_window_failure(monkeypatch):
-    dates, values = series(list(np.linspace(50, 100, 250)))
-    calls = []
-
-    def fake(symbol, **kwargs):
-        calls.append(kwargs["period"])
-        if len(calls) == 1:
-            raise DataSourceError("blip", code="us_connection_failed")
-        return [{"date": d, "close": float(c)} for d, c in zip(dates, values)], {}
-
-    fund_plan._cache.clear()
-    monkeypatch.setattr(fund_plan, "yahoo_data", fake)
-    monkeypatch.setattr(fund_plan.time, "sleep", lambda _: None)
-    fund_plan._history()
-    assert calls[0] == calls[1] and len(calls) == fund_plan.HISTORY_YEARS + 1
-    fund_plan._cache.clear()
+    assert len(calls) == 1  # Served from cache.
 
 
 def test_plan_rejects_horizon_shorter_than_buying_period(client, monkeypatch):
@@ -136,17 +89,17 @@ def test_plan_rejects_horizon_shorter_than_buying_period(client, monkeypatch):
 def test_plan_reports_unavailable_history(client, monkeypatch):
     calls = []
 
-    def failing(symbol, **kwargs):
-        calls.append(kwargs)
-        raise DataSourceError("hidden provider text", code="us_rate_limited")
+    def failing():
+        calls.append(1)
+        raise DataSourceError("hidden provider text", code="auto_csv_unavailable")
 
-    monkeypatch.setattr(fund_plan, "yahoo_data", failing)
+    monkeypatch.setattr(fund_plan.plan_data, "load_history", failing)
     headers = {"Authorization": f"Bearer {TOKEN}"}
     response = client.get("/api/plan/0050", headers=headers)
     assert response.status_code == 503
     assert "hidden" not in response.text
-    assert response.json()["detail"]["source_code"] == "us_rate_limited"
-    # Rate limits are not retried, and the failure is remembered briefly.
+    assert response.json()["detail"]["source_code"] == "auto_csv_unavailable"
+    # The failure is remembered briefly and shared with paper trading.
     assert client.get("/api/plan/paper", headers=headers).status_code == 503
     assert len(calls) == 1
 
