@@ -29,6 +29,7 @@ SOURCE = {
     "dividends": "excluded",
 }
 HISTORY_YEARS = 20
+MIN_HISTORY_YEARS = 10  # Yahoo's 0050.TW daily data starts later than 20 years back.
 CHUNK_SECONDS = 365 * 86400  # Short windows keep Yahoo on daily candles.
 REQUEST_INTERVAL = 3
 RETRY_DELAYS = (30, 90)
@@ -62,7 +63,7 @@ def _window(begin: int, stop: int) -> list[dict]:
 
 
 def fetch_history(now: int | None = None) -> list[dict]:
-    """Twenty years of daily closes in one-year windows, newest first, no gaps."""
+    """Up to twenty years of daily closes in one-year windows, newest first, no gaps."""
     end = int(time.time()) if now is None else now
     first = end - HISTORY_YEARS * 365 * 86400
     merged: dict[str, float] = {}
@@ -71,7 +72,18 @@ def fetch_history(now: int | None = None) -> list[dict]:
         begin = max(first, stop - CHUNK_SECONDS)
         if merged:
             _sleep(REQUEST_INTERVAL)
-        merged.update((p["date"], p["close"]) for p in _window(begin, stop))
+        try:
+            window = _window(begin, stop)
+        except DataSourceError as exc:
+            # An older window with no usable data marks where Yahoo's history starts.
+            # Rate limits and connection failures still fail the whole run.
+            if not merged or exc.code not in {"us_unavailable", "us_invalid_data"}:
+                raise
+            covered = date.fromisoformat(max(merged)) - date.fromisoformat(min(merged))
+            if covered < timedelta(days=MIN_HISTORY_YEARS * 365):
+                raise
+            break
+        merged.update((p["date"], p["close"]) for p in window)
         stop = begin
     points = [{"date": day, "close": float(merged[day])} for day in sorted(merged)]
     points = points[-MAX_POINTS:]
