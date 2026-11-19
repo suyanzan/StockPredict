@@ -69,7 +69,9 @@
         throw new Error("登入已過期，請重新輸入管理金鑰。");
       }
       if (code === "admin_not_configured") throw new Error("管理功能尚未設定，請先在 Render 設定管理金鑰。");
-      throw new Error(body?.detail?.message || "回測暫時無法使用，請稍後再試。");
+      const message = body?.detail?.message || "回測暫時無法使用，請稍後再試。";
+      const source = body?.detail?.source_code;
+      throw new Error(typeof source === "string" ? `${message}（來源代碼：${source}）` : message);
     }
     data = body;
     show("");
