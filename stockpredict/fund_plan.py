@@ -28,8 +28,10 @@ MONTH = 21  # Trading days per month, for spacing scheduled buys.
 START_STEP = 5  # Sample a start date every five trading days.
 SATELLITE_SHARES = (0.0, 0.1, 0.2)
 CACHE_SECONDS = 6 * 3600
+PARTIAL_CACHE_SECONDS = 600  # History cut short by an upstream error is retried sooner.
+FAILURE_SECONDS = 60  # Do not hammer Yahoo after a failed fetch.
 HISTORY_YEARS = 20
-CHUNK_SECONDS = 10 * 365 * 86400  # Yahoo truncates long daily windows.
+CHUNK_SECONDS = 365 * 86400  # Short windows keep Yahoo on daily candles.
 SESSION_COOKIE = "sp_plan_owner"
 SESSION_SECONDS = 7 * 24 * 3600
 SESSION_PATH = "/api/plan"
@@ -37,6 +39,7 @@ SESSION_PATH = "/api/plan"
 router = APIRouter()
 _cache: dict = {}
 _lock = threading.Lock()
+_fetch_lock = threading.Lock()  # One upstream fetch at a time; others reuse its result.
 
 
 def _signature(expires: int) -> str:
@@ -105,30 +108,67 @@ def end_session(request: Request):
     return response
 
 
-def _history() -> tuple[list[str], np.ndarray]:
+def _cached_history():
     with _lock:
         cached = _cache.get("history")
-        if cached and time.monotonic() - cached[0] < CACHE_SECONDS:
+        if cached and time.monotonic() < cached[0]:
             return cached[1], cached[2]
-    end = int(time.time())
-    begin = end - HISTORY_YEARS * 365 * 86400
-    merged: dict[str, float] = {}
-    while begin < end:
-        stop = min(end, begin + CHUNK_SECONDS)
-        try:
-            points, _ = yahoo_data(SYMBOL, period=(begin, stop))
-        except DataSourceError:
-            if not merged and stop < end:
-                begin = stop  # The fund may not have existed for the whole window.
-                continue
+        failed = _cache.get("failure")
+        if failed and time.monotonic() < failed[0]:
+            raise failed[1]
+    return None
+
+
+def _window(begin: int, stop: int) -> list[dict]:
+    try:
+        points, _ = yahoo_data(SYMBOL, period=(begin, stop))
+    except DataSourceError as exc:
+        if exc.code == "us_rate_limited":
             raise
-        merged.update((point["date"], point["close"]) for point in points)
-        begin = stop
-    dates = sorted(merged)
-    closes = np.array([merged[day] for day in dates], dtype=float)
-    with _lock:
-        _cache["history"] = (time.monotonic(), dates, closes)
-    return dates, closes
+        time.sleep(1)  # One retry for transient upstream errors.
+        points, _ = yahoo_data(SYMBOL, period=(begin, stop))
+    return points
+
+
+def _history() -> tuple[list[str], np.ndarray]:
+    """Daily 0050 closes for up to twenty years, fetched newest window first.
+
+    The latest window must succeed. An older window that fails ends the history
+    there (no gaps); such a shortened history is cached only briefly.
+    """
+    if (hit := _cached_history()) is not None:
+        return hit
+    with _fetch_lock:
+        if (hit := _cached_history()) is not None:
+            return hit
+        end = int(time.time())
+        first = end - HISTORY_YEARS * 365 * 86400
+        merged: dict[str, float] = {}
+        complete = True
+        stop = end
+        while stop > first:
+            begin = max(first, stop - CHUNK_SECONDS)
+            try:
+                points = _window(begin, stop)
+            except DataSourceError as exc:
+                if not merged:
+                    wait = FAILURE_SECONDS
+                    if exc.retry_after:
+                        wait = min(max(wait, exc.retry_after), 900)
+                    with _lock:
+                        _cache["failure"] = (time.monotonic() + wait, exc)
+                    raise
+                complete = False
+                break
+            merged.update((point["date"], point["close"]) for point in points)
+            stop = begin
+        dates = sorted(merged)
+        closes = np.array([merged[day] for day in dates], dtype=float)
+        ttl = CACHE_SECONDS if complete else PARTIAL_CACHE_SECONDS
+        with _lock:
+            _cache.pop("failure", None)
+            _cache["history"] = (time.monotonic() + ttl, dates, closes)
+        return dates, closes
 
 
 def max_drawdown(dates: list[str], closes: np.ndarray) -> dict:
@@ -262,11 +302,15 @@ def plan_0050(
             down=down_pct / 100,
             fraction=sell_fraction_pct / 100,
         )
-    except DataSourceError:
+    except DataSourceError as exc:
         return JSONResponse(
             status_code=503,
             content={
-                "detail": {"code": "history_unavailable", "message": "暫時無法取得 0050 歷史價格。"}
+                "detail": {
+                    "code": "history_unavailable",
+                    "source_code": exc.code,
+                    "message": "暫時無法取得 0050 歷史價格。",
+                }
             },
         )
     except ValueError:

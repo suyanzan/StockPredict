@@ -186,11 +186,15 @@ def paper(
 ):
     try:
         dates, closes = fund_plan._history()
-    except DataSourceError:
+    except DataSourceError as exc:
         return JSONResponse(
             status_code=503,
             content={
-                "detail": {"code": "history_unavailable", "message": "暫時無法取得 0050 價格。"}
+                "detail": {
+                    "code": "history_unavailable",
+                    "source_code": exc.code,
+                    "message": "暫時無法取得 0050 價格。",
+                }
             },
         )
     return replay(
