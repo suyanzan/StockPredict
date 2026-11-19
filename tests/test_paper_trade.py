@@ -85,11 +85,7 @@ def client(monkeypatch):
 
 def test_paper_endpoint_is_owner_only(client, monkeypatch):
     days = trading_days(date(2026, 11, 19), 40)
-    monkeypatch.setattr(
-        fund_plan,
-        "yahoo_data",
-        lambda symbol, **_: ([{"date": d, "close": 95.0} for d in days], {}),
-    )
+    monkeypatch.setattr(fund_plan.plan_data, "load_history", lambda: (days, [95.0] * len(days), {}))
     assert client.get("/api/plan/paper").status_code == 401
     response = client.get("/api/plan/paper", headers={"Authorization": f"Bearer {TOKEN}"})
     assert response.status_code == 200

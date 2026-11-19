@@ -1,0 +1,78 @@
+name: Update 0050 plan history
+
+on:
+  schedule:
+    # Taipei 14:20 and 16:20 on weekdays, after the TWSE close is final.
+    - cron: "20 6,8 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/update-plan-data.yml"
+      - "stockpredict/plan_data.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plan-data-0050
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.23"
+          python-version: "3.12"
+          enable-cache: true
+      - name: Install locked application dependencies
+        run: uv sync --locked --no-dev
+      - name: Prepare a separate plan-data worktree
+        id: data
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_data_dir=$(mktemp -d "${RUNNER_TEMP}/stockpredict-plan-data.XXXXXX")
+          if git ls-remote --exit-code --heads origin refs/heads/plan-data > /dev/null; then
+            git fetch --no-tags origin refs/heads/plan-data
+            git worktree add --detach "$task_data_dir" FETCH_HEAD
+          else
+            task_lookup_status=$?
+            if [ "$task_lookup_status" -ne 2 ]; then
+              exit "$task_lookup_status"
+            fi
+            git worktree add --detach "$task_data_dir" HEAD
+            git -C "$task_data_dir" switch --orphan plan-data
+          fi
+          echo "data_dir=$task_data_dir" >> "$GITHUB_OUTPUT"
+      - name: Build the validated 0050 history
+        env:
+          PLAN_DATA_DIR: ${{ steps.data.outputs.data_dir }}
+        run: |
+          set -euo pipefail
+          PYTHONPATH="$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/.venv/bin/python" \
+            -m stockpredict.plan_data --output-dir "$PLAN_DATA_DIR"
+      - name: Publish only the history file
+        env:
+          PLAN_DATA_DIR: ${{ steps.data.outputs.data_dir }}
+        run: |
+          set -euo pipefail
+          git -C "$PLAN_DATA_DIR" add -- 0050.json
+          if git -C "$PLAN_DATA_DIR" diff --cached --quiet; then
+            exit 0
+          fi
+          task_last_date=$("$GITHUB_WORKSPACE/.venv/bin/python" -c \
+            'import json, sys; print(json.load(open(sys.argv[1]))["last_date"])' \
+            "$PLAN_DATA_DIR/0050.json")
+          git -C "$PLAN_DATA_DIR" config user.name "github-actions[bot]"
+          git -C "$PLAN_DATA_DIR" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$PLAN_DATA_DIR" commit -m "Update 0050 plan history through $task_last_date"
+          git -C "$PLAN_DATA_DIR" push origin HEAD:refs/heads/plan-data
