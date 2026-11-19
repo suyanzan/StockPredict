@@ -63,6 +63,39 @@ def test_fetch_retries_rate_limits_then_fails_without_partial_history(monkeypatc
     assert error.value.code == "us_access_denied" and len(calls) == 4
 
 
+def test_fetch_stops_where_yahoo_history_starts(monkeypatch):
+    calls = []
+    # Eleven one-year windows of data, then Yahoo has nothing older.
+    history = days(11 * 250)
+
+    def fake(symbol, **kwargs):
+        calls.append(1)
+        index = len(calls) - 1
+        if index >= 11:
+            raise DataSourceError("hidden", code="us_unavailable")
+        chunk = history[len(history) - (index + 1) * 250 : len(history) - index * 250]
+        return [{"date": d, "close": 100.0} for d in chunk], {}
+
+    monkeypatch.setattr(plan_data, "yahoo_data", fake)
+    result = plan_data.fetch_history(int(NOW.timestamp()))
+    assert [p["date"] for p in result] == history
+    assert len(calls) == 11 + len(plan_data.RETRY_DELAYS) + 1  # Retried, then stopped.
+
+
+def test_fetch_rejects_a_history_that_ends_too_soon(monkeypatch):
+    calls = []
+
+    def fake(symbol, **kwargs):
+        calls.append(1)
+        if len(calls) > 2:
+            raise DataSourceError("hidden", code="us_unavailable")
+        return points(), {}
+
+    monkeypatch.setattr(plan_data, "yahoo_data", fake)
+    with pytest.raises(DataSourceError):
+        plan_data.fetch_history(int(NOW.timestamp()))
+
+
 def test_refresh_writes_a_valid_file_and_skips_unchanged(tmp_path, monkeypatch):
     monkeypatch.setattr(plan_data, "yahoo_data", lambda symbol, **_: (points(), {}))
     assert plan_data.refresh(tmp_path, now=NOW)["status"] == "updated"
