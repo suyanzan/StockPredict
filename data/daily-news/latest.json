@@ -1,134 +1,130 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-20",
-  "generated_at": "2026-11-20T07:51:32+08:00",
+  "brief_date": "2026-11-21",
+  "generated_at": "2026-11-21T07:45:59+08:00",
   "articles": [
     {
-      "id": "anthropic-debut-us-stocks-fall",
+      "id": "us-stocks-sox-plunge-nov20",
+      "category": "economy",
+      "published_date": "2026-11-21",
+      "published_at": "2026-11-21T06:08:00+08:00",
+      "title": {
+        "zh-TW": "AI股賣壓擴大：那指跌5.28%、費半重挫10.73%",
+        "en": "AI selling deepens: Nasdaq falls 5.28%, chip index plunges 10.73%"
+      },
+      "summary": {
+        "zh-TW": "中央社彙整外電，美股20日收黑：道瓊跌949.73點（1.93%）至48,147.33點，標普500跌3.70%至6,910.39點，那斯達克跌5.28%至22,617.73點，費城半導體指數重挫10.73%至8,408.59點。報導將跌勢歸因於AI相關股賣壓持續。",
+        "en": "CNA, citing wires, reports US stocks closed lower on Nov. 20: the Dow fell 949.73 points (1.93%) to 48,147.33, the S&P 500 lost 3.70% to 6,910.39, the Nasdaq dropped 5.28% to 22,617.73 and the Philadelphia Semiconductor Index plunged 10.73% to 8,408.59. The report attributes the slide to continued selling of AI-related shares."
+      },
+      "impact": {
+        "zh-TW": "費半單日跌逾一成，週一台股半導體與AI供應鏈可能再承壓；台股週五已先大跌，實際開盤反應仍待觀察，此為推論。",
+        "en": "With the chip index down more than 10% in a day, Taiwan's semiconductor and AI supply-chain stocks may face more pressure on Monday; Taiwan already fell sharply on Friday, so the actual reaction is uncertain. This is an inference."
+      },
+      "sources": [
+        {
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/afe/202611210015.aspx"
+        }
+      ]
+    },
+    {
+      "id": "taiex-plunge-2393-nov20",
+      "category": "economy",
+      "published_date": "2026-11-20",
+      "published_at": "2026-11-20T13:45:00+08:00",
+      "title": {
+        "zh-TW": "台股重挫2,393點收36,033點，三大法人賣超522億元",
+        "en": "TAIEX drops 2,393 points to 36,033; institutions net sell NT$52.2 billion"
+      },
+      "summary": {
+        "zh-TW": "中央社報導，加權指數20日跌2,393.60點（6.23%）收36,033.29點，成交8,773.5億元，1,080檔下跌、僅16檔上漲。經濟日報指為史上第三大收盤跌點，台積電收2,000元跌4.76%，聯發科、台達電跌停；三大法人合計賣超522.46億元，其中自營商避險賣超約290億元。資安股逆勢漲停。",
+        "en": "CNA reports the TAIEX fell 2,393.60 points (6.23%) on Nov. 20 to 36,033.29 on NT$877.35 billion turnover, with 1,080 decliners and 16 gainers. Economic Daily News calls it the third-largest closing point drop: TSMC fell 4.76% to NT$2,000; MediaTek and Delta hit limit-down. Institutions net sold NT$52.246 billion, incl. about NT$29 billion of dealer hedging. Cybersecurity stocks rose limit-up."
+      },
+      "impact": {
+        "zh-TW": "權值股貢獻近半跌點，自營商避險賣壓放大波動；法人動向是觀察賣壓是否延續的指標。資安股逆勢走強反映題材輪動，持續性未確認。",
+        "en": "Heavyweights accounted for nearly half the drop and dealer hedging amplified the swing; institutional flows are a gauge of whether selling persists. The cybersecurity rally reflects theme rotation whose durability is unconfirmed."
+      },
+      "sources": [
+        {
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/afe/202611200120.aspx"
+        },
+        {
+          "publisher": "經濟日報 via 聯合新聞網 UDN",
+          "url": "https://udn.com/news/story/7251/9891475"
+        }
+      ]
+    },
+    {
+      "id": "anthropic-day2-drop",
       "category": "ai",
       "published_date": "2026-11-20",
-      "published_at": "2026-11-20T05:42:00+08:00",
+      "published_at": "2026-11-20T22:58:00+08:00",
       "title": {
-        "zh-TW": "Anthropic 掛牌首日收漲逾17%，美股四大指數仍跌逾2%",
-        "en": "Anthropic closes up over 17% on debut as major US indexes fall more than 2%"
+        "zh-TW": "Anthropic 掛牌次日早盤重挫逾9%，仍高於承銷價",
+        "en": "Anthropic falls over 9% in early trade on its second day, still above IPO price"
       },
       "summary": {
-        "zh-TW": "CBS 報導，Anthropic 以每股83美元發行9.8億股，募資813億美元，為史上最大 IPO，於那斯達克以 ANT 掛牌。中央社彙整外電，ANT 開盤後一度突破110美元，收在97.17美元；但道瓊、標普500、那斯達克及費城半導體指數19日均跌逾2%，費半跌2.41%。",
-        "en": "CBS reports Anthropic sold 980 million shares at US$83, raising US$81.3 billion in the largest IPO on record, listing on Nasdaq as ANT. CNA, citing wires, says ANT briefly topped US$110 and closed at US$97.17, yet the Dow, S&P 500, Nasdaq and the Philadelphia semiconductor index all fell more than 2% on Nov. 19, the SOX down 2.41%."
+        "zh-TW": "中央社引法新社報導，Anthropic 表示透過創紀錄 IPO 募得約916億美元；掛牌次日美股開盤後股價一度跌約9.5%至約88美元，低於首日收盤價97.17美元，但仍高於每股83美元承銷價。",
+        "en": "CNA, citing AFP, says Anthropic reported raising about US$91.6 billion in its record IPO. On its second trading day the stock fell about 9.5% after the open to roughly US$88, below the first-day close of US$97.17 but above the US$83 offer price."
       },
       "impact": {
-        "zh-TW": "新股熱度未能扭轉科技股賣壓，顯示資金對 AI 題材評價分歧；美股半導體下跌可能延續影響台股電子權值股開盤，此為推論。",
-        "en": "Strong demand for the new listing did not reverse tech selling, pointing to divided views on AI valuations; the US chip slide may weigh on Taiwan's electronics heavyweights at the open, which is an inference."
-      },
-      "sources": [
-        {
-          "publisher": "CBS News via Yahoo Finance",
-          "url": "https://finance.yahoo.com/markets/stocks/articles/anthropic-set-start-trading-completing-135519162.html"
-        },
-        {
-          "publisher": "中央社 CNA",
-          "url": "https://www.cna.com.tw/news/afe/202611200012.aspx"
-        }
-      ]
-    },
-    {
-      "id": "taiex-plunge-nov19",
-      "category": "economy",
-      "published_date": "2026-11-19",
-      "published_at": "2026-11-19T16:54:00+08:00",
-      "title": {
-        "zh-TW": "台股19日重挫1768點，跌破4萬點與年線",
-        "en": "Taiex plunges 1,768 points on Nov. 19, closing below 40,000 and its 240-day line"
-      },
-      "summary": {
-        "zh-TW": "焦點台灣報導，加權指數19日跌4.4%收38,426.89點，為史上第七大收盤跌點，跌破約39,368點的年線，成交值8,952.8億元。台積電跌3.45%至2,100元，聯發科、南亞科、緯穎等跌幅較大，櫃買指數跌7.22%，外資賣超243.1億元。",
-        "en": "Focus Taiwan reports the Taiex fell 4.4% to 38,426.89 on Nov. 19, its seventh-largest point drop at a close, breaking the 240-day average near 39,368 on NT$895.3 billion turnover. TSMC fell 3.45% to NT$2,100; MediaTek, Nanya Technology and Wiwynn fell harder, the OTC index lost 7.22%, and foreign investors net sold NT$24.3 billion."
-      },
-      "impact": {
-        "zh-TW": "報導引述分析師，市場擔憂 AI 循環融資收緊、供應鏈利潤分配及輝達成本控管可能壓縮台廠毛利；此為觀點而非已發生事實，短線波動仍大。",
-        "en": "An analyst cited worries over tighter AI circular financing, supply-chain profit sharing and possible Nvidia cost controls squeezing Taiwan suppliers' margins; these are views, not realized outcomes, and volatility remains high."
-      },
-      "sources": [
-        {
-          "publisher": "Focus Taiwan (CNA)",
-          "url": "https://focustaiwan.tw/business/202611190016"
-        }
-      ]
-    },
-    {
-      "id": "fsc-short-selling-curbs",
-      "category": "economy",
-      "published_date": "2026-11-19",
-      "published_at": "2026-11-19T14:44:00+08:00",
-      "title": {
-        "zh-TW": "金管會加碼限空措施，11月20日起實施",
-        "en": "Taiwan's FSC tightens short-selling curbs from Nov. 20"
-      },
-      "summary": {
-        "zh-TW": "中央社報導，金管會宣布自20日起，上市櫃股票或 TDR 當日收盤跌幅達3.5%者，次一營業日融券及借券賣出不得低於前日收盤價；借券賣出每日委託上限由30日均量3%降至1%，並鼓勵金融業買進及券商穩定市場。金管會未設結束日期，將視情勢調整。",
-        "en": "CNA reports that from Nov. 20, any listed or OTC stock or TDR closing down 3.5% or more cannot be short sold below the prior close the next trading day, and the daily securities-lending sell cap drops from 3% to 1% of 30-day average volume. Financial firms are encouraged to buy and dealers to stabilize prices. No end date was set."
-      },
-      "impact": {
-        "zh-TW": "限空可減緩短線賣壓擴散，但無法改變外部科技股走勢與外資動向；措施成效需觀察後續成交量與波動，非保證止跌。",
-        "en": "The curbs may slow short-term selling pressure but cannot change overseas tech trends or foreign flows; their effect depends on coming volume and volatility and does not guarantee a floor."
+        "zh-TW": "首日熱度快速降溫，與同日AI股全面賣壓同步，顯示市場對AI評價分歧仍大；新股後續表現可作為AI資金情緒參考，屬推論。",
+        "en": "The quick fade of first-day enthusiasm coincided with broad AI selling, suggesting wide disagreement over AI valuations; the stock's path may serve as a gauge of AI sentiment, which is an inference."
       },
       "sources": [
         {
           "publisher": "中央社 CNA",
-          "url": "https://www.cna.com.tw/news/afe/202611190182.aspx"
+          "url": "https://www.cna.com.tw/news/afe/202611200350.aspx"
         }
       ]
     },
     {
-      "id": "nvidia-q3-fy27-results",
+      "id": "us-china-ai-military-human",
       "category": "ai",
-      "published_date": "2026-11-17",
+      "published_date": "2026-11-21",
+      "published_at": "2026-11-21T02:22:00+08:00",
+      "title": {
+        "zh-TW": "貝森特：川習同意以AI做重大軍事決策須有人類把關",
+        "en": "Bessent: Trump and Xi agree major AI military decisions need human control"
+      },
+      "summary": {
+        "zh-TW": "中央社引路透與CNBC報導，美國財長貝森特表示，川普與習近平同意運用AI的軍事決策必須有人類參與，此共識不受兩國AI競爭影響。他稱輝達H200仍是中國依許可可購買的最先進晶片，中國訂單「相當少」。報導並指美國商務部本週進一步限制中國取得先進AI晶片。",
+        "en": "CNA, citing Reuters and CNBC, reports Treasury Secretary Scott Bessent said Trump and Xi agreed that AI-assisted military decisions must involve humans, unaffected by their AI race. He said Nvidia's H200 remains the most advanced chip China can buy under licence and Chinese orders are quite small. The report notes Commerce tightened China's access to advanced AI chips this week."
+      },
+      "impact": {
+        "zh-TW": "美中在AI軍事安全有限度共識，但晶片出口管制持續收緊；貝森特對中國技術落後的說法屬其個人看法，對台灣AI供應鏈的影響仍需觀察。",
+        "en": "The US and China reached a limited AI military-safety consensus while chip export controls keep tightening; Bessent's view that China lags in chips is his opinion, and effects on Taiwan's AI supply chain remain to be seen."
+      },
+      "sources": [
+        {
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/aopl/202611210006.aspx"
+        }
+      ]
+    },
+    {
+      "id": "huang-senate-testimony",
+      "category": "ai",
+      "published_date": "2026-11-21",
       "published_at": null,
       "title": {
-        "zh-TW": "輝達第三季營收1158億美元，下季展望1300億美元",
-        "en": "Nvidia posts US$115.8 billion Q3 revenue, guides US$130 billion next quarter"
+        "zh-TW": "黃仁勳同意赴美國參院公開作證，間諜疑雲受關注",
+        "en": "Jensen Huang agrees to testify publicly before US Senate amid spy allegations"
       },
       "summary": {
-        "zh-TW": "輝達公布截至10月25日的2027財年第三季財報：營收1158億美元，年增103%；資料中心營收1076億美元，年增110%；GAAP 毛利率74.8%。第四季營收展望1300億美元上下3%（含多一週），毛利率71%至72%，並未計入中國資料中心運算營收。代理執行長由財務長 Kress 兼任。",
-        "en": "Nvidia reported fiscal Q3 2027 (to Oct. 25) revenue of US$115.8 billion, up 103% year on year, with data center revenue of US$107.6 billion, up 110%, and a 74.8% GAAP gross margin. It guided Q4 revenue of US$130 billion plus or minus 3% (including an extra week) and 71%-72% margins, assuming no China data center compute revenue. CFO Kress is interim CEO."
+        "zh-TW": "中央社彙整外電，參議員史考特辦公室聲明指前輝達執行長黃仁勳同意出席參院公開聽證，日期未定，原請求為12月3日；他也同意12月1日接受眾院三委員會閉門訪談。國會正調查其與一名被指為中國間諜女子的關係；黃仁勳發言人不予置評。",
+        "en": "CNA, citing wires, says Senator Tim Scott's office stated former Nvidia CEO Jensen Huang agreed to a public Senate hearing, date not set, after an original request for Dec. 3; he also agreed to a closed-door interview with three House committees on Dec. 1. Congress is probing his ties to a woman accused of being a Chinese spy; his spokesperson declined comment."
       },
       "impact": {
-        "zh-TW": "營收與展望為公司公布數字，但下季毛利率指引低於本季，加上領導層更替，市場關注供應鏈議價與成本壓力；台廠訂單變化尚未證實。",
-        "en": "The figures and guidance are company-reported, but the lower margin outlook plus the leadership change has the market watching supplier pricing and costs; any change in Taiwan suppliers' orders is unconfirmed."
+        "zh-TW": "聽證屬預定活動，尚未發生；指控未經證實。事件涉及AI晶片對中出口審查，可能增加輝達及其供應鏈的不確定性，屬推論。",
+        "en": "The hearings are scheduled, not yet held, and the allegations are unproven. Because the case touches AI chip exports to China, it may add uncertainty for Nvidia and its suppliers, which is an inference."
       },
       "sources": [
         {
-          "publisher": "NVIDIA Investor Relations",
-          "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/default.aspx"
-        }
-      ]
-    },
-    {
-      "id": "nvidia-halts-h200-china",
-      "category": "ai",
-      "published_date": "2026-11-19",
-      "published_at": "2026-11-19T01:42:44+08:00",
-      "title": {
-        "zh-TW": "輝達停售 H200 晶片給中國，北京重申既有立場",
-        "en": "Nvidia stops H200 chip sales to China; Beijing restates its position"
-      },
-      "summary": {
-        "zh-TW": "聯合報編譯外電，輝達代理執行長 Kress 17日表示停止對中國銷售 H200，先前美方可抽成25%的出口安排隨之終止；輝達同日成立董事會層級委員會監督國安與出口管制合規。太報報導，中國外交部發言人18日僅稱已多次闡明立場。Jefferies 估美方新規恐使輝達明年資料中心營收減少440億至620億美元。",
-        "en": "UDN, citing foreign reports, says interim CEO Kress said on Nov. 17 that Nvidia stopped H200 sales to China, ending a deal giving the US a 25% cut; Nvidia also formed a board committee on export compliance. Taisounds says China's foreign ministry on Nov. 18 cited its stated position. Jefferies estimates new US rules could cut Nvidia's data center revenue next year by US$44-62 billion."
-      },
-      "impact": {
-        "zh-TW": "中國高階 AI 晶片需求由輝達供應的管道再收窄，Jefferies 數字屬券商預估；對台灣代工、封測與伺服器供應鏈的實際影響仍待公司說明。",
-        "en": "Nvidia's channel for high-end AI chips into China narrows further; the Jefferies figure is a broker estimate, and the actual effect on Taiwan's foundry, packaging and server suppliers awaits company disclosures."
-      },
-      "sources": [
-        {
-          "publisher": "聯合新聞網 UDN",
-          "url": "https://udn.com/news/story/7333/9887771"
-        },
-        {
-          "publisher": "太報 via Yahoo奇摩新聞",
-          "url": "https://tw.news.yahoo.com/%E8%BC%9D%E9%81%94%E5%81%9C%E6%AD%A2%E5%87%BA%E8%B2%A8h200%E6%99%B6%E7%89%87%E7%B5%A6%E4%B8%AD%E5%9C%8B-%E9%99%B8%E5%A4%96%E4%BA%A4%E9%83%A8%E5%9B%9E%E6%87%89%E4%BA%86-085959709.html"
+          "publisher": "經濟日報（中央社）via UDN",
+          "url": "https://money.udn.com/money/story/5599/9892597"
         }
       ]
     }
@@ -145,17 +141,16 @@
         "en": "Semiconductors / foundry"
       },
       "reason": {
-        "zh-TW": "報導指台積電19日跌3.45%至2,100元並跌破年線，占台股市值逾四成；輝達財報與對中停售 H200 為其 AI 晶片代工需求的觀察線索，屬產業推論。",
-        "en": "TSMC fell 3.45% to NT$2,100 on Nov. 19, below its 240-day line, and is over 40% of local market cap; Nvidia's results and its China H200 halt are signals to watch for AI foundry demand, an industry inference."
+        "zh-TW": "報導指台積電20日盤中低見1,970元、收2,000元跌4.76%，拖累指數約760點；費半同日重挫逾一成，為AI晶片需求情緒的觀察指標。",
+        "en": "TSMC hit NT$1,970 intraday and closed at NT$2,000, down 4.76%, costing the index about 760 points; the US chip index fell over 10% the same day, a gauge of AI chip sentiment."
       },
       "risk": {
-        "zh-TW": "權值比重高，外資賣超與美國科技股修正易放大波動；出口管制變化可能影響客戶出貨。",
-        "en": "Its heavy index weight means foreign selling and US tech corrections can amplify swings; export-control changes may affect customer shipments."
+        "zh-TW": "權值比重高，美國半導體股修正與法人賣壓易放大波動；出口管制收緊可能影響客戶出貨。",
+        "en": "Its heavy index weight means US chip corrections and institutional selling can amplify swings; tighter export controls may affect customer shipments."
       },
       "article_ids": [
-        "taiex-plunge-nov19",
-        "nvidia-q3-fy27-results",
-        "nvidia-halts-h200-china"
+        "taiex-plunge-2393-nov20",
+        "us-stocks-sox-plunge-nov20"
       ],
       "relationship": "direct"
     },
@@ -166,68 +161,68 @@
         "en": "MediaTek"
       },
       "sector": {
-        "zh-TW": "半導體／IC 設計",
+        "zh-TW": "半導體／IC設計",
         "en": "Semiconductors / IC design"
       },
       "reason": {
-        "zh-TW": "報導指聯發科19日跌5.58%至3,720元，跌幅大於大盤；美股費半同日再跌2.41%，可觀察 IC 設計股評價調整。",
-        "en": "MediaTek fell 5.58% to NT$3,720 on Nov. 19, more than the market; with the SOX down another 2.41% the same day, IC design valuations are worth watching."
+        "zh-TW": "報導指聯發科20日跌停收3,350元，拖累指數約165點，反映AI與高價半導體股遭集中賣壓。",
+        "en": "MediaTek closed limit-down at NT$3,350 on Nov. 20, costing the index about 165 points, reflecting concentrated selling of AI and high-priced chip stocks."
       },
       "risk": {
-        "zh-TW": "高價股易受限空與外資調節影響，AI 相關評價修正可能延續。",
-        "en": "High-priced shares are sensitive to short-selling rules and foreign rebalancing; AI-related valuation resets may continue."
+        "zh-TW": "高價股流動性與評價調整風險高；費半大跌與AI晶片管制變化可能延續壓力。",
+        "en": "High-priced shares face liquidity and valuation-reset risk; the US chip rout and AI chip control changes may extend pressure."
       },
       "article_ids": [
-        "taiex-plunge-nov19",
-        "anthropic-debut-us-stocks-fall"
+        "taiex-plunge-2393-nov20",
+        "us-stocks-sox-plunge-nov20"
       ],
       "relationship": "direct"
     },
     {
-      "symbol": "6669.TW",
+      "symbol": "2308.TW",
       "name": {
-        "zh-TW": "緯穎",
-        "en": "Wiwynn"
+        "zh-TW": "台達電",
+        "en": "Delta Electronics"
       },
       "sector": {
-        "zh-TW": "電腦及週邊／AI 伺服器",
-        "en": "Computers / AI servers"
+        "zh-TW": "電子零組件／電源",
+        "en": "Electronic components / power"
       },
       "reason": {
-        "zh-TW": "報導指緯穎等伺服器股19日跌逾4%；輝達資料中心營收年增110%，但市場擔憂成本控管壓縮供應鏈毛利，屬產業推論。",
-        "en": "Wiwynn and other server names fell over 4% on Nov. 19; Nvidia's data center revenue rose 110%, but the market worries cost controls could squeeze supplier margins, an industry inference."
+        "zh-TW": "報導指台達電20日跌停收900元，拖累指數約72點；其AI資料中心電源題材與美國AI股賣壓的連動值得觀察，屬產業推論。",
+        "en": "Delta closed limit-down at NT$900, costing the index about 72 points; how its AI data-center power theme tracks US AI selling is worth watching, an industry inference."
       },
       "risk": {
-        "zh-TW": "雲端客戶資本支出節奏、毛利壓力與高評價回落風險；未有報導證實訂單變化。",
-        "en": "Risks include cloud customers' capex timing, margin pressure and de-rating of high valuations; no report confirms order changes."
+        "zh-TW": "AI基礎建設支出疑慮若擴大，可能壓抑評價；雲端業者資本支出調整將影響需求能見度。",
+        "en": "Wider doubts over AI infrastructure spending could weigh on valuation; cloud capex adjustments would affect demand visibility."
       },
       "article_ids": [
-        "taiex-plunge-nov19",
-        "nvidia-q3-fy27-results"
+        "taiex-plunge-2393-nov20",
+        "us-stocks-sox-plunge-nov20"
       ],
       "relationship": "direct"
     },
     {
-      "symbol": "2408.TW",
+      "symbol": "3711.TW",
       "name": {
-        "zh-TW": "南亞科",
-        "en": "Nanya Technology"
+        "zh-TW": "日月光投控",
+        "en": "ASE Technology"
       },
       "sector": {
-        "zh-TW": "半導體／記憶體",
-        "en": "Semiconductors / memory"
+        "zh-TW": "半導體／封裝測試",
+        "en": "Semiconductors / packaging & testing"
       },
       "reason": {
-        "zh-TW": "報導指南亞科19日跌逾9%至293.5元，為跌幅較重的記憶體股；可觀察限空措施實施後的波動變化。",
-        "en": "Nanya Technology fell more than 9% to NT$293.50 on Nov. 19, among the hardest-hit memory names; volatility after the new short-selling curbs is worth watching."
+        "zh-TW": "報導指日月光投控20日收457元、跌9.33%，拖累指數約59點；先進封裝與AI晶片需求連動高，屬產業推論。",
+        "en": "ASE closed at NT$457, down 9.33%, costing the index about 59 points; advanced packaging is closely tied to AI chip demand, an industry inference."
       },
       "risk": {
-        "zh-TW": "記憶體價格循環與 AI 需求預期反轉風險，單日波動大。",
-        "en": "Memory price cycles and shifting AI demand expectations; daily swings are large."
+        "zh-TW": "美國出口管制擴及海外代工與封測通路可能增加合規成本；費半修正延續將壓抑評價。",
+        "en": "US controls reaching overseas foundry and packaging channels may raise compliance costs; a prolonged chip-index correction would weigh on valuation."
       },
       "article_ids": [
-        "taiex-plunge-nov19",
-        "fsc-short-selling-curbs"
+        "taiex-plunge-2393-nov20",
+        "us-stocks-sox-plunge-nov20"
       ],
       "relationship": "direct"
     },
@@ -238,20 +233,20 @@
         "en": "Hon Hai (Foxconn)"
       },
       "sector": {
-        "zh-TW": "其他電子／AI 伺服器組裝",
-        "en": "Electronics / AI server assembly"
+        "zh-TW": "電子代工／AI伺服器",
+        "en": "Electronics manufacturing / AI servers"
       },
       "reason": {
-        "zh-TW": "報導指鴻海19日僅跌0.23%至220.5元，相對抗跌；其 AI 伺服器業務與輝達資料中心需求相關，屬產業推論。",
-        "en": "Hon Hai fell only 0.23% to NT$220.50 on Nov. 19, holding up relatively well; its AI server business ties to Nvidia data center demand, an industry inference."
+        "zh-TW": "報導指鴻海20日收210元跌4.76%，拖累指數約43點；其AI伺服器業務與輝達相關不確定性的連動值得觀察，屬產業推論。",
+        "en": "Hon Hai closed at NT$210, down 4.76%, costing the index about 43 points; how its AI server business tracks Nvidia-related uncertainty is worth watching, an industry inference."
       },
       "risk": {
-        "zh-TW": "組裝毛利偏低，若客戶加強成本控管可能受壓；中國相關出口限制亦增不確定性。",
-        "en": "Assembly margins are thin and could be pressured if customers tighten costs; China-related export limits add uncertainty."
+        "zh-TW": "AI伺服器出貨可能受出口管制、交貨地點調整及客戶資本支出變化影響；權值股易受法人賣壓衝擊。",
+        "en": "AI server shipments may be affected by export controls, delivery-site changes and client capex shifts; as a heavyweight it is exposed to institutional selling."
       },
       "article_ids": [
-        "taiex-plunge-nov19",
-        "nvidia-q3-fy27-results"
+        "taiex-plunge-2393-nov20",
+        "huang-senate-testimony"
       ],
       "relationship": "direct"
     }
