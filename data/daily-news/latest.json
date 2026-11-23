@@ -1,130 +1,142 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-23",
-  "generated_at": "2026-11-23T07:46:18+08:00",
+  "brief_date": "2026-11-24",
+  "generated_at": "2026-11-24T07:47:04+08:00",
   "articles": [
     {
-      "id": "export-orders-oct-record",
-      "category": "economy",
-      "published_date": "2026-11-21",
-      "published_at": "2026-11-21T03:06:51+08:00",
-      "title": {
-        "zh-TW": "10月外銷訂單1,238億美元、年增78.3%，連21紅並雙創新高",
-        "en": "Taiwan's October export orders hit record US$123.8bn, up 78.3% for 21st straight gain"
-      },
-      "summary": {
-        "zh-TW": "經濟日報報導，經濟部20日公布10月外銷訂單1,238.2億美元，年增78.3%，金額與增幅皆創新高、連21個月正成長；資通訊產品年增107.2%、電子產品年增89.8%，主因AI與雲端資本支出。經濟部預估11月接單1,150至1,187億美元、全年可望突破1.1兆美元，惟11月資通訊接單動向指數為47.8。",
-        "en": "Economic Daily News reports the economy ministry said Oct. export orders reached US$123.82bn, up 78.3% y/y, both records and a 21st monthly gain. ICT orders rose 107.2% and electronics 89.8%, driven by AI and cloud capex. The ministry forecasts Nov. orders of US$115.0-118.7bn and full-year orders above US$1.1tn, though its Nov. ICT order index stands at 47.8."
-      },
-      "impact": {
-        "zh-TW": "官方數據顯示AI相關接單至10月仍強，與近期股價重挫形成落差；但11月預估增幅放緩，且接單不等於出貨與獲利，市場可能更關注後續月份動能是否延續。",
-        "en": "Official data show AI-linked orders stayed strong through October, in contrast with the recent share slump. But the ministry expects slower November growth, and orders are not shipments or profits; markets may focus on whether momentum holds."
-      },
-      "sources": [
-        {
-          "publisher": "聯合新聞網／經濟日報",
-          "url": "https://udn.com/news/story/7238/9892306"
-        },
-        {
-          "publisher": "經濟日報",
-          "url": "https://money.udn.com/money/story/10869/9891758"
-        }
-      ]
-    },
-    {
-      "id": "anthropic-ipo-ai-selloff",
+      "id": "nvidia-huang-reinstated",
       "category": "ai",
       "published_date": "2026-11-23",
-      "published_at": "2026-11-22T11:00:00-08:00",
+      "published_at": "2026-11-23T22:08:00+08:00",
       "title": {
-        "zh-TW": "Anthropic上市未能止跌，那斯達克抹去今年漲幅",
-        "en": "Anthropic IPO fails to halt AI sell-off as Nasdaq erases year's gains"
+        "zh-TW": "輝達董事會恢復黃仁勳執行長職務，股價單日飆漲31%",
+        "en": "Nvidia board reinstates Jensen Huang as CEO; shares jump 31% in a day"
       },
       "summary": {
-        "zh-TW": "Yahoo Finance報導，Anthropic本週上市未能緩解AI類股賣壓，那斯達克已抹去今年以來漲幅、距10月高點約18%；輝達四週跌42%，美光一個月跌逾33%。報導列出的原因包括資料中心監管趨嚴、對中晶片出口限制與融資疑慮；10年期美債殖利率週五降至4.91%。分析師對是否「錯殺」看法分歧。",
-        "en": "Yahoo Finance reports Anthropic's IPO this week did little to stem AI-stock selling: the Nasdaq erased its year-to-date gain and sits about 18% below its October high, Nvidia is down 42% in four weeks and Micron over 33% in a month. Cited causes include tighter data-center rules, China chip-export curbs and financing worries. Strategists are split on whether it is a 'fire sale'."
+        "zh-TW": "中央社報導，輝達董事會一致決議即日起恢復黃仁勳總裁、執行長及董事職務，稱已徵詢美方高層、不構成國安風險；獨立董事對相關情報疑慮的調查仍持續。美股23日收盤輝達漲31.48%至165.05美元，費半漲14.03%、那斯達克漲6.51%、標普漲4.73%，美光、戴爾等AI相關股同步大漲。",
+        "en": "CNA reports Nvidia's board unanimously reinstated Jensen Huang as president, CEO and director, saying it consulted senior US officials and sees no national-security risk; an independent-director probe continues. On Nov. 23 Nvidia closed up 31.48% at US$165.05, the SOX rose 14.03%, the Nasdaq 6.51% and the S&P 500 4.73%, with Micron and Dell also surging."
       },
       "impact": {
-        "zh-TW": "美股AI類股的評價修正可能延續影響台灣AI供應鏈情緒；部分策略師認為是基本面良好公司遭拋售、也有人示警結構性因素，屬觀點而非已確認走勢。",
-        "en": "The US AI valuation reset may keep weighing on sentiment toward Taiwan's AI supply chain. Some strategists call it a sale of quality names while others warn of structural forces; these are views, not confirmed trends."
-      },
-      "sources": [
-        {
-          "publisher": "Yahoo Finance",
-          "url": "https://sg.finance.yahoo.com/news/stocks-are-on-fire-sale-as-anthropic-ipo-fails-to-calm-ai-trade-jitters-190051253.html"
-        }
-      ]
-    },
-    {
-      "id": "blacklisted-univ-nvidia-chips",
-      "category": "ai",
-      "published_date": "2026-11-20",
-      "published_at": "2026-11-20T22:16:22+08:00",
-      "title": {
-        "zh-TW": "CNN：至少6所美國黑名單中國大學採購受管制輝達晶片",
-        "en": "CNN: at least six US-blacklisted Chinese universities bought controlled Nvidia chips"
-      },
-      "summary": {
-        "zh-TW": "中央社綜合外電、聯合新聞網刊載，CNN檢視約300筆商業紀錄，發現至少6所遭美列入黑名單的中國大學申報採購受出口管制的輝達晶片，其中2所與軍方關係密切者於近幾個月購入，多經不知名中國賣家、以較舊及小量晶片為主。CNN無法確認是否實際交貨，紀錄也可能不完整；白宮正推動堵漏。",
-        "en": "Per CNA via UDN, CNN reviewed about 300 commercial records and found at least six US-blacklisted Chinese universities reported buying export-controlled Nvidia chips, two with close military ties in recent months, mostly older chips in small volumes via obscure sellers. CNN could not verify delivery and the records may be incomplete; the White House is moving to close loopholes."
-      },
-      "impact": {
-        "zh-TW": "晶片流向疑慮可能強化美方執法與管制力道，增加AI晶片供應鏈的合規成本與政策不確定性；目前屬媒體調查，未見官方對個案的結論。",
-        "en": "Diversion concerns may strengthen US enforcement and controls, raising compliance costs and policy uncertainty for the AI chip supply chain. This is a media investigation; no official finding on these cases is reported."
-      },
-      "sources": [
-        {
-          "publisher": "聯合新聞網／中央社",
-          "url": "https://udn.com/news/story/125066/9892242"
-        }
-      ]
-    },
-    {
-      "id": "fed-cook-larger-hikes",
-      "category": "economy",
-      "published_date": "2026-11-22",
-      "published_at": "2026-11-21T08:03:00-08:00",
-      "title": {
-        "zh-TW": "Fed理事庫克：未來可能需要更多且更大幅度升息",
-        "en": "Fed's Cook says more and larger rate hikes may be needed"
-      },
-      "summary": {
-        "zh-TW": "Yahoo Finance轉載24/7 Wall St.報導，Fed理事庫克20日在智利央行年會表示，9月單次升息不太可能改變通膨路徑，若延誤「之後可能需要更多且更大幅度升息」追趕。她是10月主張再升息的兩位異議者之一。報導稱期貨約反映92%機率在12月8至9日會議升息1碼；同日標普500跌3.70%、10年期殖利率降至4.92%。",
-        "en": "Yahoo Finance, carrying 24/7 Wall St., reports Fed Governor Lisa Cook said on Nov. 20 in Chile that one September hike is unlikely to alter the inflation path and that 'additional and larger' hikes may be needed later if policy lags. She was one of two October dissenters favoring a hike. Futures price about 92% odds of a quarter-point hike at the Dec. 8-9 meeting; the S&P 500 fell 3.70% that day."
-      },
-      "impact": {
-        "zh-TW": "Fed官員偏鷹言論使12月升息預期升溫，高利率可能壓抑高評價科技股並影響資金成本；殖利率同步下滑也反映市場擔憂景氣放緩，升息幅度仍待會議決定。",
-        "en": "Hawkish Fed remarks raise December hike expectations; higher rates may weigh on richly valued tech and funding costs. Falling yields also suggest growth worries. The size of any hike awaits the meeting."
-      },
-      "sources": [
-        {
-          "publisher": "Yahoo Finance／24/7 Wall St.",
-          "url": "https://finance.yahoo.com/economy/policy/articles/fed-lisa-cook-warns-larger-160316781.html"
-        }
-      ]
-    },
-    {
-      "id": "dni-nvidia-chip-probe",
-      "category": "ai",
-      "published_date": "2026-11-23",
-      "published_at": "2026-11-23T02:24:00+08:00",
-      "title": {
-        "zh-TW": "美國家情報總監：輝達晶片是非法取得目標，相關調查進行中",
-        "en": "US intelligence chief says Nvidia chips are a target of illicit acquisition; probes ongoing"
-      },
-      "summary": {
-        "zh-TW": "中央社綜合外電報導，美國國家情報總監克雷頓22日受訪表示，輝達高階晶片一直是有人企圖非法取得的目標，其他公司已有相關起訴案例；他證實司法部正調查新加坡業者Megaspeed前高層及該公司，但未進一步評論。報導引述彭博稱涉案人疑為中國間諜，屬未證實指控；前執行長黃仁勳否認不當行為，預定12月1日出席眾院閉門會議。",
-        "en": "CNA says US intelligence chief Jay Clayton said Nov. 22 that Nvidia's high-end chips are a target of illegal acquisition and confirmed a Justice Department probe of a former Megaspeed executive and the Singapore firm without details. Spy claims cited from Bloomberg are unverified; ex-CEO Jensen Huang denies wrongdoing and is due at a closed House session Dec. 1."
-      },
-      "impact": {
-        "zh-TW": "調查與國會聽證可能延長輝達治理及對中關係的不確定性，並使晶片出口管制執法更受關注；調查結果與政策影響尚未明朗，不宜視為已確認的業務衝擊。",
-        "en": "The probe and hearing may prolong uncertainty over Nvidia's governance and China ties and sharpen focus on export-control enforcement. Outcomes and policy effects are unclear and should not be read as confirmed business damage."
+        "zh-TW": "執行面不確定性下降帶動AI股報復性反彈，但內部調查、出口管制合規與週三PCE數據及12月可能升息仍在，單日大漲後波動可能延續。以上為市場推論。",
+        "en": "Lower leadership uncertainty sparked a sharp AI rebound, but the internal probe, export-control compliance, Wednesday's PCE data and a possible December hike remain; volatility may persist after the jump. Market inference."
       },
       "sources": [
         {
           "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611233001.aspx"
+          "url": "https://www.cna.com.tw/news/aopl/202611235003.aspx"
+        },
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611240012.aspx"
+        },
+        {
+          "publisher": "聯合新聞網／經濟日報",
+          "url": "https://udn.com/news/story/6811/9897644"
+        }
+      ]
+    },
+    {
+      "id": "tw-stabilization-fund-review",
+      "category": "economy",
+      "published_date": "2026-11-23",
+      "published_at": "2026-11-23T16:19:00+08:00",
+      "title": {
+        "zh-TW": "行政院將檢討擴大國安基金規模，產業稱AI訂單看到2029年",
+        "en": "Taiwan to review expanding stabilization fund; industry cites AI order visibility to 2029"
+      },
+      "summary": {
+        "zh-TW": "行政院長卓榮泰23日召集產業與金融代表，表示國安基金能量仍有餘裕，但將正面檢討規模；財長稱基金動用上限5,000億元自2000年未調整，立法院已排審修法草案。金管會已限制平盤下放空。經濟部長轉述業界稱部分AI訂單能見度至2029年，但補充既有訂單約至2027年消化。",
+        "en": "On Nov. 23 Premier Cho Jung-tai said the National Stabilization Fund still has capacity but its size will be reviewed. The finance minister said its NT$500bn cap is unchanged since 2000 and lawmakers have a draft amendment. Short-selling below the prior close is restricted. The economy minister relayed AI order visibility to 2029, adding current orders run to about 2027."
+      },
+      "impact": {
+        "zh-TW": "政策信號有助穩定信心，加權指數23日漲約780點；但擴大規模仍需修法，訂單能見度屬業界說法，不等於已確認營收。",
+        "en": "The policy signal may steady sentiment; the TAIEX rose about 780 points on Nov. 23. But expansion needs legislation, and order visibility is an industry claim, not confirmed revenue."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/aipl/202611230170.aspx"
+        },
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611230208.aspx"
+        },
+        {
+          "publisher": "聯合新聞網／聯合報",
+          "url": "https://udn.com/news/story/7251/9897512"
+        }
+      ]
+    },
+    {
+      "id": "tsmc-ai-demand-statement",
+      "category": "ai",
+      "published_date": "2026-11-23",
+      "published_at": "2026-11-23T16:24:00+08:00",
+      "title": {
+        "zh-TW": "台積電罕見表態：AI需求成長，先進製程產能持續吃緊",
+        "en": "TSMC says AI demand is growing and advanced-node capacity remains tight"
+      },
+      "summary": {
+        "zh-TW": "中央社報導，台積電23日表示全球AI需求持續成長、長期看好，先進製程需求強勁且產能供不應求；需求正由聊天機器人轉向AI助理與代理式AI。公司也提到零組件漲價與總經不確定性對消費性及價格敏感市場構成挑戰。聲明未提供具體數字。",
+        "en": "CNA reports TSMC said on Nov. 23 that global AI demand keeps growing, its long-term view is positive, and advanced-node demand exceeds capacity, as use shifts from chatbots to AI assistants and agentic AI. It flagged component price rises and macro uncertainty as challenges for consumer and price-sensitive markets. No figures were given."
+      },
+      "impact": {
+        "zh-TW": "在美國管制與輝達人事風波後，公司說法可緩和市場對AI需求的疑慮；但屬質化表述，後續仍需以月營收與法說會數據驗證。",
+        "en": "After US export rules and the Nvidia turmoil, the comments may ease AI-demand worries, but they are qualitative and need confirmation from monthly sales and earnings data."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611230175.aspx"
+        }
+      ]
+    },
+    {
+      "id": "gold-rebound-after-slump",
+      "category": "economy",
+      "published_date": "2026-11-24",
+      "published_at": "2026-11-24T03:13:00+08:00",
+      "title": {
+        "zh-TW": "金價連跌五日後反彈，盤中一度大漲4.2%",
+        "en": "Gold rebounds after five-day slide, rising as much as 4.2% intraday"
+      },
+      "summary": {
+        "zh-TW": "經濟日報報導，金價連五跌至逾一年低點後，23日低接買盤進場，現貨金一度漲4.2%至每盎司3,686.42美元，銅價同步上揚。上週金價跌約9%，為3月以來最大週跌幅；較1月高點5,595美元已回落約37%。瑞銀19日將2026年底目標下調至4,500美元。",
+        "en": "Economic Daily News reports bargain buyers lifted gold on Nov. 23 after five straight declines to a more-than-one-year low; spot gold rose as much as 4.2% to US$3,686.42/oz and copper also gained. Gold fell about 9% last week, its worst since March, and is about 37% below January's US$5,595 record. UBS cut its end-2026 target to US$4,500 on Nov. 19."
+      },
+      "impact": {
+        "zh-TW": "反彈反映風險情緒回穩與低接買盤；分析師提醒12月可能升息與實質利率上升仍壓抑短線，央行購金為長線支撐，看法分歧。",
+        "en": "The bounce reflects steadier risk appetite and bargain hunting. Analysts note a possible December hike and higher real yields may cap the short term, while central-bank buying supports the long run; views differ."
+      },
+      "sources": [
+        {
+          "publisher": "聯合新聞網／經濟日報",
+          "url": "https://udn.com/news/story/7238/9897419"
+        }
+      ]
+    },
+    {
+      "id": "openai-perplexity-threshold",
+      "category": "ai",
+      "published_date": "2026-11-23",
+      "published_at": "2026-11-23T08:37:00+08:00",
+      "title": {
+        "zh-TW": "OpenAI首席科學家倡議以困惑度設定業界AI發展門檻",
+        "en": "OpenAI chief scientist proposes perplexity thresholds to cap frontier AI"
+      },
+      "summary": {
+        "zh-TW": "中央社引述路透報導，OpenAI首席科學家Jakub Pachocki發文建議AI開發者以「困惑度」作為共同指標，在監控能力達到共識標準前承諾不跨越約定門檻；他預估AI輔助訓練最快2027年可能突破。執行長奧特曼在X上表態支持。此為提議，尚非業界共識或法規。",
+        "en": "CNA, citing Reuters, reports OpenAI chief scientist Jakub Pachocki proposed developers use perplexity as a shared metric and pledge not to cross agreed thresholds until monitoring meets an agreed standard; he expects AI-assisted training could break through as early as 2027. CEO Sam Altman backed it on X. It is a proposal, not an industry agreement or rule."
+      },
+      "impact": {
+        "zh-TW": "若形成業界自律門檻，可能影響前沿模型擴張節奏與算力需求預期；目前僅為倡議，對資本支出的實際影響尚不明確。",
+        "en": "If adopted as an industry norm, thresholds could affect the pace of frontier-model scaling and compute-demand expectations; for now it is only a proposal with unclear capex impact."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/ait/202611230017.aspx"
         }
       ]
     }
@@ -141,19 +153,18 @@
         "en": "Semiconductors"
       },
       "reason": {
-        "zh-TW": "全球AI晶片主要代工廠；10月電子產品外銷接單強勁，但輝達相關調查與對中晶片管制執法升溫，可能影響AI供應鏈情緒。屬產業推論。",
-        "en": "Major foundry for AI chips. October electronics orders were strong, but Nvidia-related probes and tighter China chip enforcement may weigh on AI supply-chain sentiment. Industry inference."
+        "zh-TW": "報導直接引述台積電稱AI需求成長、先進製程供不應求；其美國存託憑證在輝達大漲當日漲14.1%。",
+        "en": "Reports directly cite TSMC saying AI demand is growing and advanced nodes are tight; its ADR rose 14.1% on the day Nvidia surged."
       },
       "risk": {
-        "zh-TW": "美股AI評價修正延續、出口管制擴大與客戶需求變化。",
-        "en": "Extended US AI valuation reset, wider export controls and shifts in customer demand."
+        "zh-TW": "美國晶片出口管制擴大、AI評價波動、零組件漲價壓抑終端需求。",
+        "en": "Wider US chip export controls, AI valuation swings and component cost increases curbing end demand."
       },
       "article_ids": [
-        "export-orders-oct-record",
-        "blacklisted-univ-nvidia-chips",
-        "dni-nvidia-chip-probe"
+        "tsmc-ai-demand-statement",
+        "nvidia-huang-reinstated"
       ],
-      "relationship": "industry_inference"
+      "relationship": "direct"
     },
     {
       "symbol": "2317.TW",
@@ -162,20 +173,20 @@
         "en": "Hon Hai (Foxconn)"
       },
       "sector": {
-        "zh-TW": "電子代工",
-        "en": "Electronics manufacturing"
+        "zh-TW": "電子代工／AI伺服器",
+        "en": "EMS / AI servers"
       },
       "reason": {
-        "zh-TW": "AI伺服器組裝要角；資通訊產品10月接單年增逾倍，但輝達治理與對中關係不確定性可能牽動AI伺服器供應鏈評價。屬產業推論。",
-        "en": "Key AI server assembler. ICT orders more than doubled y/y in October, but uncertainty over Nvidia's governance and China ties may affect AI server supply-chain valuations. Industry inference."
+        "zh-TW": "董事長劉揚偉以電電公會理事長身分出席行政院會議；鴻海為輝達AI伺服器重要組裝夥伴，輝達領導層回穩可能影響供應鏈情緒。屬產業推論。",
+        "en": "Chairman Young Liu attended the Cabinet meeting as an industry association head; Foxconn is a key Nvidia AI server assembler, so steadier Nvidia leadership may affect supply-chain sentiment. Industry inference."
       },
       "risk": {
-        "zh-TW": "AI伺服器需求或拉貨節奏放緩、匯率與毛利壓力。",
-        "en": "Slower AI server demand or pull-ins, currency and margin pressure."
+        "zh-TW": "輝達內部調查結果、出口管制、伺服器毛利與出貨時程變化。",
+        "en": "Outcome of Nvidia's probe, export controls, server margins and shipment timing."
       },
       "article_ids": [
-        "export-orders-oct-record",
-        "dni-nvidia-chip-probe"
+        "nvidia-huang-reinstated",
+        "tw-stabilization-fund-review"
       ],
       "relationship": "industry_inference"
     },
@@ -186,20 +197,20 @@
         "en": "Quanta Computer"
       },
       "sector": {
-        "zh-TW": "電腦及週邊",
-        "en": "Computers & peripherals"
+        "zh-TW": "AI伺服器",
+        "en": "AI servers"
       },
       "reason": {
-        "zh-TW": "雲端AI伺服器代工廠；外銷接單反映雲端資本支出仍強，但美股AI類股重挫顯示市場對AI投資回報與融資疑慮升高。屬產業推論。",
-        "en": "Cloud AI server maker. Export orders show cloud capex still strong, but the US AI sell-off reflects rising doubts about AI returns and financing. Industry inference."
+        "zh-TW": "美股伺服器與雲端股隨輝達反彈大漲（戴爾漲20.5%）；廣達為AI伺服器代工廠，業界稱訂單能見度延伸。屬產業推論。",
+        "en": "US server and cloud names rallied with Nvidia (Dell +20.5%); Quanta builds AI servers and industry cites extended order visibility. Industry inference."
       },
       "risk": {
-        "zh-TW": "雲端業者資本支出下修、評價修正與資料中心監管趨嚴。",
-        "en": "Cloud capex cuts, valuation reset and tighter data-center regulation."
+        "zh-TW": "雲端資本支出放緩、訂單能見度未轉化為營收、零組件成本上升。",
+        "en": "Slower cloud capex, order visibility not turning into revenue, rising component costs."
       },
       "article_ids": [
-        "export-orders-oct-record",
-        "anthropic-ipo-ai-selloff"
+        "nvidia-huang-reinstated",
+        "tw-stabilization-fund-review"
       ],
       "relationship": "industry_inference"
     },
@@ -214,42 +225,41 @@
         "en": "Memory chips"
       },
       "reason": {
-        "zh-TW": "DRAM廠；報導指美光一個月跌逾33%，記憶體類股情緒受AI賣壓衝擊，升息預期也可能影響景氣循環股評價。屬產業推論。",
-        "en": "DRAM maker. Micron fell over 33% in a month amid the AI sell-off, hurting memory sentiment, and hike expectations may weigh on cyclical valuations. Industry inference."
+        "zh-TW": "美光於輝達回升當日漲19%，記憶體股對AI情緒敏感；南亞科為台灣DRAM廠，可能受同類情緒牽動。屬產業推論。",
+        "en": "Micron rose 19% as Nvidia rebounded, showing memory stocks' sensitivity to AI sentiment; Nanya, a Taiwan DRAM maker, may see similar swings. Industry inference."
       },
       "risk": {
-        "zh-TW": "記憶體價格循環反轉、AI需求預期下修與利率上升。",
-        "en": "Memory price-cycle reversal, lower AI demand expectations and rising rates."
+        "zh-TW": "記憶體報價循環、AI情緒反轉與12月可能升息。",
+        "en": "Memory price cycle, a reversal in AI sentiment and a possible December rate hike."
       },
       "article_ids": [
-        "anthropic-ipo-ai-selloff",
-        "fed-cook-larger-hikes"
+        "nvidia-huang-reinstated",
+        "openai-perplexity-threshold"
       ],
       "relationship": "industry_inference"
     },
     {
-      "symbol": "2882.TW",
+      "symbol": "2881.TW",
       "name": {
-        "zh-TW": "國泰金",
-        "en": "Cathay Financial"
+        "zh-TW": "富邦金",
+        "en": "Fubon Financial"
       },
       "sector": {
         "zh-TW": "金融保險",
-        "en": "Financials & insurance"
+        "en": "Financials / insurance"
       },
       "reason": {
-        "zh-TW": "大型壽險金控；Fed可能續升息將影響債券評價與避險成本，股市劇烈波動也牽動投資收益。屬產業推論。",
-        "en": "Large life-insurance-led group. Further Fed hikes may affect bond valuations and hedging costs, and sharp equity swings may hit investment income. Industry inference."
+        "zh-TW": "董事長蔡明興出席行政院穩市會議；國安基金規模檢討、放空與融資規定調整直接影響股市資金環境，金控投資部位與證券業務相關。",
+        "en": "Chairman Tsai Ming-hsing attended the Cabinet market meeting; the fund review and short-selling and margin rule changes shape equity-market liquidity tied to financial groups' holdings and brokerage."
       },
       "risk": {
-        "zh-TW": "利率與匯率大幅波動、股市續跌造成評價損失。",
-        "en": "Large rate and currency swings and further equity losses."
+        "zh-TW": "股市續跌造成投資評價損失、利率與匯率波動、修法時程不確定。",
+        "en": "Further equity declines hurting valuations, rate and FX swings, uncertain amendment timing."
       },
       "article_ids": [
-        "fed-cook-larger-hikes",
-        "anthropic-ipo-ai-selloff"
+        "tw-stabilization-fund-review"
       ],
-      "relationship": "industry_inference"
+      "relationship": "direct"
     }
   ]
 }
