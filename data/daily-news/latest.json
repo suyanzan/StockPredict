@@ -1,142 +1,134 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-24",
-  "generated_at": "2026-11-24T07:47:04+08:00",
+  "brief_date": "2026-11-25",
+  "generated_at": "2026-11-25T07:46:29+08:00",
   "articles": [
     {
-      "id": "nvidia-huang-reinstated",
+      "id": "us-chip-selloff-1124",
       "category": "ai",
-      "published_date": "2026-11-23",
-      "published_at": "2026-11-23T22:08:00+08:00",
+      "published_date": "2026-11-25",
+      "published_at": "2026-11-25T06:41:37+08:00",
       "title": {
-        "zh-TW": "輝達董事會恢復黃仁勳執行長職務，股價單日飆漲31%",
-        "en": "Nvidia board reinstates Jensen Huang as CEO; shares jump 31% in a day"
+        "zh-TW": "美股晶片股回吐漲幅，費半重挫7.88%、輝達跌5.86%",
+        "en": "US chip stocks give back gains: SOX sinks 7.88%, Nvidia falls 5.86%"
       },
       "summary": {
-        "zh-TW": "中央社報導，輝達董事會一致決議即日起恢復黃仁勳總裁、執行長及董事職務，稱已徵詢美方高層、不構成國安風險；獨立董事對相關情報疑慮的調查仍持續。美股23日收盤輝達漲31.48%至165.05美元，費半漲14.03%、那斯達克漲6.51%、標普漲4.73%，美光、戴爾等AI相關股同步大漲。",
-        "en": "CNA reports Nvidia's board unanimously reinstated Jensen Huang as president, CEO and director, saying it consulted senior US officials and sees no national-security risk; an independent-director probe continues. On Nov. 23 Nvidia closed up 31.48% at US$165.05, the SOX rose 14.03%, the Nasdaq 6.51% and the S&P 500 4.73%, with Micron and Dell also surging."
+        "zh-TW": "美股24日漲跌互見：費城半導體指數跌7.88%至8,832.50點，輝達跌5.86%至155.38美元，回吐前一日約31%的漲幅；那斯達克跌1.48%、標普跌0.50%，道瓊則漲0.85%至50,018.70點。報導指AI成本、估值與監管疑慮，以及外電稱美方即將公布新關稅，加重科技股賣壓；CME FedWatch顯示12月升息機率約97%。",
+        "en": "US stocks were mixed on Nov. 24: the SOX fell 7.88% to 8,832.50 and Nvidia dropped 5.86% to US$155.38, reversing part of the prior day's roughly 31% jump. The Nasdaq lost 1.48% and the S&P 500 0.50%, while the Dow rose 0.85% to 50,018.70. Reports cited AI cost, valuation and regulatory worries plus expected new US tariffs; CME FedWatch put December hike odds near 97%."
       },
       "impact": {
-        "zh-TW": "執行面不確定性下降帶動AI股報復性反彈，但內部調查、出口管制合規與週三PCE數據及12月可能升息仍在，單日大漲後波動可能延續。以上為市場推論。",
-        "en": "Lower leadership uncertainty sparked a sharp AI rebound, but the internal probe, export-control compliance, Wednesday's PCE data and a possible December hike remain; volatility may persist after the jump. Market inference."
+        "zh-TW": "前一日暴漲後的劇烈回檔顯示AI類股波動仍高；週三PCE通膨數據與升息預期可能左右台股電子權值股開盤表現。以上為市場推論。",
+        "en": "The sharp reversal after a record surge shows AI-stock volatility remains high; Wednesday's PCE inflation data and hike expectations may sway Taiwan's tech heavyweights at the open. Market inference."
       },
       "sources": [
         {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611235003.aspx"
-        },
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611240012.aspx"
+          "publisher": "聯合新聞網／中央社",
+          "url": "https://udn.com/news/story/6811/9900069"
         },
         {
           "publisher": "聯合新聞網／經濟日報",
-          "url": "https://udn.com/news/story/6811/9897644"
+          "url": "https://udn.com/news/story/6811/9900086"
         }
       ]
     },
     {
-      "id": "tw-stabilization-fund-review",
-      "category": "economy",
-      "published_date": "2026-11-23",
-      "published_at": "2026-11-23T16:19:00+08:00",
-      "title": {
-        "zh-TW": "行政院將檢討擴大國安基金規模，產業稱AI訂單看到2029年",
-        "en": "Taiwan to review expanding stabilization fund; industry cites AI order visibility to 2029"
-      },
-      "summary": {
-        "zh-TW": "行政院長卓榮泰23日召集產業與金融代表，表示國安基金能量仍有餘裕，但將正面檢討規模；財長稱基金動用上限5,000億元自2000年未調整，立法院已排審修法草案。金管會已限制平盤下放空。經濟部長轉述業界稱部分AI訂單能見度至2029年，但補充既有訂單約至2027年消化。",
-        "en": "On Nov. 23 Premier Cho Jung-tai said the National Stabilization Fund still has capacity but its size will be reviewed. The finance minister said its NT$500bn cap is unchanged since 2000 and lawmakers have a draft amendment. Short-selling below the prior close is restricted. The economy minister relayed AI order visibility to 2029, adding current orders run to about 2027."
-      },
-      "impact": {
-        "zh-TW": "政策信號有助穩定信心，加權指數23日漲約780點；但擴大規模仍需修法，訂單能見度屬業界說法，不等於已確認營收。",
-        "en": "The policy signal may steady sentiment; the TAIEX rose about 780 points on Nov. 23. But expansion needs legislation, and order visibility is an industry claim, not confirmed revenue."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aipl/202611230170.aspx"
-        },
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611230208.aspx"
-        },
-        {
-          "publisher": "聯合新聞網／聯合報",
-          "url": "https://udn.com/news/story/7251/9897512"
-        }
-      ]
-    },
-    {
-      "id": "tsmc-ai-demand-statement",
+      "id": "anthropic-below-ipo-price",
       "category": "ai",
-      "published_date": "2026-11-23",
-      "published_at": "2026-11-23T16:24:00+08:00",
+      "published_date": "2026-11-25",
+      "published_at": "2026-11-24T12:37:00-08:00",
       "title": {
-        "zh-TW": "台積電罕見表態：AI需求成長，先進製程產能持續吃緊",
-        "en": "TSMC says AI demand is growing and advanced-node capacity remains tight"
+        "zh-TW": "Anthropic股價跌破83美元發行價，創辦人依規畫出售持股",
+        "en": "Anthropic slips below its US$83 IPO price as founders' planned share sales disclosed"
       },
       "summary": {
-        "zh-TW": "中央社報導，台積電23日表示全球AI需求持續成長、長期看好，先進製程需求強勁且產能供不應求；需求正由聊天機器人轉向AI助理與代理式AI。公司也提到零組件漲價與總經不確定性對消費性及價格敏感市場構成挑戰。聲明未提供具體數字。",
-        "en": "CNA reports TSMC said on Nov. 23 that global AI demand keeps growing, its long-term view is positive, and advanced-node demand exceeds capacity, as use shifts from chatbots to AI assistants and agentic AI. It flagged component price rises and macro uncertainty as challenges for consumer and price-sensitive markets. No figures were given."
+        "zh-TW": "TheStreet經Yahoo財經報導，Anthropic（ANT）24日早盤一度跌約13%至76美元，跌破83美元發行價，較首日收盤97.17美元下跌約22%。申報文件顯示，執行長Dario Amodei與總裁Daniela Amodei各於20日以發行價出售約2.8億美元股票。Canaccord給予買進、目標價135美元，Oppenheimer給予優於大盤、目標價150美元；公司仍未獲利。",
+        "en": "TheStreet via Yahoo Finance said Anthropic (ANT) fell about 13% to US$76 in early trading on Nov. 24, below its US$83 IPO price and about 22% under its US$97.17 first-day close. Filings show CEO Dario Amodei and President Daniela Amodei each sold about US$280 million of stock at the IPO price on Nov. 20. Canaccord began at Buy (US$135) and Oppenheimer at Outperform (US$150); it is unprofitable."
       },
       "impact": {
-        "zh-TW": "在美國管制與輝達人事風波後，公司說法可緩和市場對AI需求的疑慮；但屬質化表述，後續仍需以月營收與法說會數據驗證。",
-        "en": "After US export rules and the Nvidia turmoil, the comments may ease AI-demand worries, but they are qualitative and need confirmation from monthly sales and earnings data."
+        "zh-TW": "新上市AI公司股價快速回落，反映市場對AI估值與支出的疑慮；報導引述12月15日與1月5日各有最多3.03億股可解禁，可能增加賣壓。分析師營收預估僅為預估，非已實現成果。",
+        "en": "The quick slide in a newly listed AI company reflects doubts over AI valuations and spending; up to 303 million shares each may unlock on Dec. 15 and Jan. 5, per Barron's as cited. Analyst revenue projections are forecasts, not results."
       },
       "sources": [
         {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611230175.aspx"
+          "publisher": "Yahoo Finance／TheStreet",
+          "url": "https://finance.yahoo.com/technology/ai/articles/anthropic-stock-falls-below-ipo-203714977.html"
         }
       ]
     },
     {
-      "id": "gold-rebound-after-slump",
+      "id": "taiex-record-point-gain",
       "category": "economy",
       "published_date": "2026-11-24",
-      "published_at": "2026-11-24T03:13:00+08:00",
+      "published_at": null,
       "title": {
-        "zh-TW": "金價連跌五日後反彈，盤中一度大漲4.2%",
-        "en": "Gold rebounds after five-day slide, rising as much as 4.2% intraday"
+        "zh-TW": "台股大漲3,310點創史上最大漲點，台積電漲停",
+        "en": "TAIEX jumps a record 3,310 points; TSMC locks limit-up"
       },
       "summary": {
-        "zh-TW": "經濟日報報導，金價連五跌至逾一年低點後，23日低接買盤進場，現貨金一度漲4.2%至每盎司3,686.42美元，銅價同步上揚。上週金價跌約9%，為3月以來最大週跌幅；較1月高點5,595美元已回落約37%。瑞銀19日將2026年底目標下調至4,500美元。",
-        "en": "Economic Daily News reports bargain buyers lifted gold on Nov. 23 after five straight declines to a more-than-one-year low; spot gold rose as much as 4.2% to US$3,686.42/oz and copper also gained. Gold fell about 9% last week, its worst since March, and is about 37% below January's US$5,595 record. UBS cut its end-2026 target to US$4,500 on Nov. 19."
+        "zh-TW": "加權指數24日收40,122.35點，大漲3,310.46點、漲幅8.99%，創收盤最大漲點紀錄；上市櫃共621檔漲停，上市1,087檔上漲、31檔下跌。台積電開盤即漲停至2,230元並鎖住至收盤，電子類股漲9.49%、金融類股漲8.74%。成交值約4,194億元，報導稱為今年新低。",
+        "en": "The TAIEX closed at 40,122.35 on Nov. 24, up 3,310.46 points or 8.99%, a record one-day point gain. A combined 621 listed and OTC stocks hit limit-up; on the main board 1,087 rose and 31 fell. TSMC opened limit-up at NT$2,230 and stayed locked there. Electronics rose 9.49% and financials 8.74%. Turnover was about NT$419.4 billion, described as the year's lowest."
       },
       "impact": {
-        "zh-TW": "反彈反映風險情緒回穩與低接買盤；分析師提醒12月可能升息與實質利率上升仍壓抑短線，央行購金為長線支撐，看法分歧。",
-        "en": "The bounce reflects steadier risk appetite and bargain hunting. Analysts note a possible December hike and higher real yields may cap the short term, while central-bank buying supports the long run; views differ."
+        "zh-TW": "漲停鎖死使成交量偏低，買盤未完全成交；在美股晶片股隔夜重挫後，大漲後的獲利了結與波動風險升高。以上為市場推論。",
+        "en": "Locked limit-up prices kept turnover low, leaving buy orders unfilled; after the overnight US chip selloff, profit-taking and volatility risks following the rally are elevated. Market inference."
       },
       "sources": [
         {
-          "publisher": "聯合新聞網／經濟日報",
-          "url": "https://udn.com/news/story/7238/9897419"
+          "publisher": "Yahoo新聞",
+          "url": "https://tw.news.yahoo.com/live/%E5%8F%B0%E8%82%A1%E5%A4%A7%E6%BC%B23368%E9%BB%9E-%E5%89%B5%E5%8F%B2%E4%B8%8A%E6%9C%80%E5%A4%A7%E7%9B%A4%E4%B8%AD%E6%BC%B2%E9%BB%9E-%E4%B8%8A%E5%B8%82%E6%AB%83%E9%80%BE550%E6%AA%94%E6%BC%B2%E5%81%9C-%E5%8F%B0%E7%A9%8D%E9%9B%BB%E8%B2%A2%E7%8D%BB%E5%A4%A7%E7%9B%A41582%E9%BB%9E-043728120.html"
+        },
+        {
+          "publisher": "Investing.com",
+          "url": "https://hk.investing.com/news/stock-market-news/article-1773748"
         }
       ]
     },
     {
-      "id": "openai-perplexity-threshold",
-      "category": "ai",
-      "published_date": "2026-11-23",
-      "published_at": "2026-11-23T08:37:00+08:00",
+      "id": "trump-chip-tariff-remarks",
+      "category": "economy",
+      "published_date": "2026-11-24",
+      "published_at": null,
       "title": {
-        "zh-TW": "OpenAI首席科學家倡議以困惑度設定業界AI發展門檻",
-        "en": "OpenAI chief scientist proposes perplexity thresholds to cap frontier AI"
+        "zh-TW": "川普再稱台灣拿走晶片產業，放話兩年後晶片關稅200%",
+        "en": "Trump again says Taiwan took chip business, floats 200% chip tariff in two years"
       },
       "summary": {
-        "zh-TW": "中央社引述路透報導，OpenAI首席科學家Jakub Pachocki發文建議AI開發者以「困惑度」作為共同指標，在監控能力達到共識標準前承諾不跨越約定門檻；他預估AI輔助訓練最快2027年可能突破。執行長奧特曼在X上表態支持。此為提議，尚非業界共識或法規。",
-        "en": "CNA, citing Reuters, reports OpenAI chief scientist Jakub Pachocki proposed developers use perplexity as a shared metric and pledge not to cross agreed thresholds until monitoring meets an agreed standard; he expects AI-assisted training could break through as early as 2027. CEO Sam Altman backed it on X. It is a proposal, not an industry agreement or rule."
+        "zh-TW": "Yahoo新聞轉載中天新聞報導，川普接受CNBC專訪時再度稱台灣拿走美國多數晶片生意，並表示兩年後台灣將支付200%晶片關稅，稱企業因關稅赴美設廠。他稱讚台積電董事長魏哲家，並稱台積電正在德州啟動另一座廠；路透文件顯示台積電子公司評估德州Brazos郡226億美元廠案，但尚未正式承諾。報導未說明200%關稅的法律依據或時程細節。",
+        "en": "Per a CTi report on Yahoo News, Trump told CNBC Taiwan took most US chip business and would pay a 200% chip tariff in two years, crediting tariffs for US plant building. He praised TSMC chair C.C. Wei and said TSMC is starting a Texas plant; Reuters documents show a TSMC unit weighing a US$22.6 billion fab in Brazos County, not yet committed. No legal basis or schedule for 200% was given."
       },
       "impact": {
-        "zh-TW": "若形成業界自律門檻，可能影響前沿模型擴張節奏與算力需求預期；目前僅為倡議，對資本支出的實際影響尚不明確。",
-        "en": "If adopted as an industry norm, thresholds could affect the pace of frontier-model scaling and compute-demand expectations; for now it is only a proposal with unclear capex impact."
+        "zh-TW": "200%僅為口頭表態，尚非正式政策，但可能加深市場對半導體關稅與在美擴產成本的疑慮；德州廠案仍屬評估中。以上為市場推論。",
+        "en": "The 200% figure is a verbal remark, not enacted policy, yet it may deepen concern over chip tariffs and the cost of US expansion; the Texas fab remains under evaluation. Market inference."
       },
       "sources": [
         {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/ait/202611230017.aspx"
+          "publisher": "Yahoo新聞／中天新聞網",
+          "url": "https://tw.news.yahoo.com/%E5%B7%9D%E6%99%AE%E5%8F%88%E6%8F%90-%E5%8F%B0%E7%81%A3%E5%81%B7%E6%99%B6%E7%89%87-%E5%96%8A2%E5%B9%B4%E5%BE%8C%E6%99%B6%E7%89%87%E9%97%9C%E7%A8%85200-144426878.html"
+        }
+      ]
+    },
+    {
+      "id": "us-301-overcapacity-tariffs",
+      "category": "economy",
+      "published_date": "2026-11-25",
+      "published_at": "2026-11-25T01:33:00+08:00",
+      "title": {
+        "zh-TW": "美301產能過剩調查結果傳最快本週公布，台灣爭取15%",
+        "en": "US Section 301 overcapacity findings may come this week; Taiwan seeks 15%"
+      },
+      "summary": {
+        "zh-TW": "聯合新聞網報導，美國貿易代表署自3月起調查包括中國、台灣、歐盟、日韓、越南、印度在內16個經濟體的補貼與產能過剩，知情人士稱結果最快本週公布，但時程可能變動。消息稱已與美方簽協議者稅率可能在15%以下，中國、越南、印度可能較高；鋼鋁及汽車或排除。台灣官方力爭接近先前約定的15%不疊加稅率。以上多為匿名消息，尚未正式宣布。",
+        "en": "UDN reports USTR has probed subsidies and overcapacity in 16 economies, including China, Taiwan, the EU, Japan, South Korea, Vietnam and India, since March; sources say findings may come this week, though timing may change. Deal partners may face 15% or less, China, Vietnam and India more; steel, aluminum and autos may be excluded. Taiwan seeks near its 15% non-stacking rate. Unconfirmed."
+      },
+      "impact": {
+        "zh-TW": "最終稅率與涵蓋範圍未定，出口導向類股可能面臨不確定性；報導未提及半導體是否豁免。以上為市場推論，非已確定政策。",
+        "en": "Final rates and scope are undecided, adding uncertainty for export-oriented sectors; the report does not say whether semiconductors are exempt. Market inference, not settled policy."
+      },
+      "sources": [
+        {
+          "publisher": "聯合新聞網",
+          "url": "https://udn.com/news/story/6809/9899819"
         }
       ]
     }
@@ -153,16 +145,41 @@
         "en": "Semiconductors"
       },
       "reason": {
-        "zh-TW": "報導直接引述台積電稱AI需求成長、先進製程供不應求；其美國存託憑證在輝達大漲當日漲14.1%。",
-        "en": "Reports directly cite TSMC saying AI demand is growing and advanced nodes are tight; its ADR rose 14.1% on the day Nvidia surged."
+        "zh-TW": "報導指台積電24日漲停鎖至收盤；川普亦點名台積電並稱其在德州擴廠，美股晶片股隔夜重挫，三者皆與其直接相關。",
+        "en": "Reports say TSMC locked limit-up on Nov. 24; Trump named TSMC and said it is starting a Texas plant; the overnight US chip selloff also bears directly on it."
       },
       "risk": {
-        "zh-TW": "美國晶片出口管制擴大、AI評價波動、零組件漲價壓抑終端需求。",
-        "en": "Wider US chip export controls, AI valuation swings and component cost increases curbing end demand."
+        "zh-TW": "晶片關稅表態、德州廠案未定、美股半導體大幅回檔及升息預期。",
+        "en": "Chip-tariff rhetoric, an undecided Texas fab, sharp US semiconductor pullbacks and rate-hike expectations."
       },
       "article_ids": [
-        "tsmc-ai-demand-statement",
-        "nvidia-huang-reinstated"
+        "taiex-record-point-gain",
+        "trump-chip-tariff-remarks",
+        "us-chip-selloff-1124"
+      ],
+      "relationship": "direct"
+    },
+    {
+      "symbol": "2454.TW",
+      "name": {
+        "zh-TW": "聯發科",
+        "en": "MediaTek"
+      },
+      "sector": {
+        "zh-TW": "IC設計",
+        "en": "IC design"
+      },
+      "reason": {
+        "zh-TW": "聯發科為台股大漲時報導點名的權值股之一；費半隔夜重挫7.88%，IC設計族群評價可能隨之波動。",
+        "en": "MediaTek was among heavyweights named in the record rally; with the SOX down 7.88% overnight, IC-design valuations may swing."
+      },
+      "risk": {
+        "zh-TW": "美股晶片股波動、AI估值修正及關稅不確定性。",
+        "en": "US chip volatility, AI valuation corrections and tariff uncertainty."
+      },
+      "article_ids": [
+        "taiex-record-point-gain",
+        "us-chip-selloff-1124"
       ],
       "relationship": "direct"
     },
@@ -177,87 +194,66 @@
         "en": "EMS / AI servers"
       },
       "reason": {
-        "zh-TW": "董事長劉揚偉以電電公會理事長身分出席行政院會議；鴻海為輝達AI伺服器重要組裝夥伴，輝達領導層回穩可能影響供應鏈情緒。屬產業推論。",
-        "en": "Chairman Young Liu attended the Cabinet meeting as an industry association head; Foxconn is a key Nvidia AI server assembler, so steadier Nvidia leadership may affect supply-chain sentiment. Industry inference."
+        "zh-TW": "鴻海為大漲日報導點名個股；其AI伺服器業務與輝達股價波動相關，且出口業務可能受301產能過剩關稅影響（產業推論）。",
+        "en": "Hon Hai was named in the rally coverage; its AI server business tracks Nvidia sentiment, and exports may be exposed to Section 301 overcapacity tariffs (industry inference)."
       },
       "risk": {
-        "zh-TW": "輝達內部調查結果、出口管制、伺服器毛利與出貨時程變化。",
-        "en": "Outcome of Nvidia's probe, export controls, server margins and shipment timing."
+        "zh-TW": "新關稅稅率與範圍未定、AI需求與估值疑慮。",
+        "en": "Undecided new tariff rates and scope; doubts over AI demand and valuations."
       },
       "article_ids": [
-        "nvidia-huang-reinstated",
-        "tw-stabilization-fund-review"
+        "taiex-record-point-gain",
+        "us-chip-selloff-1124",
+        "us-301-overcapacity-tariffs"
       ],
-      "relationship": "industry_inference"
+      "relationship": "direct"
     },
     {
-      "symbol": "2382.TW",
+      "symbol": "2308.TW",
       "name": {
-        "zh-TW": "廣達",
-        "en": "Quanta Computer"
+        "zh-TW": "台達電",
+        "en": "Delta Electronics"
       },
       "sector": {
-        "zh-TW": "AI伺服器",
-        "en": "AI servers"
+        "zh-TW": "電源管理／電子零組件",
+        "en": "Power / electronic components"
       },
       "reason": {
-        "zh-TW": "美股伺服器與雲端股隨輝達反彈大漲（戴爾漲20.5%）；廣達為AI伺服器代工廠，業界稱訂單能見度延伸。屬產業推論。",
-        "en": "US server and cloud names rallied with Nvidia (Dell +20.5%); Quanta builds AI servers and industry cites extended order visibility. Industry inference."
+        "zh-TW": "台達電為大漲日報導點名個股；AI資料中心電源需求情緒與美股AI類股走勢連動（產業推論）。",
+        "en": "Delta was named in the rally coverage; sentiment on AI data-center power demand moves with US AI stocks (industry inference)."
       },
       "risk": {
-        "zh-TW": "雲端資本支出放緩、訂單能見度未轉化為營收、零組件成本上升。",
-        "en": "Slower cloud capex, order visibility not turning into revenue, rising component costs."
+        "zh-TW": "AI支出疑慮、大漲後獲利了結及關稅變數。",
+        "en": "AI spending doubts, profit-taking after the rally and tariff variables."
       },
       "article_ids": [
-        "nvidia-huang-reinstated",
-        "tw-stabilization-fund-review"
+        "taiex-record-point-gain",
+        "us-chip-selloff-1124"
       ],
-      "relationship": "industry_inference"
+      "relationship": "direct"
     },
     {
-      "symbol": "2408.TW",
+      "symbol": "3711.TW",
       "name": {
-        "zh-TW": "南亞科",
-        "en": "Nanya Technology"
+        "zh-TW": "日月光投控",
+        "en": "ASE Technology"
       },
       "sector": {
-        "zh-TW": "記憶體",
-        "en": "Memory chips"
+        "zh-TW": "半導體封測",
+        "en": "Semiconductor packaging & testing"
       },
       "reason": {
-        "zh-TW": "美光於輝達回升當日漲19%，記憶體股對AI情緒敏感；南亞科為台灣DRAM廠，可能受同類情緒牽動。屬產業推論。",
-        "en": "Micron rose 19% as Nvidia rebounded, showing memory stocks' sensitivity to AI sentiment; Nanya, a Taiwan DRAM maker, may see similar swings. Industry inference."
+        "zh-TW": "日月光投控為大漲日報導點名個股；晶片關稅表態與美股半導體回檔可能影響封測族群情緒（產業推論）。",
+        "en": "ASE was named in the rally coverage; chip-tariff remarks and the US semiconductor pullback may weigh on packaging sentiment (industry inference)."
       },
       "risk": {
-        "zh-TW": "記憶體報價循環、AI情緒反轉與12月可能升息。",
-        "en": "Memory price cycle, a reversal in AI sentiment and a possible December rate hike."
+        "zh-TW": "半導體關稅政策、終端需求與美股晶片股波動。",
+        "en": "Semiconductor tariff policy, end demand and US chip-stock volatility."
       },
       "article_ids": [
-        "nvidia-huang-reinstated",
-        "openai-perplexity-threshold"
-      ],
-      "relationship": "industry_inference"
-    },
-    {
-      "symbol": "2881.TW",
-      "name": {
-        "zh-TW": "富邦金",
-        "en": "Fubon Financial"
-      },
-      "sector": {
-        "zh-TW": "金融保險",
-        "en": "Financials / insurance"
-      },
-      "reason": {
-        "zh-TW": "董事長蔡明興出席行政院穩市會議；國安基金規模檢討、放空與融資規定調整直接影響股市資金環境，金控投資部位與證券業務相關。",
-        "en": "Chairman Tsai Ming-hsing attended the Cabinet market meeting; the fund review and short-selling and margin rule changes shape equity-market liquidity tied to financial groups' holdings and brokerage."
-      },
-      "risk": {
-        "zh-TW": "股市續跌造成投資評價損失、利率與匯率波動、修法時程不確定。",
-        "en": "Further equity declines hurting valuations, rate and FX swings, uncertain amendment timing."
-      },
-      "article_ids": [
-        "tw-stabilization-fund-review"
+        "taiex-record-point-gain",
+        "trump-chip-tariff-remarks",
+        "us-chip-selloff-1124"
       ],
       "relationship": "direct"
     }
