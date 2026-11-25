@@ -1,134 +1,146 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-25",
-  "generated_at": "2026-11-25T07:46:29+08:00",
+  "brief_date": "2026-11-26",
+  "generated_at": "2026-11-26T07:45:12+08:00",
   "articles": [
     {
-      "id": "us-chip-selloff-1124",
+      "id": "us-tech-selloff-1125",
       "category": "ai",
-      "published_date": "2026-11-25",
-      "published_at": "2026-11-25T06:41:37+08:00",
+      "published_date": "2026-11-26",
+      "published_at": "2026-11-26T05:31:00+08:00",
       "title": {
-        "zh-TW": "美股晶片股回吐漲幅，費半重挫7.88%、輝達跌5.86%",
-        "en": "US chip stocks give back gains: SOX sinks 7.88%, Nvidia falls 5.86%"
+        "zh-TW": "那斯達克100盤中一度跌入熊市，美股收盤跌幅收斂",
+        "en": "Nasdaq-100 briefly hits bear territory before US stocks pare losses"
       },
       "summary": {
-        "zh-TW": "美股24日漲跌互見：費城半導體指數跌7.88%至8,832.50點，輝達跌5.86%至155.38美元，回吐前一日約31%的漲幅；那斯達克跌1.48%、標普跌0.50%，道瓊則漲0.85%至50,018.70點。報導指AI成本、估值與監管疑慮，以及外電稱美方即將公布新關稅，加重科技股賣壓；CME FedWatch顯示12月升息機率約97%。",
-        "en": "US stocks were mixed on Nov. 24: the SOX fell 7.88% to 8,832.50 and Nvidia dropped 5.86% to US$155.38, reversing part of the prior day's roughly 31% jump. The Nasdaq lost 1.48% and the S&P 500 0.50%, while the Dow rose 0.85% to 50,018.70. Reports cited AI cost, valuation and regulatory worries plus expected new US tariffs; CME FedWatch put December hike odds near 97%."
+        "zh-TW": "感恩節前夕科技股續遭賣壓。25日那斯達克100指數盤中最深跌約4.7%，距高點約兩成，收盤跌幅收斂至約0.6%；道瓊漲0.33%至50,182.95點，標普跌0.25%至7,182.78點，那斯達克跌0.62%，費半跌0.65%至8,774.86點。輝達盤中跌逾9%，收跌3.9%至149.30美元；甲骨文跌5.1%、美光跌4.5%。10年期美債殖利率降至約4.845%。",
+        "en": "Ahead of Thanksgiving, the Nasdaq-100 fell up to about 4.7% intraday on Nov. 25, about 20% off its peak, then closed roughly 0.6% lower. The Dow rose 0.33% to 50,182.95, the S&P 500 slipped 0.25% to 7,182.78, the Nasdaq lost 0.62% and the SOX 0.65% to 8,774.86. Nvidia, down over 9% intraday, closed 3.9% lower at US$149.30; Oracle fell 5.1% and Micron 4.5%."
       },
       "impact": {
-        "zh-TW": "前一日暴漲後的劇烈回檔顯示AI類股波動仍高；週三PCE通膨數據與升息預期可能左右台股電子權值股開盤表現。以上為市場推論。",
-        "en": "The sharp reversal after a record surge shows AI-stock volatility remains high; Wednesday's PCE inflation data and hike expectations may sway Taiwan's tech heavyweights at the open. Market inference."
+        "zh-TW": "盤中跌入熊市後拉回，顯示低接買盤仍在但AI類股波動極高；美股週五提前收盤，台股電子權值股恐持續隨美股科技股震盪。以上為市場推論。",
+        "en": "The intraday bear-market dip and rebound suggest dip buyers remain but AI-stock volatility is extreme; with a shortened US Friday session, Taiwan tech heavyweights may keep tracking US tech swings. Market inference."
       },
       "sources": [
         {
-          "publisher": "聯合新聞網／中央社",
-          "url": "https://udn.com/news/story/6811/9900069"
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611260013.aspx"
         },
         {
-          "publisher": "聯合新聞網／經濟日報",
-          "url": "https://udn.com/news/story/6811/9900086"
+          "publisher": "經濟日報",
+          "url": "https://money.udn.com/money/story/123398/9902566"
         }
       ]
     },
     {
-      "id": "anthropic-below-ipo-price",
-      "category": "ai",
-      "published_date": "2026-11-25",
-      "published_at": "2026-11-24T12:37:00-08:00",
-      "title": {
-        "zh-TW": "Anthropic股價跌破83美元發行價，創辦人依規畫出售持股",
-        "en": "Anthropic slips below its US$83 IPO price as founders' planned share sales disclosed"
-      },
-      "summary": {
-        "zh-TW": "TheStreet經Yahoo財經報導，Anthropic（ANT）24日早盤一度跌約13%至76美元，跌破83美元發行價，較首日收盤97.17美元下跌約22%。申報文件顯示，執行長Dario Amodei與總裁Daniela Amodei各於20日以發行價出售約2.8億美元股票。Canaccord給予買進、目標價135美元，Oppenheimer給予優於大盤、目標價150美元；公司仍未獲利。",
-        "en": "TheStreet via Yahoo Finance said Anthropic (ANT) fell about 13% to US$76 in early trading on Nov. 24, below its US$83 IPO price and about 22% under its US$97.17 first-day close. Filings show CEO Dario Amodei and President Daniela Amodei each sold about US$280 million of stock at the IPO price on Nov. 20. Canaccord began at Buy (US$135) and Oppenheimer at Outperform (US$150); it is unprofitable."
-      },
-      "impact": {
-        "zh-TW": "新上市AI公司股價快速回落，反映市場對AI估值與支出的疑慮；報導引述12月15日與1月5日各有最多3.03億股可解禁，可能增加賣壓。分析師營收預估僅為預估，非已實現成果。",
-        "en": "The quick slide in a newly listed AI company reflects doubts over AI valuations and spending; up to 303 million shares each may unlock on Dec. 15 and Jan. 5, per Barron's as cited. Analyst revenue projections are forecasts, not results."
-      },
-      "sources": [
-        {
-          "publisher": "Yahoo Finance／TheStreet",
-          "url": "https://finance.yahoo.com/technology/ai/articles/anthropic-stock-falls-below-ipo-203714977.html"
-        }
-      ]
-    },
-    {
-      "id": "taiex-record-point-gain",
+      "id": "us-gdp-pce-oct",
       "category": "economy",
-      "published_date": "2026-11-24",
-      "published_at": null,
+      "published_date": "2026-11-25",
+      "published_at": "2026-11-25T23:51:00+08:00",
       "title": {
-        "zh-TW": "台股大漲3,310點創史上最大漲點，台積電漲停",
-        "en": "TAIEX jumps a record 3,310 points; TSMC locks limit-up"
+        "zh-TW": "美第3季GDP上修至4.3%，10月PCE年增3.8%強化升息預期",
+        "en": "US Q3 GDP revised up to 4.3%; October PCE at 3.8% reinforces hike bets"
       },
       "summary": {
-        "zh-TW": "加權指數24日收40,122.35點，大漲3,310.46點、漲幅8.99%，創收盤最大漲點紀錄；上市櫃共621檔漲停，上市1,087檔上漲、31檔下跌。台積電開盤即漲停至2,230元並鎖住至收盤，電子類股漲9.49%、金融類股漲8.74%。成交值約4,194億元，報導稱為今年新低。",
-        "en": "The TAIEX closed at 40,122.35 on Nov. 24, up 3,310.46 points or 8.99%, a record one-day point gain. A combined 621 listed and OTC stocks hit limit-up; on the main board 1,087 rose and 31 fell. TSMC opened limit-up at NT$2,230 and stayed locked there. Electronics rose 9.49% and financials 8.74%. Turnover was about NT$419.4 billion, described as the year's lowest."
+        "zh-TW": "美國商務部經濟分析局將第3季實質GDP年化成長率上修0.9個百分點至4.3%，主要來自投資與政府支出。10月PCE物價指數月增0.3%、年增3.8%，符合預期並追平三年高點；核心PCE年增3.3%，高於預期0.1個百分點。個人所得增0.7%，優於預期。聯準會9月已升息、10月按兵不動，報導指12月升息機率大增。",
+        "en": "The BEA revised US Q3 real GDP growth up 0.9 points to an annualized 4.3%, driven mainly by investment and government spending. October's PCE price index rose 0.3% m/m and 3.8% y/y, in line with forecasts and matching a three-year high; core PCE rose 3.3% y/y, 0.1 point above expectations. The Fed hiked in September and held in October; reports say a December hike now looks very likely."
       },
       "impact": {
-        "zh-TW": "漲停鎖死使成交量偏低，買盤未完全成交；在美股晶片股隔夜重挫後，大漲後的獲利了結與波動風險升高。以上為市場推論。",
-        "en": "Locked limit-up prices kept turnover low, leaving buy orders unfilled; after the overnight US chip selloff, profit-taking and volatility risks following the rally are elevated. Market inference."
+        "zh-TW": "強勁成長加上通膨黏著，使12月升息預期升溫，高評價科技股的估值壓力可能延續；實際決策以聯準會12月會議為準。以上為市場推論。",
+        "en": "Strong growth and sticky inflation lift December hike expectations, which may keep pressure on richly valued tech stocks; the actual decision rests with the Fed's December meeting. Market inference."
       },
       "sources": [
         {
-          "publisher": "Yahoo新聞",
-          "url": "https://tw.news.yahoo.com/live/%E5%8F%B0%E8%82%A1%E5%A4%A7%E6%BC%B23368%E9%BB%9E-%E5%89%B5%E5%8F%B2%E4%B8%8A%E6%9C%80%E5%A4%A7%E7%9B%A4%E4%B8%AD%E6%BC%B2%E9%BB%9E-%E4%B8%8A%E5%B8%82%E6%AB%83%E9%80%BE550%E6%AA%94%E6%BC%B2%E5%81%9C-%E5%8F%B0%E7%A9%8D%E9%9B%BB%E8%B2%A2%E7%8D%BB%E5%A4%A7%E7%9B%A41582%E9%BB%9E-043728120.html"
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/aopl/202611250343.aspx"
         },
-        {
-          "publisher": "Investing.com",
-          "url": "https://hk.investing.com/news/stock-market-news/article-1773748"
-        }
-      ]
-    },
-    {
-      "id": "trump-chip-tariff-remarks",
-      "category": "economy",
-      "published_date": "2026-11-24",
-      "published_at": null,
-      "title": {
-        "zh-TW": "川普再稱台灣拿走晶片產業，放話兩年後晶片關稅200%",
-        "en": "Trump again says Taiwan took chip business, floats 200% chip tariff in two years"
-      },
-      "summary": {
-        "zh-TW": "Yahoo新聞轉載中天新聞報導，川普接受CNBC專訪時再度稱台灣拿走美國多數晶片生意，並表示兩年後台灣將支付200%晶片關稅，稱企業因關稅赴美設廠。他稱讚台積電董事長魏哲家，並稱台積電正在德州啟動另一座廠；路透文件顯示台積電子公司評估德州Brazos郡226億美元廠案，但尚未正式承諾。報導未說明200%關稅的法律依據或時程細節。",
-        "en": "Per a CTi report on Yahoo News, Trump told CNBC Taiwan took most US chip business and would pay a 200% chip tariff in two years, crediting tariffs for US plant building. He praised TSMC chair C.C. Wei and said TSMC is starting a Texas plant; Reuters documents show a TSMC unit weighing a US$22.6 billion fab in Brazos County, not yet committed. No legal basis or schedule for 200% was given."
-      },
-      "impact": {
-        "zh-TW": "200%僅為口頭表態，尚非正式政策，但可能加深市場對半導體關稅與在美擴產成本的疑慮；德州廠案仍屬評估中。以上為市場推論。",
-        "en": "The 200% figure is a verbal remark, not enacted policy, yet it may deepen concern over chip tariffs and the cost of US expansion; the Texas fab remains under evaluation. Market inference."
-      },
-      "sources": [
-        {
-          "publisher": "Yahoo新聞／中天新聞網",
-          "url": "https://tw.news.yahoo.com/%E5%B7%9D%E6%99%AE%E5%8F%88%E6%8F%90-%E5%8F%B0%E7%81%A3%E5%81%B7%E6%99%B6%E7%89%87-%E5%96%8A2%E5%B9%B4%E5%BE%8C%E6%99%B6%E7%89%87%E9%97%9C%E7%A8%85200-144426878.html"
-        }
-      ]
-    },
-    {
-      "id": "us-301-overcapacity-tariffs",
-      "category": "economy",
-      "published_date": "2026-11-25",
-      "published_at": "2026-11-25T01:33:00+08:00",
-      "title": {
-        "zh-TW": "美301產能過剩調查結果傳最快本週公布，台灣爭取15%",
-        "en": "US Section 301 overcapacity findings may come this week; Taiwan seeks 15%"
-      },
-      "summary": {
-        "zh-TW": "聯合新聞網報導，美國貿易代表署自3月起調查包括中國、台灣、歐盟、日韓、越南、印度在內16個經濟體的補貼與產能過剩，知情人士稱結果最快本週公布，但時程可能變動。消息稱已與美方簽協議者稅率可能在15%以下，中國、越南、印度可能較高；鋼鋁及汽車或排除。台灣官方力爭接近先前約定的15%不疊加稅率。以上多為匿名消息，尚未正式宣布。",
-        "en": "UDN reports USTR has probed subsidies and overcapacity in 16 economies, including China, Taiwan, the EU, Japan, South Korea, Vietnam and India, since March; sources say findings may come this week, though timing may change. Deal partners may face 15% or less, China, Vietnam and India more; steel, aluminum and autos may be excluded. Taiwan seeks near its 15% non-stacking rate. Unconfirmed."
-      },
-      "impact": {
-        "zh-TW": "最終稅率與涵蓋範圍未定，出口導向類股可能面臨不確定性；報導未提及半導體是否豁免。以上為市場推論，非已確定政策。",
-        "en": "Final rates and scope are undecided, adding uncertainty for export-oriented sectors; the report does not say whether semiconductors are exempt. Market inference, not settled policy."
-      },
-      "sources": [
         {
           "publisher": "聯合新聞網",
-          "url": "https://udn.com/news/story/6809/9899819"
+          "url": "https://udn.com/news/story/6811/9902163"
+        }
+      ]
+    },
+    {
+      "id": "us-tariffs-14-economies",
+      "category": "economy",
+      "published_date": "2026-11-25",
+      "published_at": "2026-11-25T23:21:00+08:00",
+      "title": {
+        "zh-TW": "美擬以產能過剩為由對14經濟體加徵關稅，台灣擬15%",
+        "en": "US proposes overcapacity tariffs on 14 economies, with Taiwan at 15%"
+      },
+      "summary": {
+        "zh-TW": "中央社引述金融時報與法新社報導，美方提議依產品清單對14個貿易夥伴課徵最高20%關稅：中國與越南最高，台灣、韓國、日本與歐盟為15%，印度17%，東南亞數國18%，新加坡10%。美國貿易代表葛里爾稱稅率大致與既有貿易協議相當，部分可能小幅上調。中國外交部反駁「產能過剩」說法。目前為提案，尚未生效。",
+        "en": "Citing the FT and AFP, CNA said the US proposed tariffs of up to 20% on product lists from 14 partners: China and Vietnam highest, Taiwan, South Korea, Japan and the EU at 15%, India 17%, several ASEAN nations 18%, Singapore 10%. USTR Jamieson Greer said rates roughly match existing trade-deal levels, with some possibly a few points higher. These are proposals, not enacted tariffs."
+      },
+      "impact": {
+        "zh-TW": "若稅率維持與既有協議相近，對台出口衝擊或有限，但最終清單、豁免範圍與中國反制仍具不確定性，電子供應鏈可能持續受消息面干擾。以上為推論。",
+        "en": "If rates stay close to existing deals, the hit to Taiwan's exports may be limited, but final product lists, exemptions and any Chinese response remain uncertain and may keep weighing on electronics supply-chain sentiment. Inference."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/aopl/202611250342.aspx"
+        },
+        {
+          "publisher": "聯合新聞網",
+          "url": "https://udn.com/news/story/7331/9902428"
+        }
+      ]
+    },
+    {
+      "id": "taiex-plunge-1125",
+      "category": "economy",
+      "published_date": "2026-11-25",
+      "published_at": "2026-11-25T14:53:00+08:00",
+      "title": {
+        "zh-TW": "台股重挫1,926點跌破年線，成交量逾1.18兆元",
+        "en": "TAIEX plunges 1,926 points below its annual line on NT$1.19 trillion turnover"
+      },
+      "summary": {
+        "zh-TW": "受美股晶片股重挫拖累，台股25日盤中最多跌3,440.45點，收盤跌1,926.92點至38,195.43點，為史上第6大收盤跌點，跌破約39,551點的年線，成交值約1.1881兆元。台積電跌3.59%至2,150元，聯發科跌停至3,645元，鴻海跌8.83%至206.5元。投顧主管認為12月升息已部分反映，新關稅方案多屬既有稅率重新包裝，屬個人看法。",
+        "en": "Dragged by the US chip rout, the TAIEX fell as much as 3,440.45 points on Nov. 25 and closed down 1,926.92 at 38,195.43, its sixth-largest point drop ever and below the annual line near 39,551, on turnover of about NT$1.1881 trillion. TSMC fell 3.59% to NT$2,150, MediaTek hit limit-down at NT$3,645 and Hon Hai lost 8.83% to NT$206.5. An adviser said a December hike is partly priced in (opinion)."
+      },
+      "impact": {
+        "zh-TW": "大量下跌顯示籌碼面劇烈換手，權值股短線波動加大；後續走勢可能取決於美股科技股能否止穩及升息、關稅消息。以上為市場推論。",
+        "en": "Heavy-volume selling points to sharp position turnover and higher near-term volatility in heavyweights; the next leg may hinge on whether US tech stabilises and on rate and tariff news. Market inference."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611250161.aspx"
+        }
+      ]
+    },
+    {
+      "id": "tsmc-us-expansion",
+      "category": "ai",
+      "published_date": "2026-11-26",
+      "published_at": null,
+      "title": {
+        "zh-TW": "川普將出席台積電亞利桑那擴廠典禮，德州設廠仍在評估",
+        "en": "Trump to attend TSMC Arizona expansion ceremony; Texas fab still under evaluation"
+      },
+      "summary": {
+        "zh-TW": "經濟日報引述彭博，白宮官員表示川普將出席12月4日台積電亞利桑那廠擴建典禮，董事長魏哲家等高層將與會，黃仁勳是否出席未確認。另據路透，台積電已向德州申請稅務優惠，文件涉及布拉索斯郡規劃約226億美元、2奈米以下製程新廠；台積電表示德州投資仍在討論評估中。",
+        "en": "Citing Bloomberg, Economic Daily News said White House officials expect Trump to attend TSMC's Arizona expansion ceremony on Dec. 4, with Chairman C.C. Wei; Jensen Huang's attendance is unconfirmed. Separately, Reuters said TSMC sought Texas tax incentives for a planned US$22.6bn fab in Brazos County for 2nm or more advanced chips; TSMC said a Texas plan is still under evaluation."
+      },
+      "impact": {
+        "zh-TW": "典禮為預定活動、德州廠尚未定案；美國擴產有助回應關稅與在地生產壓力，但也可能帶來資本支出與毛利率稀釋疑慮。以上為推論。",
+        "en": "The ceremony is a scheduled event and the Texas fab is not finalised; US expansion may ease tariff and onshoring pressure but could raise capex and margin-dilution concerns. Inference."
+      },
+      "sources": [
+        {
+          "publisher": "經濟日報",
+          "url": "https://money.udn.com/money/story/5612/9902330"
+        },
+        {
+          "publisher": "聯合新聞網",
+          "url": "https://udn.com/news/story/7240/9899721"
+        },
+        {
+          "publisher": "經濟日報／中央社",
+          "url": "https://money.udn.com/money/story/5612/9901561"
         }
       ]
     }
@@ -141,21 +153,20 @@
         "en": "TSMC"
       },
       "sector": {
-        "zh-TW": "半導體",
-        "en": "Semiconductors"
+        "zh-TW": "半導體／晶圓代工",
+        "en": "Semiconductors / foundry"
       },
       "reason": {
-        "zh-TW": "報導指台積電24日漲停鎖至收盤；川普亦點名台積電並稱其在德州擴廠，美股晶片股隔夜重挫，三者皆與其直接相關。",
-        "en": "Reports say TSMC locked limit-up on Nov. 24; Trump named TSMC and said it is starting a Texas plant; the overnight US chip selloff also bears directly on it."
+        "zh-TW": "報導直接提及其亞利桑那擴廠典禮與德州設廠評估，且25日隨大盤下跌3.59%，可觀察美國擴產進度與關稅消息對股價的影響。",
+        "en": "Reports directly cover its Arizona expansion ceremony and Texas fab evaluation, and it fell 3.59% with the market on Nov. 25; watch how US expansion and tariff news affect the stock."
       },
       "risk": {
-        "zh-TW": "晶片關稅表態、德州廠案未定、美股半導體大幅回檔及升息預期。",
-        "en": "Chip-tariff rhetoric, an undecided Texas fab, sharp US semiconductor pullbacks and rate-hike expectations."
+        "zh-TW": "德州廠尚未定案；海外擴產可能稀釋毛利率，AI類股估值修正與升息預期亦可能加大波動。",
+        "en": "The Texas fab is not finalised; overseas expansion may dilute margins, and AI valuation resets and hike expectations could add volatility."
       },
       "article_ids": [
-        "taiex-record-point-gain",
-        "trump-chip-tariff-remarks",
-        "us-chip-selloff-1124"
+        "tsmc-us-expansion",
+        "taiex-plunge-1125"
       ],
       "relationship": "direct"
     },
@@ -166,20 +177,20 @@
         "en": "MediaTek"
       },
       "sector": {
-        "zh-TW": "IC設計",
-        "en": "IC design"
+        "zh-TW": "半導體／IC設計",
+        "en": "Semiconductors / IC design"
       },
       "reason": {
-        "zh-TW": "聯發科為台股大漲時報導點名的權值股之一；費半隔夜重挫7.88%，IC設計族群評價可能隨之波動。",
-        "en": "MediaTek was among heavyweights named in the record rally; with the SOX down 7.88% overnight, IC-design valuations may swing."
+        "zh-TW": "報導指其25日跌停至3,645元，是台股重挫中跌幅最重的權值股之一，可觀察美股晶片股與關稅消息是否持續牽動。",
+        "en": "Reports say it hit limit-down at NT$3,645 on Nov. 25, among the hardest-hit heavyweights; watch whether US chip moves and tariff news keep driving it."
       },
       "risk": {
-        "zh-TW": "美股晶片股波動、AI估值修正及關稅不確定性。",
-        "en": "US chip volatility, AI valuation corrections and tariff uncertainty."
+        "zh-TW": "短線賣壓與籌碼調整可能延續；美國關稅提案細節未定，終端需求亦存不確定性。",
+        "en": "Near-term selling and position adjustments may persist; US tariff details are unsettled and end demand remains uncertain."
       },
       "article_ids": [
-        "taiex-record-point-gain",
-        "us-chip-selloff-1124"
+        "taiex-plunge-1125",
+        "us-tech-selloff-1125"
       ],
       "relationship": "direct"
     },
@@ -187,26 +198,49 @@
       "symbol": "2317.TW",
       "name": {
         "zh-TW": "鴻海",
-        "en": "Hon Hai (Foxconn)"
+        "en": "Hon Hai"
       },
       "sector": {
         "zh-TW": "電子代工／AI伺服器",
         "en": "EMS / AI servers"
       },
       "reason": {
-        "zh-TW": "鴻海為大漲日報導點名個股；其AI伺服器業務與輝達股價波動相關，且出口業務可能受301產能過剩關稅影響（產業推論）。",
-        "en": "Hon Hai was named in the rally coverage; its AI server business tracks Nvidia sentiment, and exports may be exposed to Section 301 overcapacity tariffs (industry inference)."
+        "zh-TW": "報導指其25日下跌8.83%至206.5元；作為AI伺服器組裝要角，可觀察美國AI類股修正與關稅提案對其評價的影響。",
+        "en": "Reports say it fell 8.83% to NT$206.5 on Nov. 25; as a major AI server assembler, watch how the US AI-stock correction and tariff proposal affect its valuation."
       },
       "risk": {
-        "zh-TW": "新關稅稅率與範圍未定、AI需求與估值疑慮。",
-        "en": "Undecided new tariff rates and scope; doubts over AI demand and valuations."
+        "zh-TW": "AI資本支出疑慮、美國關稅與在地生產要求，可能影響營運與股價波動。",
+        "en": "AI capex doubts, US tariffs and onshoring demands could affect operations and add share-price volatility."
       },
       "article_ids": [
-        "taiex-record-point-gain",
-        "us-chip-selloff-1124",
-        "us-301-overcapacity-tariffs"
+        "taiex-plunge-1125",
+        "us-tariffs-14-economies"
       ],
       "relationship": "direct"
+    },
+    {
+      "symbol": "2382.TW",
+      "name": {
+        "zh-TW": "廣達",
+        "en": "Quanta Computer"
+      },
+      "sector": {
+        "zh-TW": "電腦及週邊／AI伺服器",
+        "en": "Computers / AI servers"
+      },
+      "reason": {
+        "zh-TW": "輝達、甲骨文等AI相關美股大跌，市場對AI基礎建設支出的疑慮可能牽動伺服器代工族群；美國關稅提案也與其出口相關。此為產業推論，報導未直接提及。",
+        "en": "Sharp drops in Nvidia, Oracle and other US AI names may weigh on server makers via AI-infrastructure spending doubts, and the tariff proposal bears on exports. Industry inference; reports do not name the company."
+      },
+      "risk": {
+        "zh-TW": "推論未經公司證實；雲端客戶資本支出調整、關稅與匯率變動皆可能影響獲利。",
+        "en": "The link is inferred, not confirmed by the company; cloud capex changes, tariffs and FX could hit earnings."
+      },
+      "article_ids": [
+        "us-tech-selloff-1125",
+        "us-tariffs-14-economies"
+      ],
+      "relationship": "industry_inference"
     },
     {
       "symbol": "2308.TW",
@@ -215,47 +249,22 @@
         "en": "Delta Electronics"
       },
       "sector": {
-        "zh-TW": "電源管理／電子零組件",
-        "en": "Power / electronic components"
+        "zh-TW": "電子零組件／電源管理",
+        "en": "Electronic components / power"
       },
       "reason": {
-        "zh-TW": "台達電為大漲日報導點名個股；AI資料中心電源需求情緒與美股AI類股走勢連動（產業推論）。",
-        "en": "Delta was named in the rally coverage; sentiment on AI data-center power demand moves with US AI stocks (industry inference)."
+        "zh-TW": "資料中心電源與散熱屬AI基礎建設供應鏈，美國AI類股修正與升息預期可能影響市場對相關需求與評價的看法。此為產業推論。",
+        "en": "Data-center power and cooling are part of the AI infrastructure chain; the US AI correction and hike expectations may shift views on demand and valuation. Industry inference."
       },
       "risk": {
-        "zh-TW": "AI支出疑慮、大漲後獲利了結及關稅變數。",
-        "en": "AI spending doubts, profit-taking after the rally and tariff variables."
+        "zh-TW": "推論未經公司證實；高評價在利率上升環境下易受壓，AI需求放緩或關稅變化亦為風險。",
+        "en": "The link is inferred, not company-confirmed; high valuations are vulnerable when rates rise, and slower AI demand or tariff changes are risks."
       },
       "article_ids": [
-        "taiex-record-point-gain",
-        "us-chip-selloff-1124"
+        "us-tech-selloff-1125",
+        "us-gdp-pce-oct"
       ],
-      "relationship": "direct"
-    },
-    {
-      "symbol": "3711.TW",
-      "name": {
-        "zh-TW": "日月光投控",
-        "en": "ASE Technology"
-      },
-      "sector": {
-        "zh-TW": "半導體封測",
-        "en": "Semiconductor packaging & testing"
-      },
-      "reason": {
-        "zh-TW": "日月光投控為大漲日報導點名個股；晶片關稅表態與美股半導體回檔可能影響封測族群情緒（產業推論）。",
-        "en": "ASE was named in the rally coverage; chip-tariff remarks and the US semiconductor pullback may weigh on packaging sentiment (industry inference)."
-      },
-      "risk": {
-        "zh-TW": "半導體關稅政策、終端需求與美股晶片股波動。",
-        "en": "Semiconductor tariff policy, end demand and US chip-stock volatility."
-      },
-      "article_ids": [
-        "taiex-record-point-gain",
-        "trump-chip-tariff-remarks",
-        "us-chip-selloff-1124"
-      ],
-      "relationship": "direct"
+      "relationship": "industry_inference"
     }
   ]
 }
