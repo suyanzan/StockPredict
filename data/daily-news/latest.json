@@ -1,151 +1,252 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-26",
-  "generated_at": "2026-11-26T07:45:12+08:00",
+  "brief_date": "2026-11-27",
+  "generated_at": "2026-11-27T07:52:48+08:00",
   "articles": [
     {
-      "id": "us-tech-selloff-1125",
+      "id": "nvidia-sea-server-halt",
       "category": "ai",
       "published_date": "2026-11-26",
-      "published_at": "2026-11-26T05:31:00+08:00",
+      "published_at": "2026-11-26T16:08:00+08:00",
       "title": {
-        "zh-TW": "那斯達克100盤中一度跌入熊市，美股收盤跌幅收斂",
-        "en": "Nasdaq-100 briefly hits bear territory before US stocks pare losses"
+        "zh-TW": "金融時報：輝達要求夥伴暫停對東南亞四國出貨伺服器",
+        "en": "FT: Nvidia tells partners to pause server shipments to four Southeast Asian nations"
       },
       "summary": {
-        "zh-TW": "感恩節前夕科技股續遭賣壓。25日那斯達克100指數盤中最深跌約4.7%，距高點約兩成，收盤跌幅收斂至約0.6%；道瓊漲0.33%至50,182.95點，標普跌0.25%至7,182.78點，那斯達克跌0.62%，費半跌0.65%至8,774.86點。輝達盤中跌逾9%，收跌3.9%至149.30美元；甲骨文跌5.1%、美光跌4.5%。10年期美債殖利率降至約4.845%。",
-        "en": "Ahead of Thanksgiving, the Nasdaq-100 fell up to about 4.7% intraday on Nov. 25, about 20% off its peak, then closed roughly 0.6% lower. The Dow rose 0.33% to 50,182.95, the S&P 500 slipped 0.25% to 7,182.78, the Nasdaq lost 0.62% and the SOX 0.65% to 8,774.86. Nvidia, down over 9% intraday, closed 3.9% lower at US$149.30; Oracle fell 5.1% and Micron 4.5%."
+        "zh-TW": "金融時報引述三位知情人士報導，輝達要求製造夥伴停止向馬來西亞、新加坡、泰國、印尼買家出貨伺服器，戴爾與美超微為首波，是否暫時性不明，輝達未證實。此舉與美國商務部上週新規相關：雲端業者須在90天內取得許可並證明終端用戶非受限實體。輝達2025年經新加坡子公司認列營收約1,040億美元、年增72%。",
+        "en": "Citing three sources, the FT said Nvidia told partners such as Dell and Supermicro to stop shipping servers to buyers in Malaysia, Singapore, Thailand and Indonesia; duration is unclear and Nvidia has not confirmed. It follows a new US rule giving cloud providers 90 days to get licenses and vet end users. Nvidia booked about US$104B of 2025 revenue via its Singapore unit, up 72%."
       },
       "impact": {
-        "zh-TW": "盤中跌入熊市後拉回，顯示低接買盤仍在但AI類股波動極高；美股週五提前收盤，台股電子權值股恐持續隨美股科技股震盪。以上為市場推論。",
-        "en": "The intraday bear-market dip and rebound suggest dip buyers remain but AI-stock volatility is extreme; with a shortened US Friday session, Taiwan tech heavyweights may keep tracking US tech swings. Market inference."
+        "zh-TW": "管制從晶片延伸至伺服器與雲端算力，東南亞資料中心專案可能延遲；經濟日報點名緯創等台廠恐出現訂單轉移效應。屬未證實報導與市場推論。",
+        "en": "Controls appear to be widening from chips to servers and cloud compute, which could delay Southeast Asian data-center projects; UDN flags possible order shifts for Taiwan suppliers such as Wistron. Unconfirmed report and market inference."
       },
       "sources": [
         {
           "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611260013.aspx"
+          "url": "https://www.cna.com.tw/news/aopl/202611260186.aspx"
+        },
+        {
+          "publisher": "科技新報",
+          "url": "https://technews.tw/2026/11/26/nvidia-halts-server-shipments-to-four-southeast-asian-countries"
         },
         {
           "publisher": "經濟日報",
-          "url": "https://money.udn.com/money/story/123398/9902566"
+          "url": "https://money.udn.com/money/story/5599/9904637"
         }
       ]
     },
     {
-      "id": "us-gdp-pce-oct",
-      "category": "economy",
-      "published_date": "2026-11-25",
-      "published_at": "2026-11-25T23:51:00+08:00",
-      "title": {
-        "zh-TW": "美第3季GDP上修至4.3%，10月PCE年增3.8%強化升息預期",
-        "en": "US Q3 GDP revised up to 4.3%; October PCE at 3.8% reinforces hike bets"
-      },
-      "summary": {
-        "zh-TW": "美國商務部經濟分析局將第3季實質GDP年化成長率上修0.9個百分點至4.3%，主要來自投資與政府支出。10月PCE物價指數月增0.3%、年增3.8%，符合預期並追平三年高點；核心PCE年增3.3%，高於預期0.1個百分點。個人所得增0.7%，優於預期。聯準會9月已升息、10月按兵不動，報導指12月升息機率大增。",
-        "en": "The BEA revised US Q3 real GDP growth up 0.9 points to an annualized 4.3%, driven mainly by investment and government spending. October's PCE price index rose 0.3% m/m and 3.8% y/y, in line with forecasts and matching a three-year high; core PCE rose 3.3% y/y, 0.1 point above expectations. The Fed hiked in September and held in October; reports say a December hike now looks very likely."
-      },
-      "impact": {
-        "zh-TW": "強勁成長加上通膨黏著，使12月升息預期升溫，高評價科技股的估值壓力可能延續；實際決策以聯準會12月會議為準。以上為市場推論。",
-        "en": "Strong growth and sticky inflation lift December hike expectations, which may keep pressure on richly valued tech stocks; the actual decision rests with the Fed's December meeting. Market inference."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611250343.aspx"
-        },
-        {
-          "publisher": "聯合新聞網",
-          "url": "https://udn.com/news/story/6811/9902163"
-        }
-      ]
-    },
-    {
-      "id": "us-tariffs-14-economies",
-      "category": "economy",
-      "published_date": "2026-11-25",
-      "published_at": "2026-11-25T23:21:00+08:00",
-      "title": {
-        "zh-TW": "美擬以產能過剩為由對14經濟體加徵關稅，台灣擬15%",
-        "en": "US proposes overcapacity tariffs on 14 economies, with Taiwan at 15%"
-      },
-      "summary": {
-        "zh-TW": "中央社引述金融時報與法新社報導，美方提議依產品清單對14個貿易夥伴課徵最高20%關稅：中國與越南最高，台灣、韓國、日本與歐盟為15%，印度17%，東南亞數國18%，新加坡10%。美國貿易代表葛里爾稱稅率大致與既有貿易協議相當，部分可能小幅上調。中國外交部反駁「產能過剩」說法。目前為提案，尚未生效。",
-        "en": "Citing the FT and AFP, CNA said the US proposed tariffs of up to 20% on product lists from 14 partners: China and Vietnam highest, Taiwan, South Korea, Japan and the EU at 15%, India 17%, several ASEAN nations 18%, Singapore 10%. USTR Jamieson Greer said rates roughly match existing trade-deal levels, with some possibly a few points higher. These are proposals, not enacted tariffs."
-      },
-      "impact": {
-        "zh-TW": "若稅率維持與既有協議相近，對台出口衝擊或有限，但最終清單、豁免範圍與中國反制仍具不確定性，電子供應鏈可能持續受消息面干擾。以上為推論。",
-        "en": "If rates stay close to existing deals, the hit to Taiwan's exports may be limited, but final product lists, exemptions and any Chinese response remain uncertain and may keep weighing on electronics supply-chain sentiment. Inference."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611250342.aspx"
-        },
-        {
-          "publisher": "聯合新聞網",
-          "url": "https://udn.com/news/story/7331/9902428"
-        }
-      ]
-    },
-    {
-      "id": "taiex-plunge-1125",
-      "category": "economy",
-      "published_date": "2026-11-25",
-      "published_at": "2026-11-25T14:53:00+08:00",
-      "title": {
-        "zh-TW": "台股重挫1,926點跌破年線，成交量逾1.18兆元",
-        "en": "TAIEX plunges 1,926 points below its annual line on NT$1.19 trillion turnover"
-      },
-      "summary": {
-        "zh-TW": "受美股晶片股重挫拖累，台股25日盤中最多跌3,440.45點，收盤跌1,926.92點至38,195.43點，為史上第6大收盤跌點，跌破約39,551點的年線，成交值約1.1881兆元。台積電跌3.59%至2,150元，聯發科跌停至3,645元，鴻海跌8.83%至206.5元。投顧主管認為12月升息已部分反映，新關稅方案多屬既有稅率重新包裝，屬個人看法。",
-        "en": "Dragged by the US chip rout, the TAIEX fell as much as 3,440.45 points on Nov. 25 and closed down 1,926.92 at 38,195.43, its sixth-largest point drop ever and below the annual line near 39,551, on turnover of about NT$1.1881 trillion. TSMC fell 3.59% to NT$2,150, MediaTek hit limit-down at NT$3,645 and Hon Hai lost 8.83% to NT$206.5. An adviser said a December hike is partly priced in (opinion)."
-      },
-      "impact": {
-        "zh-TW": "大量下跌顯示籌碼面劇烈換手，權值股短線波動加大；後續走勢可能取決於美股科技股能否止穩及升息、關稅消息。以上為市場推論。",
-        "en": "Heavy-volume selling points to sharp position turnover and higher near-term volatility in heavyweights; the next leg may hinge on whether US tech stabilises and on rate and tariff news. Market inference."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611250161.aspx"
-        }
-      ]
-    },
-    {
-      "id": "tsmc-us-expansion",
+      "id": "spacex-million-satellites",
       "category": "ai",
+      "published_date": "2026-11-26",
+      "published_at": "2026-11-26T05:29:00+08:00",
+      "title": {
+        "zh-TW": "美FCC批准SpaceX部署百萬顆衛星，建構太空AI資料中心",
+        "en": "US FCC authorizes SpaceX to deploy up to 1 million satellites for space data centers"
+      },
+      "summary": {
+        "zh-TW": "美國聯邦通訊委員會宣布授權SpaceX部署最多100萬顆衛星的星座，用於太空資料中心以支援AI算力。執照要求2033年11月前開始部署、2035年11月前完成10%（10萬顆）、2038年11月前完成50%。目前全球在軌衛星約1.7萬顆，報導指SpaceX是否真會發射如此數量仍不明。台股低軌衛星族群26日早盤多檔漲停。",
+        "en": "The FCC authorized SpaceX to deploy up to 1 million satellites for space data centers to support AI compute. Deployment must begin by November 2033, with 10% (100,000) by November 2035 and 50% by November 2038. About 17,000 satellites are in orbit today, and reports note it is unclear SpaceX will launch that many. Taiwan LEO supply-chain stocks hit limit-up on Nov. 26 morning."
+      },
+      "impact": {
+        "zh-TW": "屬長期執照而非已實現部署，時程長達十餘年；法人點名啟碁、華通、同欣電等低軌衛星供應鏈，短線題材熱度高，實際訂單仍待驗證。以上為市場推論。",
+        "en": "This is a long-dated license, not realized deployment, spanning over a decade. Analysts cite Taiwan LEO suppliers such as WNC, Compeq and Tong Hsing; short-term enthusiasm is high but actual orders remain unproven. Market inference."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/ait/202611260012.aspx"
+        },
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611260041.aspx"
+        }
+      ]
+    },
+    {
+      "id": "sp-nvidia-creditwatch",
+      "category": "ai",
+      "published_date": "2026-11-26",
+      "published_at": "2026-11-26T03:36:00+08:00",
+      "title": {
+        "zh-TW": "標普將輝達AA評等列入負向觀察，穆迪維持Aa1",
+        "en": "S&P places Nvidia's AA rating on negative watch; Moody's affirms Aa1"
+      },
+      "summary": {
+        "zh-TW": "標普全球評級將輝達AA信評列入負向信用觀察，啟動90天評估，理由是執行長黃仁勳去職後又回任所引發的治理與管理疑慮，表示若調降可能僅限一級。穆迪維持Aa1、展望穩定，但指治理與監管不確定性仍在。報導指輝達五年期CDS利差盤中擴大至約147個基點，創新高；股價自10月6日以來跌約38%。",
+        "en": "S&P put Nvidia's AA rating on negative watch for a 90-day review, citing governance concerns after CEO Jensen Huang's exit and return, and said any cut would likely be one notch. Moody's affirmed Aa1 with a stable outlook but flagged governance and regulatory uncertainty. Reports said Nvidia's 5-year CDS spread widened intraday to about 147bp, a record; shares are down about 38% since Oct. 6."
+      },
+      "impact": {
+        "zh-TW": "信評觀察本身不影響營運，但凸顯AI龍頭治理風險，可能加劇AI供應鏈評價波動；輝達為台積電等台廠重要客戶，台股權值股恐受情緒牽動。以上為推論。",
+        "en": "A ratings watch does not change operations, but it highlights governance risk at the AI leader and may add to valuation swings across the AI supply chain; as a key customer of TSMC and others, Nvidia sentiment may sway Taiwan heavyweights. Inference."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/aopl/202611263001.aspx"
+        },
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/afe/202611260022.aspx"
+        },
+        {
+          "publisher": "經濟日報",
+          "url": "https://money.udn.com/money/story/5599/9902593"
+        }
+      ]
+    },
+    {
+      "id": "fed-beige-book-nov",
+      "category": "economy",
+      "published_date": "2026-11-26",
+      "published_at": "2026-11-26T08:57:00+08:00",
+      "title": {
+        "zh-TW": "聯準會褐皮書：美經濟溫和成長，通膨仍居高不下",
+        "en": "Fed Beige Book: US economy grows modestly as inflation stays elevated"
+      },
+      "summary": {
+        "zh-TW": "聯準會褐皮書顯示，12個轄區中8個呈輕微至溫和成長、4個持平；消費支出持平、家庭轉向較便宜商品，AI帶動的企業投資維持強勁。投入成本漲幅高於售價，壓縮利潤；克里夫蘭聯準銀行指資料中心需求使晶片與電力設備供應吃緊。資料蒐集至11月16日。期貨顯示市場預期12月8至9日會議再升息。",
+        "en": "The Fed's Beige Book showed 8 of 12 districts with slight to moderate growth and 4 flat. Spending was flat as households traded down; AI-driven investment stayed strong. Input costs rose faster than selling prices, squeezing margins; the Cleveland Fed cited tight chip and power-equipment supply from data-center demand. Data ran through Nov. 16. Futures price another hike at the Dec. 8-9 meeting."
+      },
+      "impact": {
+        "zh-TW": "經濟日報引述彭博經濟研究，認為12月升息幾成定局；升息預期升溫可能壓抑高評價科技股，但報導指股市下跌已使部分升息預期降溫。12月決策尚未發生，以上為預估與推論。",
+        "en": "UDN cites Bloomberg Economics calling a December hike nearly certain; firmer hike bets could weigh on richly valued tech, though CNA notes recent stock declines have cooled some expectations. The December decision has not happened; estimates and inference."
+      },
+      "sources": [
+        {
+          "publisher": "中央社",
+          "url": "https://www.cna.com.tw/news/aopl/202611260027.aspx"
+        },
+        {
+          "publisher": "經濟日報",
+          "url": "https://money.udn.com/money/story/5599/9904619"
+        }
+      ]
+    },
+    {
+      "id": "taiex-rebound-1126",
+      "category": "economy",
       "published_date": "2026-11-26",
       "published_at": null,
       "title": {
-        "zh-TW": "川普將出席台積電亞利桑那擴廠典禮，德州設廠仍在評估",
-        "en": "Trump to attend TSMC Arizona expansion ceremony; Texas fab still under evaluation"
+        "zh-TW": "台股強彈956點收復3.9萬點，外資仍連9日賣超",
+        "en": "Taiex rebounds 956 points to retake 39,000 as foreigners sell for 9th day"
       },
       "summary": {
-        "zh-TW": "經濟日報引述彭博，白宮官員表示川普將出席12月4日台積電亞利桑那廠擴建典禮，董事長魏哲家等高層將與會，黃仁勳是否出席未確認。另據路透，台積電已向德州申請稅務優惠，文件涉及布拉索斯郡規劃約226億美元、2奈米以下製程新廠；台積電表示德州投資仍在討論評估中。",
-        "en": "Citing Bloomberg, Economic Daily News said White House officials expect Trump to attend TSMC's Arizona expansion ceremony on Dec. 4, with Chairman C.C. Wei; Jensen Huang's attendance is unconfirmed. Separately, Reuters said TSMC sought Texas tax incentives for a planned US$22.6bn fab in Brazos County for 2nm or more advanced chips; TSMC said a Texas plan is still under evaluation."
+        "zh-TW": "前一日重挫後，26日加權指數收39,151.81點，上漲956.38點、漲幅2.50%，成交約8,170億元；上漲995家、下跌87家。聯發科漲60元至3,705元，鴻海、廣達上漲，台積電則跌5元收2,145元。外資賣超約491.8億元，連9日賣超；投信、自營商與國安基金相關買盤進場。新台幣兌美元升值。",
+        "en": "After the prior day's slump, the Taiex closed Nov. 26 at 39,151.81, up 956.38 points or 2.50%, on about NT$817 billion turnover, with 995 gainers and 87 losers. MediaTek rose NT$60 to 3,705 and Hon Hai and Quanta gained, while TSMC slipped NT$5 to 2,145. Foreign investors net sold about NT$49.2 billion, a 9th straight day, while trusts, dealers and state funds bought."
       },
       "impact": {
-        "zh-TW": "典禮為預定活動、德州廠尚未定案；美國擴產有助回應關稅與在地生產壓力，但也可能帶來資本支出與毛利率稀釋疑慮。以上為推論。",
-        "en": "The ceremony is a scheduled event and the Texas fab is not finalised; US expansion may ease tariff and onshoring pressure but could raise capex and margin-dilution concerns. Inference."
+        "zh-TW": "反彈由內資與政策性買盤支撐，外資持續賣超，加上美股感恩節後提前收盤，短線震盪恐仍大；分析師對後市看法分歧。以上為市場推論。",
+        "en": "The rebound was driven by domestic and state-linked buying while foreigners kept selling; with a shortened US post-Thanksgiving session, volatility may stay high and analysts are split on the outlook. Market inference."
       },
       "sources": [
         {
-          "publisher": "經濟日報",
-          "url": "https://money.udn.com/money/story/5612/9902330"
+          "publisher": "Investing.com",
+          "url": "https://hk.investing.com/news/stock-market-news/article-1777977"
         },
         {
-          "publisher": "聯合新聞網",
-          "url": "https://udn.com/news/story/7240/9899721"
-        },
-        {
-          "publisher": "經濟日報／中央社",
-          "url": "https://money.udn.com/money/story/5612/9901561"
+          "publisher": "Yahoo奇摩新聞（上報）",
+          "url": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%BC%B7%E5%BD%88%E7%B5%82%E5%A0%B4%E4%B8%8A%E6%BC%B2956%E9%BB%9E-%E5%8F%B0%E7%A9%8D%E9%9B%BB%E7%86%84%E7%81%AB%E8%B7%8C5%E5%85%83-070100943.html"
         }
       ]
     }
   ],
   "watchlist": [
+    {
+      "symbol": "3231.TW",
+      "name": {
+        "zh-TW": "緯創",
+        "en": "Wistron"
+      },
+      "sector": {
+        "zh-TW": "AI伺服器／電腦代工",
+        "en": "AI servers / EMS"
+      },
+      "reason": {
+        "zh-TW": "經濟日報報導點名緯創為輝達暫停東南亞出貨後可能受訂單轉移影響的台廠，可觀察美國伺服器出口管制對出貨地區與客戶結構的影響。",
+        "en": "UDN names Wistron among Taiwan suppliers that could see order shifts after Nvidia's reported Southeast Asia server pause; watch how US server export controls affect shipment regions and customer mix."
+      },
+      "risk": {
+        "zh-TW": "報導尚未獲輝達及品牌商證實，影響方向與規模不明；管制擴大可能延遲出貨與認列。",
+        "en": "The report is unconfirmed by Nvidia and brands; direction and size of impact are unclear, and wider controls could delay shipments and revenue recognition."
+      },
+      "article_ids": [
+        "nvidia-sea-server-halt"
+      ],
+      "relationship": "direct"
+    },
+    {
+      "symbol": "2382.TW",
+      "name": {
+        "zh-TW": "廣達",
+        "en": "Quanta Computer"
+      },
+      "sector": {
+        "zh-TW": "AI伺服器／電腦代工",
+        "en": "AI servers / EMS"
+      },
+      "reason": {
+        "zh-TW": "廣達為AI伺服器主要代工廠，26日隨大盤反彈上漲；輝達東南亞出貨管制與信評觀察可能影響AI伺服器需求情緒。此為產業推論，報導未直接提及廣達受影響。",
+        "en": "Quanta is a major AI server maker and rose in the Nov. 26 rebound; Nvidia's reported Southeast Asia pause and ratings watch may sway AI server sentiment. Industry inference; reports do not say Quanta is affected."
+      },
+      "risk": {
+        "zh-TW": "AI類股波動劇烈、出口管制規則細節未明，客戶集中度高；不代表已有訂單變化。",
+        "en": "AI stocks are highly volatile, control rules lack detail and customer concentration is high; no order change is implied."
+      },
+      "article_ids": [
+        "nvidia-sea-server-halt",
+        "taiex-rebound-1126"
+      ],
+      "relationship": "industry_inference"
+    },
+    {
+      "symbol": "6285.TW",
+      "name": {
+        "zh-TW": "啟碁",
+        "en": "Wistron NeWeb"
+      },
+      "sector": {
+        "zh-TW": "網通／低軌衛星",
+        "en": "Networking / LEO satellites"
+      },
+      "reason": {
+        "zh-TW": "中央社報導SpaceX獲准擴大部署後，啟碁被法人列入低軌衛星台廠供應鏈，26日早盤漲停，可觀察衛星通訊題材後續發展。",
+        "en": "CNA reports analysts list WNC in Taiwan's LEO satellite supply chain after SpaceX's FCC approval, and it hit limit-up on Nov. 26 morning; watch how the satellite theme develops."
+      },
+      "risk": {
+        "zh-TW": "百萬顆衛星為長期執照上限，實際部署與訂單不確定；題材急漲後易劇烈回檔。",
+        "en": "The 1 million figure is a long-dated license cap; actual deployment and orders are uncertain, and theme-driven spikes can reverse sharply."
+      },
+      "article_ids": [
+        "spacex-million-satellites"
+      ],
+      "relationship": "direct"
+    },
+    {
+      "symbol": "2313.TW",
+      "name": {
+        "zh-TW": "華通",
+        "en": "Compeq Manufacturing"
+      },
+      "sector": {
+        "zh-TW": "印刷電路板／低軌衛星",
+        "en": "PCBs / LEO satellites"
+      },
+      "reason": {
+        "zh-TW": "中央社報導華通名列法人點名的低軌衛星供應鏈並於26日早盤漲停，可觀察衛星板需求與AI資料中心題材連動。",
+        "en": "CNA reports Compeq was among analyst-cited LEO supply-chain names and hit limit-up on Nov. 26 morning; watch satellite board demand alongside the AI data-center theme."
+      },
+      "risk": {
+        "zh-TW": "供應鏈角色為法人分析而非公司確認之訂單；衛星部署時程長，評價受題材情緒影響大。",
+        "en": "Supply-chain roles are analyst views, not confirmed orders; deployment timelines are long and valuation is sensitive to theme sentiment."
+      },
+      "article_ids": [
+        "spacex-million-satellites"
+      ],
+      "relationship": "direct"
+    },
     {
       "symbol": "2330.TW",
       "name": {
@@ -157,114 +258,18 @@
         "en": "Semiconductors / foundry"
       },
       "reason": {
-        "zh-TW": "報導直接提及其亞利桑那擴廠典禮與德州設廠評估，且25日隨大盤下跌3.59%，可觀察美國擴產進度與關稅消息對股價的影響。",
-        "en": "Reports directly cover its Arizona expansion ceremony and Texas fab evaluation, and it fell 3.59% with the market on Nov. 25; watch how US expansion and tariff news affect the stock."
+        "zh-TW": "台股26日大漲但台積電跌5元收2,145元；輝達為其重要客戶，標普將輝達列入負向觀察可能影響AI供應鏈情緒。輝達關聯屬產業推論。",
+        "en": "TSMC slipped NT$5 to 2,145 despite the Nov. 26 rally; Nvidia is a key customer, so S&P's negative watch on Nvidia may affect AI supply-chain sentiment. The Nvidia link is industry inference."
       },
       "risk": {
-        "zh-TW": "德州廠尚未定案；海外擴產可能稀釋毛利率，AI類股估值修正與升息預期亦可能加大波動。",
-        "en": "The Texas fab is not finalised; overseas expansion may dilute margins, and AI valuation resets and hike expectations could add volatility."
+        "zh-TW": "外資連續賣超、AI評價修正與美國關稅政策均可能壓抑股價；信評觀察不代表訂單變化。",
+        "en": "Persistent foreign selling, AI valuation corrections and US tariff policy could weigh on shares; a ratings watch does not imply order changes."
       },
       "article_ids": [
-        "tsmc-us-expansion",
-        "taiex-plunge-1125"
+        "taiex-rebound-1126",
+        "sp-nvidia-creditwatch"
       ],
       "relationship": "direct"
-    },
-    {
-      "symbol": "2454.TW",
-      "name": {
-        "zh-TW": "聯發科",
-        "en": "MediaTek"
-      },
-      "sector": {
-        "zh-TW": "半導體／IC設計",
-        "en": "Semiconductors / IC design"
-      },
-      "reason": {
-        "zh-TW": "報導指其25日跌停至3,645元，是台股重挫中跌幅最重的權值股之一，可觀察美股晶片股與關稅消息是否持續牽動。",
-        "en": "Reports say it hit limit-down at NT$3,645 on Nov. 25, among the hardest-hit heavyweights; watch whether US chip moves and tariff news keep driving it."
-      },
-      "risk": {
-        "zh-TW": "短線賣壓與籌碼調整可能延續；美國關稅提案細節未定，終端需求亦存不確定性。",
-        "en": "Near-term selling and position adjustments may persist; US tariff details are unsettled and end demand remains uncertain."
-      },
-      "article_ids": [
-        "taiex-plunge-1125",
-        "us-tech-selloff-1125"
-      ],
-      "relationship": "direct"
-    },
-    {
-      "symbol": "2317.TW",
-      "name": {
-        "zh-TW": "鴻海",
-        "en": "Hon Hai"
-      },
-      "sector": {
-        "zh-TW": "電子代工／AI伺服器",
-        "en": "EMS / AI servers"
-      },
-      "reason": {
-        "zh-TW": "報導指其25日下跌8.83%至206.5元；作為AI伺服器組裝要角，可觀察美國AI類股修正與關稅提案對其評價的影響。",
-        "en": "Reports say it fell 8.83% to NT$206.5 on Nov. 25; as a major AI server assembler, watch how the US AI-stock correction and tariff proposal affect its valuation."
-      },
-      "risk": {
-        "zh-TW": "AI資本支出疑慮、美國關稅與在地生產要求，可能影響營運與股價波動。",
-        "en": "AI capex doubts, US tariffs and onshoring demands could affect operations and add share-price volatility."
-      },
-      "article_ids": [
-        "taiex-plunge-1125",
-        "us-tariffs-14-economies"
-      ],
-      "relationship": "direct"
-    },
-    {
-      "symbol": "2382.TW",
-      "name": {
-        "zh-TW": "廣達",
-        "en": "Quanta Computer"
-      },
-      "sector": {
-        "zh-TW": "電腦及週邊／AI伺服器",
-        "en": "Computers / AI servers"
-      },
-      "reason": {
-        "zh-TW": "輝達、甲骨文等AI相關美股大跌，市場對AI基礎建設支出的疑慮可能牽動伺服器代工族群；美國關稅提案也與其出口相關。此為產業推論，報導未直接提及。",
-        "en": "Sharp drops in Nvidia, Oracle and other US AI names may weigh on server makers via AI-infrastructure spending doubts, and the tariff proposal bears on exports. Industry inference; reports do not name the company."
-      },
-      "risk": {
-        "zh-TW": "推論未經公司證實；雲端客戶資本支出調整、關稅與匯率變動皆可能影響獲利。",
-        "en": "The link is inferred, not confirmed by the company; cloud capex changes, tariffs and FX could hit earnings."
-      },
-      "article_ids": [
-        "us-tech-selloff-1125",
-        "us-tariffs-14-economies"
-      ],
-      "relationship": "industry_inference"
-    },
-    {
-      "symbol": "2308.TW",
-      "name": {
-        "zh-TW": "台達電",
-        "en": "Delta Electronics"
-      },
-      "sector": {
-        "zh-TW": "電子零組件／電源管理",
-        "en": "Electronic components / power"
-      },
-      "reason": {
-        "zh-TW": "資料中心電源與散熱屬AI基礎建設供應鏈，美國AI類股修正與升息預期可能影響市場對相關需求與評價的看法。此為產業推論。",
-        "en": "Data-center power and cooling are part of the AI infrastructure chain; the US AI correction and hike expectations may shift views on demand and valuation. Industry inference."
-      },
-      "risk": {
-        "zh-TW": "推論未經公司證實；高評價在利率上升環境下易受壓，AI需求放緩或關稅變化亦為風險。",
-        "en": "The link is inferred, not company-confirmed; high valuations are vulnerable when rates rise, and slower AI demand or tariff changes are risks."
-      },
-      "article_ids": [
-        "us-tech-selloff-1125",
-        "us-gdp-pce-oct"
-      ],
-      "relationship": "industry_inference"
     }
   ]
 }
