@@ -1,252 +1,139 @@
 {
   "version": 1,
   "status": "ready",
-  "brief_date": "2026-11-27",
-  "generated_at": "2026-11-27T07:52:48+08:00",
+  "brief_date": "2026-11-28",
+  "generated_at": "2026-11-28T07:45:44+08:00",
   "articles": [
     {
-      "id": "nvidia-sea-server-halt",
-      "category": "ai",
-      "published_date": "2026-11-26",
-      "published_at": "2026-11-26T16:08:00+08:00",
-      "title": {
-        "zh-TW": "金融時報：輝達要求夥伴暫停對東南亞四國出貨伺服器",
-        "en": "FT: Nvidia tells partners to pause server shipments to four Southeast Asian nations"
-      },
-      "summary": {
-        "zh-TW": "金融時報引述三位知情人士報導，輝達要求製造夥伴停止向馬來西亞、新加坡、泰國、印尼買家出貨伺服器，戴爾與美超微為首波，是否暫時性不明，輝達未證實。此舉與美國商務部上週新規相關：雲端業者須在90天內取得許可並證明終端用戶非受限實體。輝達2025年經新加坡子公司認列營收約1,040億美元、年增72%。",
-        "en": "Citing three sources, the FT said Nvidia told partners such as Dell and Supermicro to stop shipping servers to buyers in Malaysia, Singapore, Thailand and Indonesia; duration is unclear and Nvidia has not confirmed. It follows a new US rule giving cloud providers 90 days to get licenses and vet end users. Nvidia booked about US$104B of 2025 revenue via its Singapore unit, up 72%."
-      },
-      "impact": {
-        "zh-TW": "管制從晶片延伸至伺服器與雲端算力，東南亞資料中心專案可能延遲；經濟日報點名緯創等台廠恐出現訂單轉移效應。屬未證實報導與市場推論。",
-        "en": "Controls appear to be widening from chips to servers and cloud compute, which could delay Southeast Asian data-center projects; UDN flags possible order shifts for Taiwan suppliers such as Wistron. Unconfirmed report and market inference."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611260186.aspx"
-        },
-        {
-          "publisher": "科技新報",
-          "url": "https://technews.tw/2026/11/26/nvidia-halts-server-shipments-to-four-southeast-asian-countries"
-        },
-        {
-          "publisher": "經濟日報",
-          "url": "https://money.udn.com/money/story/5599/9904637"
-        }
-      ]
-    },
-    {
-      "id": "spacex-million-satellites",
-      "category": "ai",
-      "published_date": "2026-11-26",
-      "published_at": "2026-11-26T05:29:00+08:00",
-      "title": {
-        "zh-TW": "美FCC批准SpaceX部署百萬顆衛星，建構太空AI資料中心",
-        "en": "US FCC authorizes SpaceX to deploy up to 1 million satellites for space data centers"
-      },
-      "summary": {
-        "zh-TW": "美國聯邦通訊委員會宣布授權SpaceX部署最多100萬顆衛星的星座，用於太空資料中心以支援AI算力。執照要求2033年11月前開始部署、2035年11月前完成10%（10萬顆）、2038年11月前完成50%。目前全球在軌衛星約1.7萬顆，報導指SpaceX是否真會發射如此數量仍不明。台股低軌衛星族群26日早盤多檔漲停。",
-        "en": "The FCC authorized SpaceX to deploy up to 1 million satellites for space data centers to support AI compute. Deployment must begin by November 2033, with 10% (100,000) by November 2035 and 50% by November 2038. About 17,000 satellites are in orbit today, and reports note it is unclear SpaceX will launch that many. Taiwan LEO supply-chain stocks hit limit-up on Nov. 26 morning."
-      },
-      "impact": {
-        "zh-TW": "屬長期執照而非已實現部署，時程長達十餘年；法人點名啟碁、華通、同欣電等低軌衛星供應鏈，短線題材熱度高，實際訂單仍待驗證。以上為市場推論。",
-        "en": "This is a long-dated license, not realized deployment, spanning over a decade. Analysts cite Taiwan LEO suppliers such as WNC, Compeq and Tong Hsing; short-term enthusiasm is high but actual orders remain unproven. Market inference."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/ait/202611260012.aspx"
-        },
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611260041.aspx"
-        }
-      ]
-    },
-    {
-      "id": "sp-nvidia-creditwatch",
-      "category": "ai",
-      "published_date": "2026-11-26",
-      "published_at": "2026-11-26T03:36:00+08:00",
-      "title": {
-        "zh-TW": "標普將輝達AA評等列入負向觀察，穆迪維持Aa1",
-        "en": "S&P places Nvidia's AA rating on negative watch; Moody's affirms Aa1"
-      },
-      "summary": {
-        "zh-TW": "標普全球評級將輝達AA信評列入負向信用觀察，啟動90天評估，理由是執行長黃仁勳去職後又回任所引發的治理與管理疑慮，表示若調降可能僅限一級。穆迪維持Aa1、展望穩定，但指治理與監管不確定性仍在。報導指輝達五年期CDS利差盤中擴大至約147個基點，創新高；股價自10月6日以來跌約38%。",
-        "en": "S&P put Nvidia's AA rating on negative watch for a 90-day review, citing governance concerns after CEO Jensen Huang's exit and return, and said any cut would likely be one notch. Moody's affirmed Aa1 with a stable outlook but flagged governance and regulatory uncertainty. Reports said Nvidia's 5-year CDS spread widened intraday to about 147bp, a record; shares are down about 38% since Oct. 6."
-      },
-      "impact": {
-        "zh-TW": "信評觀察本身不影響營運，但凸顯AI龍頭治理風險，可能加劇AI供應鏈評價波動；輝達為台積電等台廠重要客戶，台股權值股恐受情緒牽動。以上為推論。",
-        "en": "A ratings watch does not change operations, but it highlights governance risk at the AI leader and may add to valuation swings across the AI supply chain; as a key customer of TSMC and others, Nvidia sentiment may sway Taiwan heavyweights. Inference."
-      },
-      "sources": [
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611263001.aspx"
-        },
-        {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/afe/202611260022.aspx"
-        },
-        {
-          "publisher": "經濟日報",
-          "url": "https://money.udn.com/money/story/5599/9902593"
-        }
-      ]
-    },
-    {
-      "id": "fed-beige-book-nov",
+      "id": "tw-gdp-forecast-1328",
       "category": "economy",
-      "published_date": "2026-11-26",
-      "published_at": "2026-11-26T08:57:00+08:00",
+      "published_date": "2026-11-27",
+      "published_at": "2026-11-27T16:10:00+08:00",
       "title": {
-        "zh-TW": "聯準會褐皮書：美經濟溫和成長，通膨仍居高不下",
-        "en": "Fed Beige Book: US economy grows modestly as inflation stays elevated"
+        "zh-TW": "主計總處上修今年經濟成長預估至13.28%，明年估6.51%",
+        "en": "DGBAS raises Taiwan's 2026 GDP growth forecast to 13.28%, sees 6.51% in 2027"
       },
       "summary": {
-        "zh-TW": "聯準會褐皮書顯示，12個轄區中8個呈輕微至溫和成長、4個持平；消費支出持平、家庭轉向較便宜商品，AI帶動的企業投資維持強勁。投入成本漲幅高於售價，壓縮利潤；克里夫蘭聯準銀行指資料中心需求使晶片與電力設備供應吃緊。資料蒐集至11月16日。期貨顯示市場預期12月8至9日會議再升息。",
-        "en": "The Fed's Beige Book showed 8 of 12 districts with slight to moderate growth and 4 flat. Spending was flat as households traded down; AI-driven investment stayed strong. Input costs rose faster than selling prices, squeezing margins; the Cleveland Fed cited tight chip and power-equipment supply from data-center demand. Data ran through Nov. 16. Futures price another hike at the Dec. 8-9 meeting."
+        "zh-TW": "主計總處11月27日公布最新預測，將今年經濟成長率上修2.23個百分點至13.28%，為近半世紀新高；明年預估6.51%。同時預估今年商品出口約9,386億美元、年增46.67%，明年約1.11兆美元，有望首度突破1兆美元。以上數字均為官方預估，尚非實績。",
+        "en": "Taiwan's statistics agency on Nov 27 lifted its 2026 growth forecast by 2.23 points to 13.28%, the highest in nearly half a century, and projected 6.51% for 2027. It also forecast 2026 goods exports of about US$938.6bn (+46.67%) and roughly US$1.11tn in 2027, which would be a first above US$1tn. These figures are official forecasts, not final results."
       },
       "impact": {
-        "zh-TW": "經濟日報引述彭博經濟研究，認為12月升息幾成定局；升息預期升溫可能壓抑高評價科技股，但報導指股市下跌已使部分升息預期降溫。12月決策尚未發生，以上為預估與推論。",
-        "en": "UDN cites Bloomberg Economics calling a December hike nearly certain; firmer hike bets could weigh on richly valued tech, though CNA notes recent stock declines have cooled some expectations. The December decision has not happened; estimates and inference."
+        "zh-TW": "官方數據反映AI伺服器與零組件出口仍是台灣成長主軸；主計總處也列出美國出口管制、融資成本、AI應用進度及關稅為變數，高基期下明年預估能否實現仍待觀察。",
+        "en": "The forecast shows AI server and component exports remain Taiwan's main growth engine. DGBAS itself flags US export controls, financing costs, AI adoption pace and tariffs as risks, so next year's projection against a high base is not assured."
       },
       "sources": [
         {
-          "publisher": "中央社",
-          "url": "https://www.cna.com.tw/news/aopl/202611260027.aspx"
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/afe/202611270148.aspx"
         },
         {
-          "publisher": "經濟日報",
-          "url": "https://money.udn.com/money/story/5599/9904619"
+          "publisher": "聯合新聞網 UDN",
+          "url": "https://udn.com/news/story/7240/9906532"
+        },
+        {
+          "publisher": "經濟日報（中央社稿）",
+          "url": "https://money.udn.com/money/story/10869/9906301"
         }
       ]
     },
     {
-      "id": "taiex-rebound-1126",
+      "id": "us-remote-access-chip-rule",
+      "category": "ai",
+      "published_date": "2026-11-27",
+      "published_at": "2026-11-27T10:19:00+08:00",
+      "title": {
+        "zh-TW": "美國新規限制遠端存取先進晶片，傳Nvidia買家須排除中企租用",
+        "en": "US rule curbs remote access to advanced chips; Nvidia buyers reportedly must exclude Chinese renters"
+      },
+      "summary": {
+        "zh-TW": "中央社綜合CNBC報導，美國商務部產業安全局發布暫行最終規則限制遠端存取先進AI晶片。據匿名消息來源，新雲端業者若出租算力給中國企業，將無法購買Nvidia晶片，部分賣家正為原租給中企的GPU另尋買家。Nvidia與BIS未即時回應。",
+        "en": "Citing CNBC, CNA reported that the US Commerce Department's BIS issued an interim final rule restricting remote access to advanced AI chips. Anonymous sources said neoclouds renting compute to Chinese firms cannot buy Nvidia chips, and some sellers are seeking new buyers for affected GPUs. Nvidia and BIS did not immediately comment."
+      },
+      "impact": {
+        "zh-TW": "規範若嚴格執行，海外資料中心的客戶組成審查將更嚴，可能影響部分AI伺服器出貨節奏與去化；買家排除條件來自匿名消息，實際執行範圍仍待官方確認。",
+        "en": "If enforced strictly, customer vetting at overseas data centers tightens, which could affect some AI server shipment timing. The buyer conditions come from anonymous sources, so the actual enforcement scope awaits official confirmation."
+      },
+      "sources": [
+        {
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/aopl/202611270034.aspx"
+        }
+      ]
+    },
+    {
+      "id": "china-industrial-profits-oct",
       "category": "economy",
-      "published_date": "2026-11-26",
+      "published_date": "2026-11-27",
+      "published_at": "2026-11-27T11:48:00+08:00",
+      "title": {
+        "zh-TW": "中國10月工業利潤年增20.1%，電子業受AI算力需求帶動",
+        "en": "China's October industrial profits rise 20.1% as AI demand lifts electronics"
+      },
+      "summary": {
+        "zh-TW": "中國國家統計局公布，1至10月規模以上工業企業利潤年增16.0%，10月單月年增20.1%。電腦、通信及電子設備製造業利潤年增100%，拉動整體9.7個百分點；汽車製造業則年減26.0%。統計局將電子業成長歸因於AI算力需求。",
+        "en": "China's statistics bureau said above-scale industrial profits rose 16.0% y/y in January–October and 20.1% in October alone. Computer, communications and electronics manufacturing profits doubled, adding 9.7 points, while auto manufacturing fell 26.0%. The bureau attributed electronics gains to AI computing demand."
+      },
+      "impact": {
+        "zh-TW": "數據顯示AI相關電子製造的獲利動能跨區擴散，但成長集中於少數產業，汽車等傳統產業仍疲弱；外資、港澳台投資企業利潤僅增0.2%，對台廠的直接意涵有限。",
+        "en": "The data show AI-linked electronics profits spreading across regions, but gains are concentrated while autos and other traditional sectors stay weak. Profits at foreign and HK/Macau/Taiwan-invested firms rose only 0.2%, limiting direct read-through for Taiwanese firms."
+      },
+      "sources": [
+        {
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/acn/202611270062.aspx"
+        }
+      ]
+    },
+    {
+      "id": "us-stocks-ai-rebound-1127",
+      "category": "economy",
+      "published_date": "2026-11-28",
+      "published_at": "2026-11-28T04:02:00+08:00",
+      "title": {
+        "zh-TW": "AI股領漲科技股反彈，美股四大指數收紅、費半漲4.69%",
+        "en": "AI stocks lead tech rebound; US indexes close higher, SOX up 4.69%"
+      },
+      "summary": {
+        "zh-TW": "美股27日在動盪一週後收高，Micron、AMD與SanDisk等AI相關股大漲。道瓊上漲1.18%至50,774.94點，標普500漲1.60%至7,297.49點，那斯達克漲2.31%至24,129.50點，費城半導體指數漲4.69%至9,186.707點。",
+        "en": "After a volatile week, US stocks closed higher on Nov 27, led by AI-related names such as Micron, AMD and SanDisk. The Dow rose 1.18% to 50,774.94, the S&P 500 1.60% to 7,297.49, the Nasdaq 2.31% to 24,129.50, and the Philadelphia Semiconductor Index 4.69% to 9,186.707."
+      },
+      "impact": {
+        "zh-TW": "費半大漲可能改善下週一台股半導體與記憶體族群的開盤氣氛，但這是單日跌深反彈；本週AI投資報酬疑慮與外資連續賣超台股的情況尚未改變。",
+        "en": "The SOX jump may improve sentiment for Taiwan's semiconductor and memory names at Monday's open, but it is a one-day rebound after steep losses; AI return worries and persistent foreign selling of Taiwan stocks have not changed."
+      },
+      "sources": [
+        {
+          "publisher": "中央社 CNA",
+          "url": "https://www.cna.com.tw/news/afe/202611280006.aspx"
+        }
+      ]
+    },
+    {
+      "id": "memory-cost-us-smartphones",
+      "category": "economy",
+      "published_date": "2026-11-27",
       "published_at": null,
       "title": {
-        "zh-TW": "台股強彈956點收復3.9萬點，外資仍連9日賣超",
-        "en": "Taiex rebounds 956 points to retake 39,000 as foreigners sell for 9th day"
+        "zh-TW": "Counterpoint：記憶體漲價衝擊Android，iPhone美國市占升至57%",
+        "en": "Counterpoint: memory price rises hit Android; iPhone's US share climbs to 57%"
       },
       "summary": {
-        "zh-TW": "前一日重挫後，26日加權指數收39,151.81點，上漲956.38點、漲幅2.50%，成交約8,170億元；上漲995家、下跌87家。聯發科漲60元至3,705元，鴻海、廣達上漲，台積電則跌5元收2,145元。外資賣超約491.8億元，連9日賣超；投信、自營商與國安基金相關買盤進場。新台幣兌美元升值。",
-        "en": "After the prior day's slump, the Taiex closed Nov. 26 at 39,151.81, up 956.38 points or 2.50%, on about NT$817 billion turnover, with 995 gainers and 87 losers. MediaTek rose NT$60 to 3,705 and Hon Hai and Quanta gained, while TSMC slipped NT$5 to 2,145. Foreign investors net sold about NT$49.2 billion, a 9th straight day, while trusts, dealers and state funds bought."
+        "zh-TW": "科技新報引述Counterpoint Research，美國第三季智慧型手機出貨年減9%，記憶體與零組件成本上升對利潤較薄的低階Android機種衝擊最大。Apple是唯一出貨未衰退的主要品牌，市占由50%升至57%；Motorola由12%降至8%。分析師預期記憶體成本將持續偏高。",
+        "en": "TechNews, citing Counterpoint Research, said US smartphone shipments fell 9% y/y in Q3 as higher memory and component costs hit thin-margin low-end Android models hardest. Apple was the only major brand without a decline, lifting share from 50% to 57%, while Motorola slipped from 12% to 8%. Analysts expect memory costs to stay elevated."
       },
       "impact": {
-        "zh-TW": "反彈由內資與政策性買盤支撐，外資持續賣超，加上美股感恩節後提前收盤，短線震盪恐仍大；分析師對後市看法分歧。以上為市場推論。",
-        "en": "The rebound was driven by domestic and state-linked buying while foreigners kept selling; with a shortened US post-Thanksgiving session, volatility may stay high and analysts are split on the outlook. Market inference."
+        "zh-TW": "記憶體報價上漲有利供應端，但也壓抑終端需求與低階機種出貨；分析師對第四季銷售偏弱與成本續高的看法屬預估，需留意漲價對消費性電子需求的反噬。",
+        "en": "Higher memory prices favor suppliers but weigh on end demand and low-end device shipments. Analysts' views of weak Q4 sales and persistently high costs are forecasts; watch for demand destruction in consumer electronics."
       },
       "sources": [
         {
-          "publisher": "Investing.com",
-          "url": "https://hk.investing.com/news/stock-market-news/article-1777977"
-        },
-        {
-          "publisher": "Yahoo奇摩新聞（上報）",
-          "url": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%BC%B7%E5%BD%88%E7%B5%82%E5%A0%B4%E4%B8%8A%E6%BC%B2956%E9%BB%9E-%E5%8F%B0%E7%A9%8D%E9%9B%BB%E7%86%84%E7%81%AB%E8%B7%8C5%E5%85%83-070100943.html"
+          "publisher": "科技新報 TechNews",
+          "url": "https://technews.tw/2026/11/27/q326-us-smartphone-market/"
         }
       ]
     }
   ],
   "watchlist": [
-    {
-      "symbol": "3231.TW",
-      "name": {
-        "zh-TW": "緯創",
-        "en": "Wistron"
-      },
-      "sector": {
-        "zh-TW": "AI伺服器／電腦代工",
-        "en": "AI servers / EMS"
-      },
-      "reason": {
-        "zh-TW": "經濟日報報導點名緯創為輝達暫停東南亞出貨後可能受訂單轉移影響的台廠，可觀察美國伺服器出口管制對出貨地區與客戶結構的影響。",
-        "en": "UDN names Wistron among Taiwan suppliers that could see order shifts after Nvidia's reported Southeast Asia server pause; watch how US server export controls affect shipment regions and customer mix."
-      },
-      "risk": {
-        "zh-TW": "報導尚未獲輝達及品牌商證實，影響方向與規模不明；管制擴大可能延遲出貨與認列。",
-        "en": "The report is unconfirmed by Nvidia and brands; direction and size of impact are unclear, and wider controls could delay shipments and revenue recognition."
-      },
-      "article_ids": [
-        "nvidia-sea-server-halt"
-      ],
-      "relationship": "direct"
-    },
-    {
-      "symbol": "2382.TW",
-      "name": {
-        "zh-TW": "廣達",
-        "en": "Quanta Computer"
-      },
-      "sector": {
-        "zh-TW": "AI伺服器／電腦代工",
-        "en": "AI servers / EMS"
-      },
-      "reason": {
-        "zh-TW": "廣達為AI伺服器主要代工廠，26日隨大盤反彈上漲；輝達東南亞出貨管制與信評觀察可能影響AI伺服器需求情緒。此為產業推論，報導未直接提及廣達受影響。",
-        "en": "Quanta is a major AI server maker and rose in the Nov. 26 rebound; Nvidia's reported Southeast Asia pause and ratings watch may sway AI server sentiment. Industry inference; reports do not say Quanta is affected."
-      },
-      "risk": {
-        "zh-TW": "AI類股波動劇烈、出口管制規則細節未明，客戶集中度高；不代表已有訂單變化。",
-        "en": "AI stocks are highly volatile, control rules lack detail and customer concentration is high; no order change is implied."
-      },
-      "article_ids": [
-        "nvidia-sea-server-halt",
-        "taiex-rebound-1126"
-      ],
-      "relationship": "industry_inference"
-    },
-    {
-      "symbol": "6285.TW",
-      "name": {
-        "zh-TW": "啟碁",
-        "en": "Wistron NeWeb"
-      },
-      "sector": {
-        "zh-TW": "網通／低軌衛星",
-        "en": "Networking / LEO satellites"
-      },
-      "reason": {
-        "zh-TW": "中央社報導SpaceX獲准擴大部署後，啟碁被法人列入低軌衛星台廠供應鏈，26日早盤漲停，可觀察衛星通訊題材後續發展。",
-        "en": "CNA reports analysts list WNC in Taiwan's LEO satellite supply chain after SpaceX's FCC approval, and it hit limit-up on Nov. 26 morning; watch how the satellite theme develops."
-      },
-      "risk": {
-        "zh-TW": "百萬顆衛星為長期執照上限，實際部署與訂單不確定；題材急漲後易劇烈回檔。",
-        "en": "The 1 million figure is a long-dated license cap; actual deployment and orders are uncertain, and theme-driven spikes can reverse sharply."
-      },
-      "article_ids": [
-        "spacex-million-satellites"
-      ],
-      "relationship": "direct"
-    },
-    {
-      "symbol": "2313.TW",
-      "name": {
-        "zh-TW": "華通",
-        "en": "Compeq Manufacturing"
-      },
-      "sector": {
-        "zh-TW": "印刷電路板／低軌衛星",
-        "en": "PCBs / LEO satellites"
-      },
-      "reason": {
-        "zh-TW": "中央社報導華通名列法人點名的低軌衛星供應鏈並於26日早盤漲停，可觀察衛星板需求與AI資料中心題材連動。",
-        "en": "CNA reports Compeq was among analyst-cited LEO supply-chain names and hit limit-up on Nov. 26 morning; watch satellite board demand alongside the AI data-center theme."
-      },
-      "risk": {
-        "zh-TW": "供應鏈角色為法人分析而非公司確認之訂單；衛星部署時程長，評價受題材情緒影響大。",
-        "en": "Supply-chain roles are analyst views, not confirmed orders; deployment timelines are long and valuation is sensitive to theme sentiment."
-      },
-      "article_ids": [
-        "spacex-million-satellites"
-      ],
-      "relationship": "direct"
-    },
     {
       "symbol": "2330.TW",
       "name": {
@@ -254,22 +141,118 @@
         "en": "TSMC"
       },
       "sector": {
-        "zh-TW": "半導體／晶圓代工",
-        "en": "Semiconductors / foundry"
+        "zh-TW": "半導體",
+        "en": "Semiconductors"
       },
       "reason": {
-        "zh-TW": "台股26日大漲但台積電跌5元收2,145元；輝達為其重要客戶，標普將輝達列入負向觀察可能影響AI供應鏈情緒。輝達關聯屬產業推論。",
-        "en": "TSMC slipped NT$5 to 2,145 despite the Nov. 26 rally; Nvidia is a key customer, so S&P's negative watch on Nvidia may affect AI supply-chain sentiment. The Nvidia link is industry inference."
+        "zh-TW": "主計總處上修成長主要依賴AI相關出口，費半單日大漲也牽動晶圓代工族群；台積電為台灣AI晶片製造核心，屬產業推論，報導未直接提及。",
+        "en": "DGBAS's upgrade rests on AI-related exports and the SOX surge affects foundry sentiment; TSMC is the core of Taiwan's AI chip manufacturing. Industry inference — not named in the reports."
       },
       "risk": {
-        "zh-TW": "外資連續賣超、AI評價修正與美國關稅政策均可能壓抑股價；信評觀察不代表訂單變化。",
-        "en": "Persistent foreign selling, AI valuation corrections and US tariff policy could weigh on shares; a ratings watch does not imply order changes."
+        "zh-TW": "美國出口管制擴大、AI投資報酬疑慮與外資持續賣超，可能壓抑評價。",
+        "en": "Wider US export controls, doubts over AI returns and persistent foreign selling could weigh on valuation."
       },
       "article_ids": [
-        "taiex-rebound-1126",
-        "sp-nvidia-creditwatch"
+        "tw-gdp-forecast-1328",
+        "us-stocks-ai-rebound-1127"
       ],
-      "relationship": "direct"
+      "relationship": "industry_inference"
+    },
+    {
+      "symbol": "2317.TW",
+      "name": {
+        "zh-TW": "鴻海",
+        "en": "Hon Hai Precision"
+      },
+      "sector": {
+        "zh-TW": "電子代工／AI伺服器",
+        "en": "EMS / AI servers"
+      },
+      "reason": {
+        "zh-TW": "AI伺服器出口是官方預估出口創高的主要動能，而美國遠端存取新規可能改變海外資料中心客戶結構；鴻海為主要AI伺服器組裝廠，屬產業推論。",
+        "en": "AI server exports drive the record export forecast, while the US remote-access rule may reshape overseas data-center customers; Hon Hai is a major AI server assembler. Industry inference only."
+      },
+      "risk": {
+        "zh-TW": "出口管制執行細節不明、客戶審查趨嚴可能延後出貨，毛利率亦受組裝業競爭影響。",
+        "en": "Unclear enforcement details and stricter customer vetting may delay shipments; assembly competition pressures margins."
+      },
+      "article_ids": [
+        "tw-gdp-forecast-1328",
+        "us-remote-access-chip-rule"
+      ],
+      "relationship": "industry_inference"
+    },
+    {
+      "symbol": "2408.TW",
+      "name": {
+        "zh-TW": "南亞科",
+        "en": "Nanya Technology"
+      },
+      "sector": {
+        "zh-TW": "記憶體",
+        "en": "Memory"
+      },
+      "reason": {
+        "zh-TW": "Counterpoint指出記憶體成本上升，美股Micron與SanDisk領漲，反映記憶體報價題材受關注；南亞科為台灣DRAM廠，屬產業推論。",
+        "en": "Counterpoint cites rising memory costs, and Micron and SanDisk led the US rally, keeping memory pricing in focus; Nanya is a Taiwanese DRAM maker. Industry inference only."
+      },
+      "risk": {
+        "zh-TW": "記憶體價格循環波動大，漲價抑制手機等終端需求可能反過來影響後續報價。",
+        "en": "Memory prices are highly cyclical, and price rises that dampen phone demand could later pressure pricing."
+      },
+      "article_ids": [
+        "memory-cost-us-smartphones",
+        "us-stocks-ai-rebound-1127"
+      ],
+      "relationship": "industry_inference"
+    },
+    {
+      "symbol": "3711.TW",
+      "name": {
+        "zh-TW": "日月光投控",
+        "en": "ASE Technology"
+      },
+      "sector": {
+        "zh-TW": "半導體封測",
+        "en": "Semiconductor packaging & testing"
+      },
+      "reason": {
+        "zh-TW": "AI晶片需求帶動台灣出口及中國電子業獲利，先進封裝與測試為AI晶片供應鏈關鍵環節；日月光投控為全球封測大廠，屬產業推論。",
+        "en": "AI chip demand lifts Taiwan's exports and China's electronics profits, and advanced packaging and testing are key AI supply-chain steps; ASE is a global leader. Industry inference only."
+      },
+      "risk": {
+        "zh-TW": "成熟製程與消費性電子需求偏弱，加上產能擴充的折舊壓力，可能抵銷AI相關成長。",
+        "en": "Weak mature-node and consumer demand plus depreciation from capacity expansion could offset AI-related growth."
+      },
+      "article_ids": [
+        "tw-gdp-forecast-1328",
+        "china-industrial-profits-oct"
+      ],
+      "relationship": "industry_inference"
+    },
+    {
+      "symbol": "2308.TW",
+      "name": {
+        "zh-TW": "台達電",
+        "en": "Delta Electronics"
+      },
+      "sector": {
+        "zh-TW": "電源／資料中心基礎設施",
+        "en": "Power / data-center infrastructure"
+      },
+      "reason": {
+        "zh-TW": "主計總處指AI基礎設施與設備仍供不應求，資料中心電源與散熱屬相關設備；台達電為電源管理大廠，屬產業推論，報導未直接提及。",
+        "en": "DGBAS says AI infrastructure and equipment remain in short supply, which includes data-center power and cooling; Delta is a leading power-management firm. Industry inference — not named in the reports."
+      },
+      "risk": {
+        "zh-TW": "AI資本支出若因融資成本或監管趨嚴而放緩，資料中心相關訂單可能遞延；評價對AI題材敏感。",
+        "en": "If AI capex slows on financing costs or tighter regulation, data-center orders could be deferred; valuation is sensitive to AI sentiment."
+      },
+      "article_ids": [
+        "tw-gdp-forecast-1328",
+        "us-remote-access-chip-rule"
+      ],
+      "relationship": "industry_inference"
     }
   ]
 }
